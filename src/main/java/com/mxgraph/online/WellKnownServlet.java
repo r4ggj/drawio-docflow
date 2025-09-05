@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, JGraph Ltd
+ * Copyright (c) 2020, JGraph Holdings Ltd
  * Copyright (c) 2020, draw.io AG
  */
 package com.mxgraph.online;

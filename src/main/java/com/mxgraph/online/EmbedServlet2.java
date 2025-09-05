@@ -1,6 +1,5 @@
 /**
- * $Id: EmbedServlet.java,v 1.18 2014/01/31 22:27:07 gaudenz Exp $
- * Copyright (c) 2011-2012, JGraph Ltd
+ * Copyright (c) 2011-2012, JGraph Holdings Ltd
  * 
  * TODO
  * 

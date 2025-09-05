@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2006-2019, JGraph Ltd
+ * Copyright (c) 2006-2019, JGraph Holdings Ltd
  */
 package com.mxgraph.online;
 

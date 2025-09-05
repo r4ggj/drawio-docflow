@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2016, JGraph Ltd
- * Copyright (c) 2006-2016, Gaudenz Alder
+ * Copyright (c) 2006-2016, JGraph Holdings Ltd
+ * Copyright (c) 2006-2016, draw.io AG
  */
 package com.mxgraph.online;
 

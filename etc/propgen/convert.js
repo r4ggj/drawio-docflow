@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-2025, JGraph Holdings Ltd
+ * Copyright (c) 2020-2025, draw.io AG
+ */
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const bidiFactory = require('bidi-js');
 const bidi = bidiFactory();

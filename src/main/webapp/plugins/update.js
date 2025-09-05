@@ -1,4 +1,8 @@
 /**
+ * Copyright (c) 2020-2025, JGraph Holdings Ltd
+ * Copyright (c) 2020-2025, draw.io AG
+ */
+/**
  * Update plugin. Use updateUrl and updateInterval (optional, default is 60000ms)
  * in the meta data of the diagram to configure the plugin. (Alternatively, the
  * update-url and update-interval URL parameters may be used instead.)

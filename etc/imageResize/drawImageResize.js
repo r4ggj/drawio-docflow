@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-2025, JGraph Holdings Ltd
+ * Copyright (c) 2020-2025, draw.io AG
+ */
 const fs = require('fs');
 const sharp = require('sharp');
 const yargs = require('yargs/yargs');

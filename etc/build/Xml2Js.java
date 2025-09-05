@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2020-2025, JGraph Holdings Ltd
+ * Copyright (c) 2020-2025, draw.io AG
+ */
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

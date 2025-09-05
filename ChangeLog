@@ -1,3 +1,7 @@
+05-SEP-2025: 28.2.0
+
+- Adds gliffy stencil mappings [DID-16201]
+
 28-AUG-2025: 28.1.2
 
 - Fixes broken image in Office app [jgraph/drawio#5219]

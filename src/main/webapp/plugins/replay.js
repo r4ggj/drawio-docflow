@@ -1,4 +1,8 @@
 /**
+ * Copyright (c) 2020-2025, JGraph Holdings Ltd
+ * Copyright (c) 2020-2025, draw.io AG
+ */
+/**
  * Replay plugin. To record steps in the Editor, click on Extras, Record.
  * To stop recording click Extras, Record again. Enter the delay between
  * the steps and use the URL that opens in the new window.
