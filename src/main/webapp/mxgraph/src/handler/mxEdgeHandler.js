@@ -278,7 +278,8 @@ mxEdgeHandler.prototype.init = function()
 		if (sourceState != null)
 		{
 			this.preferHtml = sourceState.text != null &&
-				sourceState.text.node.parentNode == this.graph.container;
+				sourceState.text.node.parentNode ==
+					this.graph.container;
 		}
 		
 		if (!this.preferHtml)
@@ -289,7 +290,8 @@ mxEdgeHandler.prototype.init = function()
 			if (targetState != null)
 			{
 				this.preferHtml = targetState.text != null &&
-				targetState.text.node.parentNode == this.graph.container;
+					targetState.text.node.parentNode ==
+						this.graph.container;
 			}
 		}
 	}
@@ -702,12 +704,8 @@ mxEdgeHandler.prototype.isHandleEnabled = function(index)
  */
 mxEdgeHandler.prototype.isHandleVisible = function(index)
 {
-	var source = this.state.getVisibleTerminalState(true);
-	var target = this.state.getVisibleTerminalState(false);
-	var geo = this.graph.getCellGeometry(this.state.cell);
-	var edgeStyle = (geo != null) ? this.graph.view.getEdgeStyle(this.state, geo.points, source, target) : null;
-
-	return edgeStyle != mxEdgeStyle.EntityRelation || index == 0 || index == this.abspoints.length - 1;
+	return this.edgeStyle != mxEdgeStyle.EntityRelation ||
+		index == 0 || index == this.abspoints.length - 1;
 };
 
 /**
@@ -723,7 +721,9 @@ mxEdgeHandler.prototype.createHandleShape = function(index)
 {
 	if (this.handleImage != null)
 	{
-		var shape = new mxImageShape(new mxRectangle(0, 0, this.handleImage.width, this.handleImage.height), this.handleImage.src);
+		var shape = new mxImageShape(new mxRectangle(0, 0,
+			this.handleImage.width, this.handleImage.height),
+			this.handleImage.src);
 		
 		// Allows HTML rendering of the images
 		shape.preserveImageAspect = false;
@@ -739,7 +739,8 @@ mxEdgeHandler.prototype.createHandleShape = function(index)
 			s -= 1;
 		}
 		
-		return new mxRectangleShape(new mxRectangle(0, 0, s, s), mxConstants.HANDLE_FILLCOLOR, mxConstants.HANDLE_STROKECOLOR);
+		return new mxRectangleShape(new mxRectangle(0, 0, s, s),
+			mxConstants.HANDLE_FILLCOLOR, mxConstants.HANDLE_STROKECOLOR);
 	}
 };
 
@@ -2538,9 +2539,14 @@ mxEdgeHandler.prototype.refresh = function()
 {
 	if (this.state != null)
 	{
+		var source = this.state.getVisibleTerminalState(true);
+		var target = this.state.getVisibleTerminalState(false);
+		var geo = this.graph.getCellGeometry(this.state.cell);
+		this.edgeStyle = (geo != null) ? this.graph.view.getEdgeStyle(
+			this.state, geo.points, source, target) : null;
 		this.abspoints = this.getSelectionPoints(this.state);
 		this.points = [];
-
+		
 		if (this.shape != null)
 		{
 			this.shape.isDashed = this.isSelectionDashed();
@@ -2566,7 +2572,8 @@ mxEdgeHandler.prototype.refresh = function()
 			this.virtualBends = null;
 		}
 		
-		if (this.isHandlesVisible())
+		if (this.isHandlesVisible() && this.edgeStyle !=
+			mxEdgeStyle.EntityRelation)
 		{
 			this.virtualBends = this.createVirtualBends();
 		}

@@ -1279,6 +1279,10 @@ html body div.geBtn.geSmallBanner {
 	height: 100%;
 }
 
+td.mxPopupMenuIcon .geStyleMenuItem {
+	margin: auto;
+}
+
 td.mxPopupMenuIcon .geStyleMenuItem>div {
 	background-position: bottom left;
 	background-repeat: repeat-x;

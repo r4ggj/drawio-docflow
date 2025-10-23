@@ -5922,9 +5922,12 @@
 						
 						for (var i = 0; i < dependentProps.length; i++)
 						{
-							var propVal = state.style[dependentProps[i]];
-							dependentPropsDefVal.push(properties[dependentProps[i]].subDefVal);
-							dependentPropsVals.push(propVal != null? propVal.split(',') : []);
+							if (properties[dependentProps[i]] != null)
+							{
+								var propVal = state.style[dependentProps[i]];
+								dependentPropsDefVal.push(properties[dependentProps[i]].subDefVal);
+								dependentPropsVals.push(propVal != null? propVal.split(',') : []);
+							}
 						}
 						
 						prop.dependentPropsDefVal = dependentPropsDefVal;

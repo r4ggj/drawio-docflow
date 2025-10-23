@@ -325,7 +325,7 @@
 					30, 320, '', 'Navigation Bar Vertical', null, null, dt + 'navigation bar vertical'),
 			this.createVertexTemplateEntry(s6 + 'navigation_bar_6;fillColorStyles=fillColor2;strokeColorStyles=strokeColor2;fillColor=#1A1A1A;strokeColor=#999999;fillColor2=#999999;strokeColor2=#ffffff;sketch=0;', 
 					185, 30, '', 'Navigation Bar', null, null, dt + 'navigation bar horizontal'),
-			this.createVertexTemplateEntry(s2 + 'progressBar;strokeColor=#33b5e5;dx1=0.8;dx2=0.6;strokeWidth=2;fillColor=none;strokeColor2=#444444;', 
+			this.createVertexTemplateEntry(s2 + 'progressBar;strokeColor=#33b5e5;dx1=0.8;dx2=0.6;fillColor=none;strokeColor2=#444444;', 
 					185, 5, '', 'Progress Bar', null, null, dt + 'progress bar'),
 			this.createVertexTemplateEntry(s2 + 'progressScrubberDisabled;dx=0.3;fillColor=#33b5e5;strokeColor=none;strokeColor2=#444444;', 
 					185, 16, '', 'Progress Scrubber Disabled', null, null, dt + 'progress scrubber disabled'),

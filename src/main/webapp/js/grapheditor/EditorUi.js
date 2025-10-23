@@ -677,6 +677,49 @@ EditorUi = function(editor, container, lightbox)
 			graph.pasteCellStyles(cells);
 		});
 
+		// Shows current edge style and shape in toolbar
+		var edgeStyleImage = null;
+		var edgeShapeImage = null;
+
+		var updateEdgeImages = mxUtils.bind(this, function()
+		{
+			if (this.toolbar != null)
+			{
+				var ss = this.getSelectionState();
+
+				if (graph.isEnabled() && ss.edges.length > 0)
+				{
+					if (this.toolbar.edgeStyleMenu != null)
+					{
+						this.toolbar.edgeStyleMenu.style.backgroundImage = 'url(' +
+							this.getImageForEdgeStyle(ss.style) + ')';
+					}
+
+					if (this.toolbar.edgeShapeMenu != null)
+					{
+						this.toolbar.edgeShapeMenu.style.backgroundImage = 'url(' +
+							this.getImageForEdgeShape(ss.style) + ')';
+					}
+				}
+				else
+				{
+					if (this.toolbar.edgeStyleMenu != null)
+					{
+						this.toolbar.edgeStyleMenu.style.backgroundImage =
+							'url(' + edgeStyleImage + ')';
+					}
+
+					if (this.toolbar.edgeShapeMenu != null)
+					{
+						this.toolbar.edgeShapeMenu.style.backgroundImage ='url(' + edgeShapeImage + ')';
+					}
+				}
+			}
+		});
+
+		graph.selectionModel.addListener(mxEvent.CHANGE, updateEdgeImages);
+		graph.getModel().addListener(mxEvent.CHANGE, updateEdgeImages);
+
 		this.addListener('styleChanged', mxUtils.bind(this, function(sender, evt)
 		{
 			var force = evt.getProperty('force');
@@ -696,89 +739,25 @@ EditorUi = function(editor, container, lightbox)
 					Menus.prototype.defaultFont);
 				this.toolbar.setFontSize(graph.currentVertexStyle['fontSize'] ||
 					Menus.prototype.defaultFontSize);
+				var ss = this.getSelectionState();
 				
 				if (this.toolbar.edgeStyleMenu != null)
 				{
-					if (graph.currentEdgeStyle['edgeStyle'] == 'orthogonalEdgeStyle' &&
-						graph.currentEdgeStyle['curved'] == '1')
+					edgeStyleImage = this.getImageForEdgeStyle(graph.currentEdgeStyle);
+
+					if (ss.edges.length == 0)
 					{
-						this.toolbar.setMenuIcon(this.toolbar.edgeStyleMenu,
-							Format.curvedImage.src);
-					}
-					else if (graph.currentEdgeStyle['edgeStyle'] == 'straight' ||
-						graph.currentEdgeStyle['edgeStyle'] == 'none' ||
-						graph.currentEdgeStyle['edgeStyle'] == null)
-					{
-						this.toolbar.setMenuIcon(this.toolbar.edgeStyleMenu,
-							Format.straightImage.src);
-					}
-					else if (graph.currentEdgeStyle['edgeStyle'] == 'entityRelationEdgeStyle')
-					{
-						this.toolbar.setMenuIcon(this.toolbar.edgeStyleMenu,
-							Format.entityImage.src);
-					}
-					else if (graph.currentEdgeStyle['edgeStyle'] == 'elbowEdgeStyle')
-					{
-						if (graph.currentEdgeStyle['elbow'] == 'vertical')
-						{
-							this.toolbar.setMenuIcon(this.toolbar.edgeStyleMenu,
-								Format.verticalElbowImage.src);
-						}
-						else
-						{
-							this.toolbar.setMenuIcon(this.toolbar.edgeStyleMenu,
-								Format.horizontalElbowImage.src);
-						}
-					}
-					else if (graph.currentEdgeStyle['edgeStyle'] == 'isometricEdgeStyle')
-					{
-						if (graph.currentEdgeStyle['elbow'] == 'vertical')
-						{
-							this.toolbar.setMenuIcon(this.toolbar.edgeStyleMenu,
-								Format.verticalIsometricImage.src);
-						}
-						else
-						{
-							this.toolbar.setMenuIcon(this.toolbar.edgeStyleMenu,
-								Format.horizontalIsometricImage.src);
-						}
-					}
-					else
-					{
-						this.toolbar.setMenuIcon(this.toolbar.edgeStyleMenu,
-							Format.orthogonalImage.src);
+						this.toolbar.edgeStyleMenu.style.backgroundImage = 'url(' + edgeStyleImage + ')';
 					}
 				}
 				
 				if (this.toolbar.edgeShapeMenu != null)
 				{
-					if (graph.currentEdgeStyle['shape'] == 'link')
+					edgeShapeImage = this.getImageForEdgeShape(graph.currentEdgeStyle);
+
+					if (ss.edges.length == 0)
 					{
-						this.toolbar.setMenuIcon(this.toolbar.edgeShapeMenu, Format.linkEdgeImage.src);
-					}
-					else if (graph.currentEdgeStyle['shape'] == 'flexArrow')
-					{
-						this.toolbar.setMenuIcon(this.toolbar.edgeShapeMenu, Format.arrowImage.src);
-					}
-					else if (graph.currentEdgeStyle['shape'] == 'arrow')
-					{
-						this.toolbar.setMenuIcon(this.toolbar.edgeShapeMenu, Format.simpleArrowImage.src);
-					}
-					else if (graph.currentEdgeStyle['shape'] == 'filledEdge')
-					{
-						this.toolbar.setMenuIcon(this.toolbar.edgeShapeMenu, Format.filledEdgeImage.src);
-					}
-					else if (graph.currentEdgeStyle['shape'] == 'pipe')
-					{
-						this.toolbar.setMenuIcon(this.toolbar.edgeShapeMenu, Format.pipeEdgeImage.src);
-					}
-					else if (graph.currentEdgeStyle['shape'] == 'wire')
-					{
-						this.toolbar.setMenuIcon(this.toolbar.edgeShapeMenu, Format.wireEdgeImage.src);
-					}
-					else
-					{
-						this.toolbar.setMenuIcon(this.toolbar.edgeShapeMenu, Format.connectionImage.src);
+						this.toolbar.edgeShapeMenu.style.backgroundImage = 'url(' + edgeShapeImage + ')';
 					}
 				}
 			}
@@ -1239,9 +1218,7 @@ EditorUi.prototype.createSelectionState = function()
  */
 EditorUi.prototype.findCommonProperties = function(cell, properties, addAll, sstate)
 {
-	if (properties == null) return;
-	
-	var handleCustomProp = mxUtils.bind(this, function(custProperties)
+	var addProperties = mxUtils.bind(this, function(custProperties)
 	{
 		if (custProperties != null)
 		{
@@ -1256,49 +1233,95 @@ EditorUi.prototype.findCommonProperties = function(cell, properties, addAll, sst
 			{
 				for (var key in properties)
 				{
-					var found = false;
-					
-					for (var i = 0; i < custProperties.length; i++)
+					if (key != null)
 					{
-						if (custProperties[i].name == key &&
-							custProperties[i].type == properties[key].type)
+						var found = false;
+						
+						for (var i = 0; i < custProperties.length; i++)
 						{
-							found = true;
-							break;
+							if (custProperties[i].name == key &&
+								custProperties[i].type == properties[key].type)
+							{
+								found = true;
+								break;
+							}
 						}
-					}
-					
-					if (!found)
-					{
-						delete properties[key];
+						
+						if (!found)
+						{
+							delete properties[key];
+						}
 					}
 				}
 			}
 		}
 	});
 	
-	var view = this.editor.graph.view;
+	var graph = this.editor.graph;
+	var view = graph.view;
 	var state = view.getState(cell);
 	
 	if (state != null && state.shape != null)
 	{
-		//Add common properties to all shapes
+		// Adds common properties to all shapes
 		if (!state.shape.commonCustomPropAdded)
 		{
 			state.shape.commonCustomPropAdded = true;
 			state.shape.customProperties = state.shape.customProperties || [];
 			
+			// Adds custom colors from stencils
+			if (state.shape != null && state.shape.stencil != null &&
+				state.shape.stencil.desc != null)
+			{
+				var stencil = state.shape.stencil
+				
+				var getStencilColors = mxUtils.bind(this, function(nodeName)
+				{
+					var nodes = stencil.desc.getElementsByTagName(nodeName);
+					var props = [];
+
+					for (var i = 0; i < nodes.length; i++)
+					{
+						var name = nodes[i].getAttribute('color');
+
+						if (!mxUtils.isValidColor(name))
+						{
+							var label = nodes[i].getAttribute('name');
+							label = (label != null) ? label :
+								Editor.getLabelForStylename(name);
+							var defaultColor = nodes[i].getAttribute('default');
+							defaultColor = (defaultColor != null) ? defaultColor :
+								stencil.getDefaultColorValue(nodes[i], graph);
+							props.push({name: name, type: 'color', primary:
+								nodes[i].getAttribute('primary') != 'false',
+								defVal: defaultColor, defaultColor: defaultColor,
+								undefinedColor: defaultColor, dispName: label});
+						}
+					}
+					
+					return props;
+				});
+
+				Array.prototype.push.apply(state.shape.customProperties,
+						getStencilColors('fillcolor'))
+				Array.prototype.push.apply(state.shape.customProperties,
+						getStencilColors('strokecolor'))
+			}
+
+			// Adds common vertex/edge properties
 			if (state.cell.vertex)
 			{
-				Array.prototype.push.apply(state.shape.customProperties, Editor.commonVertexProperties);					
+				Array.prototype.push.apply(state.shape.customProperties,
+					Editor.commonVertexProperties);					
 			}
 			else
 			{
-				Array.prototype.push.apply(state.shape.customProperties, Editor.commonEdgeProperties);
+				Array.prototype.push.apply(state.shape.customProperties,
+					Editor.commonEdgeProperties);
 			}
 		}
-		
-		handleCustomProp(state.shape.customProperties);
+
+		addProperties(state.shape.customProperties);
 	}
 	
 	//This currently is not needed but let's keep it in case we needed in the future
@@ -1308,7 +1331,7 @@ EditorUi.prototype.findCommonProperties = function(cell, properties, addAll, sst
 	{
 		try
 		{
-			handleCustomProp(JSON.parse(userCustomProp));
+			addProperties(JSON.parse(userCustomProp));
 		}
 		catch(e)
 		{
@@ -2387,7 +2410,7 @@ EditorUi.prototype.updateCssForMarker = function(markerDiv, prefix, shape, marke
 };
 
 /**
- * Returns true if the given event should start editing. This implementation returns true.
+ * Returns the image for the given marker, fill and shape.
  */
 EditorUi.prototype.getImageForMarker = function(marker, fill, shape)
 {
@@ -2516,6 +2539,81 @@ EditorUi.prototype.getImageForMarker = function(marker, fill, shape)
 	else
 	{
 		result = null;
+	}
+
+	return result;
+};
+
+/**
+ * Returns the image for the edge shape in the given style.
+ */
+EditorUi.prototype.getImageForEdgeShape = function(style)
+{
+	var result = Format.connectionImage.src;
+
+	if (style.shape == 'link')
+	{
+		result = Format.linkEdgeImage.src;
+	}
+	else if (style.shape == 'flexArrow')
+	{
+		result = Format.arrowImage.src;
+	}
+	else if (style.shape == 'arrow')
+	{
+		result = Format.simpleArrowImage.src;
+	}
+	else if (style.shape == 'filledEdge')
+	{
+		result = Format.filledEdgeImage.src;
+	}
+	else if (style.shape == 'pipe')
+	{
+		result = Format.pipeEdgeImage.src;
+	}
+	else if (style.shape == 'wire')
+	{
+		result = Format.wireEdgeImage.src;
+	}
+
+	return result;
+};
+
+/**
+ * Returns the image for the edge style in the given style.
+ */
+EditorUi.prototype.getImageForEdgeStyle = function(style)
+{
+	var result = Format.orthogonalImage.src;
+	var es = mxUtils.getValue(style, mxConstants.STYLE_EDGE, null);
+	
+	if (mxUtils.getValue(style, mxConstants.STYLE_NOEDGESTYLE, null) == '1')
+	{
+		es = null;
+	}
+
+	if (es == 'orthogonalEdgeStyle' && mxUtils.getValue(style,
+		mxConstants.STYLE_CURVED, null) == '1')
+	{
+		result = Format.curvedImage.src;
+	}
+	else if (es == 'straight' || es == 'none' || es == null)
+	{
+		result = Format.straightImage.src;
+	}
+	else if (es == 'entityRelationEdgeStyle')
+	{
+		result = Format.entityImage.src;
+	}
+	else if (es == 'elbowEdgeStyle')
+	{
+		result = (mxUtils.getValue(style, mxConstants.STYLE_ELBOW, null) == 'vertical') ?
+			Format.verticalElbowImage.src : Format.horizontalElbowImage.src;
+	}
+	else if (es == 'isometricEdgeStyle')
+	{
+		result = (mxUtils.getValue(style, mxConstants.STYLE_ELBOW, null) == 'vertical') ?
+			Format.verticalIsometricImage.src : Format.horizontalIsometricImage.src;
 	}
 
 	return result;

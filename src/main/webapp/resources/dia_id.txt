@@ -1322,3 +1322,4 @@ confARemImpPages=Ingat halaman yang diimpor
 delCachedData=Hapus Data yang Disinggahkan
 k15tPagesError=Galat saat mengambil halaman Scroll. Apakah Scroll Versions terpasang?
 drawioUninstalled=draw.io telah dibongkar instalasinya, editor kini akan ditutup
+confAttachmentArchived=Diagram belongs to an archived page and cannot be loaded. Restore the page (ID: {1}) to load it.

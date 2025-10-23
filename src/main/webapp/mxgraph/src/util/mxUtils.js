@@ -2326,11 +2326,6 @@ var mxUtils =
 			color != 'transparent')
 		{
 			var rgb = mxUtils.parseColor(color);
-
-
-			console.log('parsedColor', color, rgb);
-
-
 			rgb.a = (replaceExisting) ? alpha : (rgb.a * alpha);
 			color = 'rgba(' + rgb.r + ',' + rgb.g + ',' +
 				rgb.b + ',' + rgb.a + ')';
@@ -4197,7 +4192,35 @@ var mxUtils =
 			}
 		}
 	},
-	
+
+	/**
+	 * Parses a comma-separated list of CSS color values, including hex, named colors,
+	 * rgb(a), var() with fallbacks, and light-dark() functions.
+	 */
+	parseColorList: function(colorString)
+	{
+		var colors = [];
+
+		// Tokenize the string to handle nested functions correctly.
+		var tokenizer = /var\([^)]+\)|light-dark\([^)]+\)|(?:rgba?|hsla?|hwb|lab|lch|color)\([^)]+\)|#[0-9a-f]{3,8}|[a-z-]+/gi;
+		var matches = colorString.match(tokenizer);
+
+		if (!matches)
+		{
+			// Handle cases where the string might not contain any recognized color formats.
+			if (colorString.trim() !== '')
+			{
+				colors.push(colorString.trim());
+			}
+
+			return colors;
+		}
+		else
+		{
+			return matches;
+		}
+	},
+
 	/**
 	 * Function: parseColor
 	 * 

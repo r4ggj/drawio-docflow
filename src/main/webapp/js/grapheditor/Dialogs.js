@@ -485,7 +485,6 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 			if (!isNaN(newValue) && newValue !== '' &&
 				newValue >= 0 && newValue <= 100)
 			{
-				toggleDarkColor(true, false);
 				setDefaultSelected(false);
 				
 				input.value = mxUtils.rgba2hex(mxUtils.addAlphaToColor(

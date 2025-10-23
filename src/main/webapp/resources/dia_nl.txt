@@ -1322,3 +1322,4 @@ confARemImpPages=Geïmporteerde pagina's onthouden
 delCachedData=Tijdelijke opgeslag wissen
 k15tPagesError=Error retrieving Scroll pages. Is Scroll Versions installed?
 drawioUninstalled=draw.io has been uninstalled, the editor will now close
+confAttachmentArchived=Diagram belongs to an archived page and cannot be loaded. Restore the page (ID: {1}) to load it.

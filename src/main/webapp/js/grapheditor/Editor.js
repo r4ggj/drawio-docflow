@@ -453,6 +453,31 @@ Editor.extractGraphModelFromPng = function(data)
 };
 
 /**
+ * Parses a camel case name with an optional trailing number and returns a
+ * user-friendly label.
+ */
+Editor.getLabelForStylename = function(name)
+{
+	var m = name.match(/^([A-Za-z]*)(\d*)$/);
+
+	if (m != null && m.length > 1)
+	{
+		var words = mxUtils.trim(m[1]
+			.replace(/([a-z])([A-Z])/g, '$1 $2')
+			.replace(/\b\w/g, function(token)
+			{
+				return token.toUpperCase();
+			})
+			.replace(/Color[s]?/g, ''));
+		var num = (m[2].length > 0 ?
+			' (' +  m[2] + ')' : '');
+		name = mxUtils.trim(words + num);
+	}
+	
+	return name;
+};
+
+/**
  * Soundex algorithm for strings.
  * See https://www.codedrome.com/the-soundex-algorithm-in-javascript/
  */

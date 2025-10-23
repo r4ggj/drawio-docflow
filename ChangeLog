@@ -1,4 +1,15 @@
-14-OCT-2025L 28.2.7
+23-OCT-2025 28.2.8
+
+- Hides inactive virtual bends for entity relations
+- Fixes preview button in smart template section
+- Fixes possible NPE for dependent properties
+- Improves search for fully qualified shape names
+- Fixes color picker for valid shape colors
+- Fixes watch new file handles, adds desktopAutoSync switch (beta) [jgraph/drawio-desktop#2227]
+- Fixes possible stale draft in desktop
+- Adds open recent in simple UI for desktop [jgraph/drawio-desktop#2221]
+
+14-OCT-2025: 28.2.7
 
 - Adds support for animations on multiple pages [jgraph/drawio#5262]
 - Fixes q.getStatus is not a function in OneDriveClient

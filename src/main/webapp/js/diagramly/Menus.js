@@ -4689,8 +4689,10 @@
 			
 			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
-				editorUi.menus.addMenuItems(menu, ['new', 'open', '-',
-					'synchronize', 'properties', '-',
+				editorUi.menus.addMenuItems(menu, ['new', 'open'], parent);
+				editorUi.menus.addSubmenu('openRecent', menu, parent);
+				editorUi.menus.addMenuItems(menu,
+					['-', 'synchronize', 'properties', '-',
 					'save', 'saveAs', '-'], parent);
 			}
 			else if (editorUi.mode == App.MODE_ATLAS)

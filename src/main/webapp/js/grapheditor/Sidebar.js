@@ -940,6 +940,13 @@ Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, er
 {
 	if (this.taglist != null && searchTerms != null)
 	{
+		// Improves search for fully qualified names of the form mxgraph.foo.bar
+		if (searchTerms.substring(0, 8) == 'mxgraph.' && searchTerms.indexOf(' ') < 0 &&
+			searchTerms.lastIndexOf('.') > 8)
+		{
+			searchTerms = searchTerms.substring(8).replace(/\./g, ' ');
+		}
+		
 		var tmp = searchTerms.toLowerCase().split(' ');
 		var dict = new mxDictionary();
 		var max = (page + 1) * count;

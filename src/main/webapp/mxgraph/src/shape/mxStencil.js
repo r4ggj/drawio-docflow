@@ -549,41 +549,86 @@ mxStencil.prototype.parseColor = function(canvas, shape, node, value, graph)
 	}
 	else if (shape.style != null && !mxUtils.isValidColor(value))
 	{
-		var defaultValue = node.getAttribute('default');
-		var tmp = mxUtils.getValue(shape.style, value);
-
-		if (tmp == null)
-		{
-			// Handles color=none in the style vs. not defined in which case default is used
-			// Note that in the case of none the resolved style does not contain the key
-			var style = (shape != null && shape.state != null) ? shape.state.cell.style : null;
-			tmp = (defaultValue == null || (style != null && (style.indexOf(';' + value + '=') >= 0 ||
-				style.substring(0, value.length + 1) == value + '='))) ? mxConstants.NONE : defaultValue;
-		}
+		var tmp = this.getColorValue(shape, node, value, graph);
 		
 		if (tmp == 'default')
 		{
-			if (graph != null)
-			{
-				if (node.nodeName == 'fillcolor')
-				{
-					tmp = graph.shapeBackgroundColor;
-				}
-				else
-				{
-					tmp = graph.shapeForegroundColor;
-				}
-			}
-			else
-			{
-				tmp = '#ffffff';
-			}
+			tmp = this.getDefaultColorValue(node, graph);
 		}
 		
 		value = tmp;
 	}
 	
 	return value;
+};
+
+/**
+ * Function: getStyleWithNone
+ * 
+ * Returns the given style including 'none' values.
+ */
+mxStencil.prototype.getStyleWithNone = function(shape, key, graph)
+{
+	if (shape != null && shape.state != null &&
+		this.cachedCellStyle != shape.state.cell.style ||
+		this.cachedUnresolvedStyle == null)
+	{
+		this.cachedCellStyle = shape.state.cell.style;
+		this.cachedUnresolvedStyle = graph.getCellStyle(
+			shape.state.cell, false);
+	}
+
+	return this.cachedUnresolvedStyle != null ?
+		this.cachedUnresolvedStyle[key] : null;
+};
+
+/**
+ * Function: getColorValue
+ * 
+ * Returns the value for the given color node.
+ */
+mxStencil.prototype.getColorValue = function(shape, node, value, graph)
+{
+	var defaultValue = node.getAttribute('default');
+	var result = mxUtils.getValue(shape.style, value);
+
+	if (result == null && graph != null)
+	{
+		var temp = this.getStyleWithNone(shape, value, graph);
+		result = (defaultValue == null || temp != null) ?
+			temp : defaultValue;
+	}
+	else if (result == 'default' && defaultValue != null)
+	{
+		// Resolves default keyword to default value
+		result = defaultValue;
+	}
+	
+	return result;
+};
+
+/**
+ * Function: drawNode
+ *
+ * Draws this stencil inside the given bounds.
+ */
+mxStencil.prototype.getDefaultColorValue = function(node, graph)
+{
+	var result = '#ffffff';
+
+	if (graph != null)
+	{
+		if (node.nodeName == 'fillcolor')
+		{
+			result = graph.shapeBackgroundColor;
+		}
+		else
+		{
+			result = graph.shapeForegroundColor;
+		}
+	}
+	
+	return result;
 };
 
 /**
