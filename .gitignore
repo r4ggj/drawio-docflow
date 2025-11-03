@@ -1,5 +1,13 @@
 bin
 build
+# ganguojiang start
+# 原始.gitignore忽略了build文件夹，里面的文件的源代码不在项目内，不知道有用没，不能忽略。之后还改造了打包，将其他文件打包到etc/build目录, 其他打包的文件需要忽略
+!build/build.properties
+!build/build.xml
+!build/compiler.jar
+!build/Xml2Js.classes
+!build/Xml2Js.java
+# ganguojiang end
 classes
 node_modules
 .vscode/settings.json
