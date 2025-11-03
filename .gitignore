@@ -7,6 +7,9 @@ build
 !build/compiler.jar
 !build/Xml2Js.classes
 !build/Xml2Js.java
+# 增加package，dist文件夹是改造webpack打包方式改动的
+package
+dist
 # ganguojiang end
 classes
 node_modules
