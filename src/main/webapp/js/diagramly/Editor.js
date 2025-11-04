@@ -25,6 +25,7 @@
 		
 	/**
 	 * Known file types.
+	 * zhaodeezhu 文件类型只保留html
 	 */
 	Editor.prototype.diagramFileTypes = [
 		{description: 'diagramXmlDesc', extension: 'drawio', mimeType: 'text/xml'},
@@ -301,6 +302,7 @@
 
 	/**
 	 * Common properties for all edges.
+	 * zhaodeezhu 顶点和边的共用属性
 	 */
 	Editor.commonProperties = [
 		{name: 'enumerate', dispName: 'Enumerate', type: 'bool', defVal: false, onChange: function(graph)
@@ -375,6 +377,7 @@
 
 	/**
 	 * Common properties for all edges.
+	 * zhaodeezhu 所有边的通用属性
 	 */
 	Editor.commonEdgeProperties = [
         {type: 'separator'},
@@ -413,6 +416,7 @@
 
 	/**
 	 * Common properties for all vertices.
+	 * zhaodeezhu 顶点的通用属性 connectable
 	 */
 	Editor.commonVertexProperties = [
         {name: 'colspan', dispName: 'Colspan', type: 'int', min: 1, defVal: 1, isVisible: function(state, format)
@@ -473,9 +477,11 @@
         {name: 'portConstraintRotation', dispName: 'Rotate Constraint', type: 'bool', defVal: false},
         {name: 'connectable', dispName: 'Connectable', type: 'bool', getDefaultValue: function(state, format)
         {
+					// return false;
         	var cell = (state.vertices.length > 0 && state.edges.length == 0) ? state.vertices[0] : null;
         	var graph = format.editorUi.editor.graph;
-        	
+					console.log('我是单元格');
+        	console.log(cell);
         	return graph.isCellConnectable(cell);
         }, isVisible: function(state, format)
         {
@@ -3371,7 +3377,7 @@
 	 *
 	 */
 	Editor.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
-		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid,
+		ignoreSelection, scale = 3, transparentBackground, addShadow, converter, graph, border, noCrop, grid,
 		keepTheme, exportType, cells)
 	{
 		try
@@ -4584,6 +4590,7 @@
 
 		/**
 		 * Create Properties Panel
+		 * zhaodeezhu 属性面板
 		 */
 		StyleFormatPanel.prototype.addProperties = function(div, properties, state)
 		{
@@ -4646,7 +4653,6 @@
 							changedVals.push(allVals.length);
 						}
 					}
-
 					graph.setCellStyles(pName, newVal, graph.getSelectionCells());
 					changedProps.push(pName);
 					changedVals.push(newVal);
@@ -4681,7 +4687,6 @@
 					{
 						prop.onChange(graph, newVal);
 					}
-					
 					that.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', changedProps,
 						'values', changedVals, 'cells', graph.getSelectionCells()));
 				}
@@ -4801,6 +4806,8 @@
 				
 				mxEvent.addListener(input, 'change', function() 
 				{
+					console.log('我选中执行了-----', pName, prop, input.checked);
+					// zhaodeezhu1
 					applyStyleVal(pName, input.checked? '1' : '0', prop);
 				});
 				return input;
@@ -5486,7 +5493,7 @@
 				btn.style.width = '210px';
 				btn.style.marginBottom = '2px';
 				
-				div.appendChild(btn);
+				//div.appendChild(btn);
 			}
 			
 			var state = (ss.cells.length == 1) ? graph.view.getState(ss.cells[0]) : null;

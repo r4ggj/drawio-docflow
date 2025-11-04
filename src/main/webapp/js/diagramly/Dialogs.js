@@ -5,6 +5,7 @@
 
 var StorageDialog = function(editorUi, fn, rowLimit)
 {
+	console.log('我已经被执行了-------')
 	rowLimit = (rowLimit != null) ? rowLimit : 2;
 	
 	var div = document.createElement('div');
@@ -100,11 +101,16 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 			}
 		}
 		
+		// 初始化按钮，为按钮添加点击事件
 		function initButton()
 		{
 			mxEvent.addListener(button, 'click', (clientFn != null) ? clientFn : function()
 			{
+				console.log('我是模式的选择-----')
+				console.log(mode)
+				// 开始判断模式
 				// Special case: Redirect all drive users to draw.io pro
+				// google
 				if (mode == App.MODE_GOOGLE && !editorUi.isDriveDomain())
 				{
 					window.location.hostname = DriveClient.prototype.newAppHostname;
@@ -131,6 +137,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 				}
 				else
 				{
+					console.log('我是选择的本地----->')
 					editorUi.setMode(mode, true);
 					fn();
 				}
@@ -197,6 +204,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 
 	var hd = document.createElement('p');
 	hd.style.cssText = 'font-size:22px;padding:4px 0 16px 0;margin:0;color:gray;';
+	// 设置标题文本样式
 	mxUtils.write(hd, mxResources.get('saveDiagramsTo') + ':');
 	div.appendChild(hd);
 	
@@ -260,6 +268,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	mxUtils.write(later, mxResources.get('decideLater'));
 	div.appendChild(later);
 
+	// zhaodeezhu 点击稍后再决定的按钮
 	mxEvent.addListener(later, 'click', function()
 	{
 		editorUi.hideDialog();
@@ -299,6 +308,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
  */
 var SplashDialog = function(editorUi)
 {
+	console.log('我被执行了-------->')
 	var div = document.createElement('div');
 	div.style.textAlign = 'center';
 	
@@ -325,7 +335,7 @@ var SplashDialog = function(editorUi)
 	buttons.style.padding = '18px 0px 24px 0px';
 	
 	var service = '';
-	
+	// editorUi就是这个App
 	if (editorUi.mode == App.MODE_GOOGLE)
 	{
 		logo.src = IMAGE_PATH + '/google-drive-logo.svg';
@@ -368,9 +378,11 @@ var SplashDialog = function(editorUi)
 	}
 	else
 	{
+		// 执行存储到本地
 		logo.src = IMAGE_PATH + '/osa_drive-harddisk.png';
 		buttons.style.paddingBottom = '10px';
 		buttons.style.paddingTop = '30px';
+		// 获取文本描述
 		service = mxResources.get('device');
 	}
 
@@ -408,7 +420,7 @@ var SplashDialog = function(editorUi)
 		tbody.appendChild(row);
 		table.appendChild(tbody);
 		div.appendChild(table);
-	
+		// 改变原有源的按钮执行，会返回到上一级
 		var change = document.createElement('span');
 		change.style.cssText = 'position:absolute;cursor:pointer;bottom:27px;color:gray;userSelect:none;text-align:center;left:50%;';
 		mxUtils.setPrefixedStyle(change.style, 'transform', 'translate(-50%,0)');
@@ -432,9 +444,11 @@ var SplashDialog = function(editorUi)
 
 	mxUtils.write(btn, mxResources.get('createNewDiagram'));
 	
+	// 点击创建新绘图按钮
 	mxEvent.addListener(btn, 'click', function()
 	{
-		editorUi.hideDialog();
+		console.log('我是新建的图像点击')
+		// editorUi.hideDialog();
 		editorUi.actions.get('new').funct();
 	});
 	
@@ -449,7 +463,7 @@ var SplashDialog = function(editorUi)
 	btn.style.width = '340px';
 	
 	mxUtils.write(btn, mxResources.get('openExistingDiagram'));
-	
+	// 点击打开现有绘图按钮
 	mxEvent.addListener(btn, 'click', function()
 	{
 		editorUi.actions.get('open').funct();
@@ -2619,10 +2633,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	rightHighlight = (rightHighlight != null) ? rightHighlight : (Editor.isDarkMode() ? '#a2a2a2' : '#e6eff8');
 	rightHighlightBorder = (rightHighlightBorder != null) ? rightHighlightBorder : (Editor.isDarkMode() ? '1px dashed #00a8ff' : '1px solid #ccd9ea');
 	templateFile = (templateFile != null) ? templateFile : EditorUi.templateFile;
+	console.log('我是模板文件');
+	console.log(EditorUi.templateFile)
 	
 	var outer = document.createElement('div');
 	outer.style.userSelect = 'none';
 	outer.style.height = '100%';
+	outer.style.display = 'none';
 	
 	var header = document.createElement('div');
 	header.style.whiteSpace = 'nowrap';
@@ -2632,7 +2649,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		outer.appendChild(header);
 	}
-	
+	// 创建图标
 	var logo = document.createElement('img');
 	logo.setAttribute('border', '0');
 	logo.setAttribute('align', 'absmiddle');
@@ -2682,15 +2699,15 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		header.appendChild(logo);
 	}
-	
+	// 将图标和文件名的描述文字加入到框中去
 	if (showName)
 	{
 		mxUtils.write(header, (smallScreen? mxResources.get('name') : ((editorUi.mode == null || editorUi.mode == App.MODE_GOOGLE ||
 				editorUi.mode == App.MODE_BROWSER) ? mxResources.get('diagramName') : mxResources.get('filename'))) + ':');
 	}
-	
-	var ext = '.drawio';
-	
+	// 处理拓展名
+	// var ext = '.drawio';
+	var ext = '.html';
 	if (editorUi.mode == App.MODE_GOOGLE && editorUi.drive != null)
 	{
 		ext = editorUi.drive.extension;
@@ -2725,6 +2742,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	nameInput.style.marginLeft = '10px';
 	nameInput.style.width = (compact || smallScreen) ? '144px' : '244px';
 	
+	/** 我是nameinput */
+	console.log('我是nameinput');
+	console.log(nameInput);
+
 	this.init = function()
 	{
 		if (showName)
@@ -2750,6 +2771,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 	};
 	
+	// 添加文件类型的下拉列表
 	// Adds filetype dropdown
 	if (showName)
 	{
@@ -2769,20 +2791,22 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				header.appendChild(typeSelect);
 			}
 			
-			if (editorUi.editor.fileExtensions != null)
-			{
-				var hint = FilenameDialog.createTypeHint(editorUi,
-					nameInput, editorUi.editor.fileExtensions);
-				hint.style.marginTop = '12px';
+			// zhaodeezhu 去掉提醒的图标，这个主要是用于
+			// if (editorUi.editor.fileExtensions != null)
+			// {
+			// 	var hint = FilenameDialog.createTypeHint(editorUi,
+			// 		nameInput, editorUi.editor.fileExtensions);
+			// 	hint.style.marginTop = '12px';
 				
-				header.appendChild(hint);
-			}
+			// 	header.appendChild(hint);
+			// }
 		}
 	}
 
 	var hasTabs = false;
 	var i0 = 0;
 	
+	// 添加展示的参数模板
 	// Dynamic loading
 	function addTemplates(smallSize)
 	{
@@ -2795,6 +2819,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		var first = true;
 		
 		//TODO support paging of external templates
+		console.log('我是模板-----')
+		console.log(templates);
 		if (templates != null)
 		{
 			while (i0 < templates.length && (first || mxUtils.mod(i0, 30) != 0))
@@ -2828,6 +2854,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		zIndex: 2e9 // The z-index (defaults to 2000000000)
 	});
 	
+	// 创建按钮
 	var createButton = mxUtils.button(createButtonLabel || mxResources.get('create'), function()
 	{
 		createButton.setAttribute('disabled', 'disabled');
@@ -3009,12 +3036,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	
 	var templateLibs = null;
 	var templateClibs = null;
-	var templateXml = null;
-	var selectedElt = null;
+	var templateXml = null; // 选中后的xml
+	var selectedElt = null; // 选中的模板元素
 	var templateExtUrl = null;
 	var templateRealUrl = null;
 	var templateInfoObj = null;
 	
+	// 开始创建文件
 	function create()
 	{
 		if (templateExtUrl && openExtDocCallback != null)
@@ -3026,6 +3054,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			
 			openExtDocCallback(templateExtUrl, templateInfoObj, nameInput.value);
 		}
+		// 这里肯定为空
 		else if (callback)
 		{
 			if (!showName)
@@ -3041,9 +3070,18 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				
 			if (title != null && title.length > 0)
 			{
+				// 打开文件选择器，保存文件
 				editorUi.pickFolder(editorUi.mode, function(folderId)
 				{
-					editorUi.createFile(title, templateXml, (templateLibs != null &&
+					// 创建文件的方法，空白模板的时候templateXml这里为空
+					console.log('我要执行创建了--------》')
+					// editorUi.createFile(title, templateXml, (templateLibs != null &&
+					// 	templateLibs.length > 0) ? templateLibs : null, null, function()
+					// {
+					// 	editorUi.hideDialog();
+					// }, null, folderId, null, (templateClibs != null &&
+					// 	templateClibs.length > 0) ? templateClibs : null);
+					editorUi.createDaokeFile(title, templateXml, (templateLibs != null &&
 						templateLibs.length > 0) ? templateLibs : null, null, function()
 					{
 						editorUi.hideDialog();
@@ -3056,6 +3094,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 	};
 	
+	// 左侧选择栏
 	var div = document.createElement('div');
 	div.style.border = '1px solid #d3d3d3';
 	div.style.position = 'absolute';
@@ -3076,7 +3115,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 //			mxEvent.consume(evt);
 //		}
 //	});
-	
+	// 图的搜索框
 	var searchBox = document.createElement('div');
 	searchBox.style.cssText = 'position:absolute;left:30px;width:128px;top:' + divTop + 'px;height:22px;margin-top: 6px;white-space: nowrap';
 	var tmplSearchInput = document.createElement('input');
@@ -3084,7 +3123,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	tmplSearchInput.setAttribute('placeholder', mxResources.get('search'));
 	tmplSearchInput.setAttribute('type', 'text');
 	searchBox.appendChild(tmplSearchInput);
-	
+	// 添加清空搜索值的图标
 	var cross = document.createElement('img');
 	var searchImg = typeof Sidebar != 'undefined'? Sidebar.prototype.searchImage : IMAGE_PATH + '/search.png';
 	cross.setAttribute('src', searchImg);
@@ -3103,9 +3142,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			cross.setAttribute('src', searchImg);
 			cross.setAttribute('title', mxResources.get('search'));
 			tmplSearchInput.value = '';
+			// 重置模板显示
 			resetTemplates();
 		}
-
+		// 搜搜文本框重新获取焦点
 		tmplSearchInput.focus();
 	});
 	
@@ -3113,11 +3153,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		if (evt.keyCode == 13 /* Enter */)
 		{
+			// 开始搜索
 			filterTemplates();
 			mxEvent.consume(evt);
 		}
 	}));
 	
+	// 输入数据
 	mxEvent.addListener(tmplSearchInput, 'keyup', mxUtils.bind(this, function(evt)
 	{
 		if (tmplSearchInput.value == '')
@@ -3145,6 +3187,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var w = 140;
 	var h = 140;
 
+	// 选中模板执行的事件
 	function selectElement(elt, xml, libs, extUrl, infoObj, clibs, realUrl)
 	{
 		if (selectedElt != null)
@@ -3167,6 +3210,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		selectedElt.style.border = rightHighlightBorder;
 	};
 	
+	// 添加按钮选择的按钮
 	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick, preview, noImg, clibs)
 	{
 		var elt = document.createElement('div');
@@ -3190,12 +3234,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			elt.setAttribute('title', tooltip);
 		}
 		
+		// 实际上是请求template下的文件，加载模板的xml
 		function loadXmlData(url, callback)
 		{
 			if (xmlData == null)
 			{
 				realUrl = url;
-		
+				// zhaodeezhu 判断是否是https 这里可能要改掉
 				if (/^https?:\/\//.test(realUrl) && !editorUi.editor.isCorsEnabledForUrl(realUrl))
 				{
 					realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
@@ -3290,9 +3335,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				editorUi.sidebar.hideTooltip();
 			}
 		};
-	
+		
 		if (imgUrl != null)
 		{
+			console.log('imgUrl-------->')
 			elt.style.display = 'inline-flex';
 			elt.style.justifyContent = 'center';
 			elt.style.alignItems = 'center';
@@ -3321,6 +3367,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			
 			mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
 			{
+				console.log('我在选择模板------')
 				selectElement(elt, null, null, url, infoObj, clibs);
 			}), null, null);
 			
@@ -3330,6 +3377,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				mxEvent.consume(evt);
 			});
 		}
+		// 有模板的情况下执行
 		else if (!noImg && url != null && url.length > 0)
 		{
 			var png = preview || (TEMPLATE_PATH + '/' + url.substring(0, url.length - 4) + '.png');
@@ -3367,18 +3415,19 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				table.appendChild(tbody);
 				elt.appendChild(table);
 			}
-			
+			// 为了加loading状态，加载xml,然后执行选中
 			function activate(doCreate)
 			{
 				createButton.setAttribute('disabled', 'disabled');
 				elt.style.backgroundColor = 'transparent';
 				elt.style.border = '1px solid transparent';
 				spinner.spin(div);
-				
+				console.log('我要加载xml了----->');
+				console.log(url);
 				loadXmlData(url, function(xml, realUrl)
 				{
 					spinner.stop();
-					
+					console.log(xml);
 					if (xml != null)
 					{
 						selectElement(elt, xml, libs, null, null, clibs, realUrl);
@@ -3391,8 +3440,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				});
 			};
 			
+			// 点击模板执行了的事件
 			mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
 			{
+				console.log('模板被点击了------')
+				// 为了加loading状态，加载xml,然后执行选中
 				activate();
 			}), null, null);
 			
@@ -3402,6 +3454,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				mxEvent.consume(evt);
 			});
 		}
+		// 没有模板的情况下执行
 		else
 		{
 			var table = document.createElement('table');
@@ -3429,6 +3482,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			table.appendChild(tbody);
 			elt.appendChild(table);
 
+			// 主要是为了默认直接执行的
 			if (select)
 			{
 				selectElement(elt);
@@ -3436,6 +3490,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			
 			mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
 			{
+				console.log('我是选择空模板');
+				console.log(url);
+				console.log(infoObj);
 				selectElement(elt, null, null, url, infoObj);
 			}), null, null);
 			
@@ -3497,7 +3554,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var categories = {}, subCategories = {}, customCats = {};
 	var customCatCount = 0, firstInitUi = true;
 	var currentEntry = null, lastEntry = null;
-
+	// 添加本地模板
 	// Adds local basic templates
 	categories['basic'] = [{title: 'blankDiagram', select: true}];
 	var templates = categories['basic'];
@@ -3996,19 +4053,24 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	btns.style.bottom = '24px';
 	btns.style.right = '40px';
 	
-	if (!compact && !editorUi.isOffline() && showName && callback == null && !createOnly)
-	{
-		var helpBtn = mxUtils.button(mxResources.get('help'), function()
-		{
-			editorUi.openLink('https://support.draw.io/display/DO/Creating+and+Opening+Files');
-		});
+	/** 添加帮助按钮 */
+	// if (!compact && !editorUi.isOffline() && showName && callback == null && !createOnly)
+	// {
+	// 	var helpBtn = mxUtils.button(mxResources.get('help'), function()
+	// 	{
+	// 		editorUi.openLink('https://support.draw.io/display/DO/Creating+and+Opening+Files');
+	// 	});
 		
-		helpBtn.className = 'geBtn';	
-		btns.appendChild(helpBtn);
-	}
+	// 	helpBtn.className = 'geBtn';	
+	// 	btns.appendChild(helpBtn);
+	// }
 
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
+		if (window.top !== window.self) {
+			window.top.postMessage({ type: 'drawio-cancel',data: {} }, '*');
+			return;
+		}
 		if (cancelCallback != null)
 		{
 			cancelCallback();
@@ -5201,11 +5263,11 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 		inner.appendChild(linkInput);
 		inner.appendChild(cross);
 		
-		if (showNewWindowOption)
-		{
-			inner.appendChild(newWindowCheckbox);
-			mxUtils.write(inner, mxResources.get('openInNewWindow'));
-		}
+		// if (showNewWindowOption)
+		// {
+			// inner.appendChild(newWindowCheckbox);
+			// mxUtils.write(inner, mxResources.get('openInNewWindow'));
+		// }
 		
 		mxUtils.br(inner);
 		inner.appendChild(pageRadio);
@@ -5256,7 +5318,18 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 		inner.appendChild(cross);
 	}
 
-	div.appendChild(inner);
+        console.log(inner, '我是inner---')
+        div.style.height = '130px'
+        div.style.width = '600px'
+        //div.style.position = 'fixed'
+        //div.style.top = 'calc(36% - 62px)'
+        //div.style.left = 'calc(46% - 185px)'
+        div.style.zIndex = '10010'
+        div.style.backgroundColor = '#ccc'
+        div.style.padding = '4px'
+
+        div.appendChild(inner)
+        console.log(div, '我是div---')
 	
 	var mainBtn = mxUtils.button(btnLabel, function()
 	{
@@ -5482,61 +5555,61 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 		});
 	}
 	
-	if (editorUi.oneDrive != null)
-	{
-		addButton(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), function()
-		{
-			editorUi.oneDrive.pickFile(function(id, files)
-			{
-				linkInput.value = files.value[0].webUrl;
-				linkInput.focus();
-			});
-		});
-	}
+	// if (editorUi.oneDrive != null)
+	// {
+		// addButton(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), function()
+		// {
+			// editorUi.oneDrive.pickFile(function(id, files)
+			// {
+				// linkInput.value = files.value[0].webUrl;
+				// linkInput.focus();
+			// });
+		// });
+	// }
 	
-	if (editorUi.gitHub != null)
-	{
-		addButton(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), function()
-		{
-			editorUi.gitHub.pickFile(function(path)
-			{
-				if (path != null)
-				{
-					var tokens = path.split('/');
-					var org = tokens[0];
-					var repo = tokens[1];
-					var ref = tokens[2];
-					var path = tokens.slice(3, tokens.length).join('/');
+	// if (editorUi.gitHub != null)
+	// {
+		// addButton(IMAGE_PATH + '/github-logo.svg', mxResources.get('github'), function()
+		// {
+			// editorUi.gitHub.pickFile(function(path)
+			// {
+				// if (path != null)
+				// {
+					// var tokens = path.split('/');
+					// var org = tokens[0];
+					// var repo = tokens[1];
+					// var ref = tokens[2];
+					// var path = tokens.slice(3, tokens.length).join('/');
 					
-					linkInput.value = 'https://github.com/' + org + '/' +
-						repo + '/blob/' + ref + '/' + path;
-					linkInput.focus();
-				}
-			});
-		});
-	}
+					// linkInput.value = 'https://github.com/' + org + '/' +
+						// repo + '/blob/' + ref + '/' + path;
+					// linkInput.focus();
+				// }
+			// });
+		// });
+	// }
 	
-	if (editorUi.gitLab != null)
-	{
-		addButton(IMAGE_PATH + '/gitlab-logo.svg', mxResources.get('gitlab'), function()
-		{
-			editorUi.gitLab.pickFile(function(path)
-			{
-				if (path != null)
-				{
-					var tokens = path.split('/');
-					var org = tokens[0];
-					var repo = tokens[1];
-					var ref = tokens[2];
-					var path = tokens.slice(3, tokens.length).join('/');
+	// if (editorUi.gitLab != null)
+	// {
+		// addButton(IMAGE_PATH + '/gitlab-logo.svg', mxResources.get('gitlab'), function()
+		// {
+			// editorUi.gitLab.pickFile(function(path)
+			// {
+				// if (path != null)
+				// {
+					// var tokens = path.split('/');
+					// var org = tokens[0];
+					// var repo = tokens[1];
+					// var ref = tokens[2];
+					// var path = tokens.slice(3, tokens.length).join('/');
 
-					linkInput.value = DRAWIO_GITLAB_URL + '/' + org + '/' +
-						repo + '/blob/' + ref + '/' + path;
-					linkInput.focus();
-				}
-			});
-		});
-	}
+					// linkInput.value = DRAWIO_GITLAB_URL + '/' + org + '/' +
+						// repo + '/blob/' + ref + '/' + path;
+					// linkInput.focus();
+				// }
+			// });
+		// });
+	// }
 
 	//TODO should Notion support this?
 	//TODO should Trello support this?
@@ -9254,6 +9327,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	var graph = editorUi.editor.graph;
 	var outer = document.createElement('div');
 	outer.style.height = '100%';
+	outer.style.display = 'none';
 	
 	var header = document.createElement('div');
 	header.style.whiteSpace = 'nowrap';

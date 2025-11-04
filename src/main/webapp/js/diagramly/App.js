@@ -176,6 +176,26 @@ App = function(editor, container, lightbox)
 			}
 		}), 5000); //5 sec timeout
 	}
+	// zhaodeezhu 增加通信监听编辑的罗辑
+	const listener = mxUtils.bind(this, function (e) {
+		var data = e.data || {};
+		console.log(data,'别人的data')
+		if (data.type == 'edit') {
+			console.log('我接受到要编辑的信息了')
+			console.log(data)
+			// this.editor.graph.model.clear();
+			this.hideDialog()
+			this.updateDaokeFile(data.title, data.xml)
+		// } else if (data.type === 'create') {
+		} else {
+			console.log('我是创建')
+			this.editor.graph.model.clear()
+			this.hideDialog()
+			this.updateDaokeFile(data.title, data.xml)
+			//this.selectTemplateCreate();
+		}
+	})
+	window.addEventListener('message', listener);
 
 	this.load();
 };
@@ -367,7 +387,45 @@ App.publicPlugin = [
 App.loadScripts = function(scripts, onload)
 {
 	var n = scripts.length;
+	function mxscript(src, onLoad, id, dataAppKey, noWrite) {
+		var defer = onLoad == null && !noWrite;
+		if ((urlParams['dev'] != '1' && typeof document.createElement('canvas').getContext === "function") ||
+			onLoad != null || noWrite) {
+			var s = document.createElement('script');
+			s.setAttribute('type', 'text/javascript');
+			s.setAttribute('defer', 'true');
+			s.setAttribute('src', src);
 	
+			if (id != null) {
+				s.setAttribute('id', id);
+			}
+	
+			if (dataAppKey != null) {
+				s.setAttribute('data-app-key', dataAppKey);
+			}
+	
+			if (onLoad != null) {
+				var r = false;
+	
+				s.onload = s.onreadystatechange = function () {
+					if (!r && (!this.readyState || this.readyState == 'complete')) {
+						r = true;
+						onLoad();
+					}
+				};
+			}
+	
+			var t = document.getElementsByTagName('script')[0];
+	
+			if (t != null) {
+				t.parentNode.insertBefore(s, t);
+			}
+		} else {
+			//import(src)
+			// document.write('<script src="' + src + '"' + ((id != null) ? ' id="' + id + '" ' : '') +
+			//   ((dataAppKey != null) ? ' data-app-key="' + dataAppKey + '" ' : '') + '></scr' + 'ipt>');
+		}
+	};
 	for (var i = 0; i < scripts.length; i++)
 	{
 		mxscript(scripts[i], function()
@@ -648,7 +706,7 @@ App.main = function(callback, createUi)
 				if (CryptoJS.MD5(content).toString() != '1f536e2400baaa30261b8c3976d6fe06')
 				{
 					console.log('Change bootstrap script MD5 in the previous line:', CryptoJS.MD5(content).toString());
-					alert('[Dev] Bootstrap script change requires update of CSP');
+					// alert('[Dev] Bootstrap script change requires update of CSP');
 				}
 			}
 			
@@ -796,7 +854,8 @@ App.main = function(callback, createUi)
 			(urlParams['embed'] == '1' && urlParams['gapi'] == '1')) && isSvgBrowser &&
 			isLocalStorage && (document.documentMode == null || document.documentMode >= 10))))
 		{
-			mxscript('https://apis.google.com/js/api.js?onload=DrawGapiClientCallback', null, null, null, mxClient.IS_SVG);
+			// zhaodeezhu
+			// mxscript('https://apis.google.com/js/api.js?onload=DrawGapiClientCallback', null, null, null, mxClient.IS_SVG);
 		}
 		// Disables client
 		else if (typeof window.gapi === 'undefined')
@@ -932,13 +991,15 @@ App.main = function(callback, createUi)
 						(urlParams['embed'] == '1' && urlParams['db'] == '1')) &&
 						isSvgBrowser && (document.documentMode == null || document.documentMode > 9))))
 					{
+
 						mxscript(App.DROPBOX_URL, function()
 						{
 							// Must load this after the dropbox SDK since they use the same namespace
-							mxscript(App.DROPINS_URL, function()
-							{
-								DrawDropboxClientCallback();
-							}, 'dropboxjs', App.DROPBOX_APPKEY);
+							// zhaodeezhu
+							// mxscript(App.DROPINS_URL, function()
+							// {
+							// 	DrawDropboxClientCallback();
+							// }, 'dropboxjs', App.DROPBOX_APPKEY);
 						});
 					}
 					// Disables client
@@ -1004,9 +1065,8 @@ App.main = function(callback, createUi)
 					}
 				}
 			};
-			
-			if (urlParams['dev'] == '1' || EditorUi.isElectronApp) //TODO check if we can remove these scripts loading from index.html
-			{
+			if ( window.RUN_ENV === 'prod' || window.RUN_ENV === 'dev' || EditorUi.isElectronApp) //TODO check if we can remove these scripts loading from index.html
+			{	
 				realMain();
 			}
 			else
@@ -1687,7 +1747,8 @@ App.prototype.init = function()
 				
 				if (urlParams['extAuth'] != '1' && (mode == App.MODE_DEVICE || mode == App.MODE_BROWSER))
 				{
-					this.showDownloadDesktopBanner();
+					// zhaodeezhu 取消掉获取桌面版的弹窗
+					// this.showDownloadDesktopBanner();
 				}
 				else if (urlParams['embed'] != '1' && this.getServiceName() == 'draw.io')
 
@@ -2793,6 +2854,7 @@ App.prototype.getDiagramId = function()
 
 /**
  * Opens any file specified in the URL parameters.
+ * 通过URL参数打开文件
  */
 App.prototype.open = function()
 {
@@ -2871,12 +2933,17 @@ App.prototype.loadGapi = function(then)
 
 /**
  * Main function. Program starts here.
- * 
+ * 主函数 通过这里开始的
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
 App.prototype.load = function()
 {
+	console.log('Loading----是否在加载完成')
+	console.log(window.parent.parent)
+	parent.parent && parent.parent.postMessage({
+		type: 'loaded',
+	}, '*');
 	// Checks if we're running in embedded mode
 	if (urlParams['embed'] != '1')
 	{
@@ -3071,6 +3138,7 @@ App.prototype.start = function()
 			// Ignores Grammarly error [1344]
 			if (message != 'ResizeObserver loop limit exceeded')
 			{
+				console.log('我要打印报错啦------->', message);
 				EditorUi.logError('Uncaught: ' + ((message != null) ? message : ''),
 					url, linenumber, colno, err, null, true);
 				ui.handleError({message: message}, mxResources.get('unknownError'),
@@ -3682,7 +3750,15 @@ App.prototype.showSplash = function(force)
 	else if (!mxClient.IS_CHROMEAPP && (this.mode == null || force))
 	{
 		var rowLimit = (serviceCount == 4) ? 2 : 3;
-		
+
+		// zhaodeezhu 点击稍后在选择的按钮
+		// var prev = Editor.useLocalStorage;
+		// console.log('我是初始要执行的----->');
+		// console.log(Editor.useLocalStorage);
+		// this.createFile(this.defaultFilename,
+		// 	null, null, null, null, null, null, true);
+		// Editor.useLocalStorage = prev;
+		console.log('我是要执行的----->')
 		var dlg = new StorageDialog(this, mxUtils.bind(this, function()
 		{
 			this.hideDialog();
@@ -3887,13 +3963,18 @@ App.prototype.showSaveFilePicker = function(success, error, opts)
 	});
 	
 	opts = (opts != null) ? opts : this.createFileSystemOptions();
+
+	console.log('我是options----->')
+	console.log(opts);
 	
 	window.showSaveFilePicker(opts).then(mxUtils.bind(this, function(fileHandle)
 	{
 		if (fileHandle != null)
 		{
+			console.log(fileHandle)
 			fileHandle.getFile().then(mxUtils.bind(this, function(desc)
 			{
+				console.log(desc)
 				success(fileHandle, desc);
 			}), error);
 		}
@@ -3908,6 +3989,7 @@ App.prototype.showSaveFilePicker = function(success, error, opts)
  */
 App.prototype.pickFile = function(mode)
 {
+	console.log('pickFile');
 	try
 	{
 		mode = (mode != null) ? mode : this.mode;
@@ -4407,166 +4489,233 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
  */
 App.prototype.saveFile = function(forceDialog, success)
 {
+	// zhaodeezhu DrawioFile中的ui原来是App实例
+	console.log('App.js 我终于执行保存了------>')
 	var file = this.getCurrentFile();
-	
-	if (file != null)
+	if (this.editor.graph.isEditing())
 	{
-		// FIXME: Invoke for local files
-		var done = mxUtils.bind(this, function()
-		{
-			if (EditorUi.enableDrafts)
-			{
-				file.removeDraft();
-			}
-			
-			if (this.getCurrentFile() != file && !file.isModified())
-			{
-				// Workaround for possible status update while save as dialog is showing
-				// is to show no saved status for device files
-				if (file.getMode() != App.MODE_DEVICE)
-				{
-					this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
-				}
-				else
-				{
-					this.editor.setStatus('');
-				}
-			}
-			
-			if (success != null)
-			{
-				success();
-			}
-		});
-		
-		if (!forceDialog && file.getTitle() != null && file.invalidFileHandle == null && this.mode != null)
-		{
-			this.save(file.getTitle(), done);
-		}
-		else if (file != null && file.constructor == LocalFile && file.fileHandle != null)
-		{
-			this.showSaveFilePicker(mxUtils.bind(this, function(fileHandle, desc)
-			{
-				file.invalidFileHandle = null;
-				file.fileHandle = fileHandle;
-				file.title = desc.name;
-				file.desc = desc;
-				this.save(desc.name, done);
-			}), null, this.createFileSystemOptions(file.getTitle()));
-		}
-		else
-		{
-			var filename = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
-			var allowTab = !mxClient.IS_IOS || !navigator.standalone;
-			var prev = this.mode;
-			var serviceCount = this.getServiceCount(true);
-			
-			if (isLocalStorage)
-			{
-				serviceCount++;
-			}
-			
-			var rowLimit = (serviceCount <= 4) ? 2 : (serviceCount > 6 ? 4 : 3);
-			
-			var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(name, mode, input)
-			{
-				if (name != null && name.length > 0)
-				{
-					// Handles special case where PDF export is detected
-					if (/(\.pdf)$/i.test(name))
-					{
-						this.confirm(mxResources.get('didYouMeanToExportToPdf'), mxUtils.bind(this, function()
-						{
-							this.hideDialog();
-							this.actions.get('exportPdf').funct();
-						}), mxUtils.bind(this, function()
-						{
-							input.value = name.split('.').slice(0, -1).join('.');
-							input.focus();
-							
-							if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
-							{
-								input.select();
-							}
-							else
-							{
-								document.execCommand('selectAll', false, null);
-							}
-						}), mxResources.get('yes'), mxResources.get('no'));
-					}
-					else
-					{
-						this.hideDialog();
-						
-						if (prev == null && mode == App.MODE_DEVICE)
-						{
-							if (file != null && EditorUi.nativeFileSupport)
-							{
-								this.showSaveFilePicker(mxUtils.bind(this, function(fileHandle, desc)
-								{
-									file.fileHandle = fileHandle;
-									file.mode = App.MODE_DEVICE;
-									file.title = desc.name;
-									file.desc = desc;
-
-									this.setMode(App.MODE_DEVICE);
-									this.save(desc.name, done);
-								}), mxUtils.bind(this, function(e)
-								{
-									if (e.name != 'AbortError')
-									{
-										this.handleError(e);
-									}
-								}), this.createFileSystemOptions(name));
-							}
-							else
-							{
-								this.setMode(App.MODE_DEVICE);
-								this.save(name, done);
-							}
-						}
-						else if (mode == 'download')
-						{
-							var tmp = new LocalFile(this, null, name);
-							tmp.save();
-						}
-						else if (mode == '_blank')
-						{
-							window.openFile = new OpenFile(function()
-							{
-								window.openFile = null;
-							});
-							
-							// Do not use a filename to use undefined mode
-							window.openFile.setData(this.getFileData(true));
-							this.openLink(this.getUrl(window.location.pathname), null, true);
-						}
-						else if (prev != mode)
-						{
-							this.pickFolder(mode, mxUtils.bind(this, function(folderId)
-							{
-								this.createFile(name, this.getFileData(/(\.xml)$/i.test(name) ||
-									name.indexOf('.') < 0 || /(\.drawio)$/i.test(name),
-									/(\.svg)$/i.test(name), /(\.html)$/i.test(name)),
-									null, mode, done, this.mode == null, folderId);
-							}));
-						}
-						else if (mode != null)
-						{
-							this.save(name, done);
-						}
-					}
-				}
-			}), mxUtils.bind(this, function()
-			{
-				this.hideDialog();
-			}), mxResources.get('saveAs'), mxResources.get('download'), null, null, allowTab,
-				null, true, rowLimit, null, null, null, this.editor.fileExtensions, false);
-			this.showDialog(dlg.container, 420, (serviceCount > rowLimit) ? 390 : 280, true, true);
-			dlg.init();
-		}
+		this.editor.graph.stopEditing();
 	}
+	// TODO:项目给到我的时候是打包成png格式,现在波哥改成了流程图.svg格式
+	// TODO:以前是处理了file.data里面的xml,现在是直接把file.data传给外面需要接收的方法
+	// TODO:现在我们需求是要求改成svg
+	file.fileHandle = null
+	file.desc = null;
+	file.title = '流程图.svg'
+	file.updateFileData();
+
+	// const xml = this.getCurrentFile().shadowData;
+	// const htmls = mxUtils.htmlEntities(JSON.stringify({xml}));
+	// const xml = file.data;
+	// const data = xml.match(/data\-mxgraph=\"([\d\w\W]+)\}\"\>\</)[1] + '}';
+	// const json = data.replace(/\&quot\;/g, '\"').replace(/\&lt\;/g, '<').replace(/\&gt\;/g, '>')
+	// const final = JSON.parse(json);
+	// console.log(final);
+	// let data = file.data
+	// const index = data.indexOf('<svg')
+	// data = data.substring(index)
+	console.log('backEditData', file.data)
+	parent.parent && parent.parent.postMessage({
+		type: 'drawio',
+		data: file.data
+	}, '*');
+	// this.xios('/api/request/record/point', {
+	// 	ioData: 'data'
+	// }, function(res) {
+	// 	console.log(res);
+	// });
+	return;
+	// if (file != null)
+	// {
+	// 	console.log(1)
+	// 	// FIXME: Invoke for local files
+	// 	var done = mxUtils.bind(this, function()
+	// 	{
+	// 		if (EditorUi.enableDrafts)
+	// 		{
+	// 			file.removeDraft();
+	// 		}
+			
+	// 		if (this.getCurrentFile() != file && !file.isModified())
+	// 		{
+	// 			// Workaround for possible status update while save as dialog is showing
+	// 			// is to show no saved status for device files
+	// 			if (file.getMode() != App.MODE_DEVICE)
+	// 			{
+	// 				this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('allChangesSaved')));
+	// 			}
+	// 			else
+	// 			{
+	// 				this.editor.setStatus('');
+	// 			}
+	// 		}
+			
+	// 		if (success != null)
+	// 		{
+	// 			success();
+	// 		}
+	// 	});
+		
+	// 	if (!forceDialog && file.getTitle() != null && file.invalidFileHandle == null && this.mode != null)
+	// 	{
+
+	// 		console.log(2)
+	// 		// zhaodeezhu 那说明获取文件的罗辑在save中
+	// 		this.save(file.getTitle(), done);
+	// 	}
+	// 	else if (file != null && file.constructor == LocalFile && file.fileHandle != null)
+	// 	{
+	// 		console.log(3)
+	// 		this.showSaveFilePicker(mxUtils.bind(this, function(fileHandle, desc)
+	// 		{
+	// 			file.invalidFileHandle = null;
+	// 			file.fileHandle = fileHandle;
+	// 			file.title = desc.name;
+	// 			file.desc = desc;
+	// 			this.save(desc.name, done);
+	// 		}), null, this.createFileSystemOptions(file.getTitle()));
+	// 	}
+	// 	else
+	// 	{
+	// 		console.log(4)
+	// 		var filename = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
+	// 		var allowTab = !mxClient.IS_IOS || !navigator.standalone;
+	// 		var prev = this.mode;
+	// 		var serviceCount = this.getServiceCount(true);
+			
+	// 		if (isLocalStorage)
+	// 		{
+	// 			serviceCount++;
+	// 		}
+			
+	// 		var rowLimit = (serviceCount <= 4) ? 2 : (serviceCount > 6 ? 4 : 3);
+	// 		console.log(5)
+	// 		console.log('currentFile', this.getCurrentFile().shadowData);
+	// 		const data = {};
+	// 		// zhaodeezhu
+	// 		data.xml = this.getCurrentFile().shadowData;
+	// 		const htmls = mxUtils.htmlEntities(JSON.stringify(data));
+	// 		console.log(htmls);
+	// 		// var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(name, mode, input)
+	// 		// {
+	// 		// 	console.log(name, mode, input);
+	// 		// 	console.log(App.MODE_DEVICE);
+	// 		// 	if (name != null && name.length > 0)
+	// 		// 	{
+	// 		// 		// Handles special case where PDF export is detected
+	// 		// 		if (/(\.pdf)$/i.test(name))
+	// 		// 		{
+	// 		// 			this.confirm(mxResources.get('didYouMeanToExportToPdf'), mxUtils.bind(this, function()
+	// 		// 			{
+	// 		// 				this.hideDialog();
+	// 		// 				this.actions.get('exportPdf').funct();
+	// 		// 			}), mxUtils.bind(this, function()
+	// 		// 			{
+	// 		// 				input.value = name.split('.').slice(0, -1).join('.');
+	// 		// 				input.focus();
+							
+	// 		// 				if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
+	// 		// 				{
+	// 		// 					input.select();
+	// 		// 				}
+	// 		// 				else
+	// 		// 				{
+	// 		// 					document.execCommand('selectAll', false, null);
+	// 		// 				}
+	// 		// 			}), mxResources.get('yes'), mxResources.get('no'));
+	// 		// 		}
+	// 		// 		else
+	// 		// 		{
+	// 		// 			this.hideDialog();
+						
+	// 		// 			if (prev == null && mode == App.MODE_DEVICE)
+	// 		// 			{
+	// 		// 				console.log('device')
+	// 		// 				if (file != null && EditorUi.nativeFileSupport)
+	// 		// 				{
+	// 		// 					console.log('我要保存文件了------')
+	// 		// 					this.showSaveFilePicker(mxUtils.bind(this, function(fileHandle, desc)
+	// 		// 					{
+	// 		// 						console.log('desc', desc)
+	// 		// 						file.fileHandle = fileHandle;
+	// 		// 						file.mode = App.MODE_DEVICE;
+	// 		// 						file.title = desc.name;
+	// 		// 						file.desc = desc;
+
+	// 		// 						this.setMode(App.MODE_DEVICE);
+	// 		// 						this.save(desc.name, done);
+	// 		// 					}), mxUtils.bind(this, function(e)
+	// 		// 					{
+	// 		// 						if (e.name != 'AbortError')
+	// 		// 						{
+	// 		// 							this.handleError(e);
+	// 		// 						}
+	// 		// 					}), this.createFileSystemOptions(name));
+	// 		// 				}
+	// 		// 				else
+	// 		// 				{
+	// 		// 					console.log('desc');
+	// 		// 					this.setMode(App.MODE_DEVICE);
+	// 		// 					this.save(name, done);
+	// 		// 				}
+	// 		// 			}
+	// 		// 			else if (mode == 'download')
+	// 		// 			{
+	// 		// 				var tmp = new LocalFile(this, null, name);
+	// 		// 				tmp.save();
+	// 		// 			}
+	// 		// 			else if (mode == '_blank')
+	// 		// 			{
+	// 		// 				window.openFile = new OpenFile(function()
+	// 		// 				{
+	// 		// 					window.openFile = null;
+	// 		// 				});
+							
+	// 		// 				// Do not use a filename to use undefined mode
+	// 		// 				window.openFile.setData(this.getFileData(true));
+	// 		// 				this.openLink(this.getUrl(window.location.pathname), null, true);
+	// 		// 			}
+	// 		// 			else if (prev != mode)
+	// 		// 			{
+	// 		// 				this.pickFolder(mode, mxUtils.bind(this, function(folderId)
+	// 		// 				{
+	// 		// 					this.createFile(name, this.getFileData(/(\.xml)$/i.test(name) ||
+	// 		// 						name.indexOf('.') < 0 || /(\.drawio)$/i.test(name),
+	// 		// 						/(\.svg)$/i.test(name), /(\.html)$/i.test(name)),
+	// 		// 						null, mode, done, this.mode == null, folderId);
+	// 		// 				}));
+	// 		// 			}
+	// 		// 			else if (mode != null)
+	// 		// 			{
+	// 		// 				this.save(name, done);
+	// 		// 			}
+	// 		// 		}
+	// 		// 	}
+	// 		// }), mxUtils.bind(this, function()
+	// 		// {
+	// 		// 	this.hideDialog();
+	// 		// }), mxResources.get('saveAs'), mxResources.get('download'), null, null, allowTab,
+	// 		// 	null, true, rowLimit, null, null, null, this.editor.fileExtensions, false);
+	// 		// this.showDialog(dlg.container, 420, (serviceCount > rowLimit) ? 390 : 280, true, true);
+	// 		// dlg.init();
+	// 	}
+	// }
 };
+
+/** 发送请求 */
+App.prototype.xios = function(url, data, callback) {
+	// var xhr = new XMLHttpRequest();
+	// xhr.open('POST', url);
+	// xhr.setRequestHeader("Content-type", "application/json")
+	// xhr.addEventListener('readystatechange', (e) => {
+	// 	if (xhr.readyState == 4) {
+	// 		var res = JSON.parse(xhr.responseText);
+	// 		callback(res);
+	// 	}
+	// })
+
+	// xhr.send(JSON.stringify(data));
+}
 
 /**
  * Translates this point by the given vector.
@@ -4715,12 +4864,17 @@ App.prototype.getPeerForMode = function(mode)
  */
 App.prototype.createFile = function(title, data, libs, mode, done, replace, folderId, tempFile, clibs)
 {
+	// zhaodeezhu
+	console.log('我是要执行的数据-------->')
+	console.log(data)
+	console.log(arguments);
 	mode = (tempFile) ? null : ((mode != null) ? mode : this.mode);
 
 	if (title != null && this.spinner.spin(document.body, mxResources.get('inserting')))
 	{
 		data = (data != null) ? data : this.emptyDiagramXml;
-		
+		console.log('我是要创建文件的数据-----》')
+		console.log(data)
 		var complete = mxUtils.bind(this, function()
 		{
 			this.spinner.stop();
@@ -4813,6 +4967,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 			}
 			else if (!tempFile && mode == App.MODE_DEVICE && EditorUi.nativeFileSupport)
 			{
+				console.log('fileCreated------>');
 				complete();
 				
 				this.showSaveFilePicker(mxUtils.bind(this, function(fileHandle, desc)
@@ -4833,6 +4988,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 			}
 			else
 			{
+				console.log('fileCreated------')
 				complete();
 				this.fileCreated(new LocalFile(this, data, title, mode == null), libs, replace, done, clibs);
 			}
@@ -4844,6 +5000,208 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 		}
 	}
 };
+
+/** 选择模板创建 */
+App.prototype.selectTemplateCreate = function() {
+	this.setCurrentFile(null);
+	var compact = this.isOffline();
+	// editorUi.mode = 'device'
+	var dlg = new NewDialog(this, compact, !(this.mode == App.MODE_DEVICE && 'chooseFileSystemEntries' in window));
+	this.showDialog(dlg.container, (compact) ? 350 : 620, (compact) ? 70 : 460, true, true, function(cancel)
+	{
+		// this.sidebar.hideTooltip();
+		if (cancel && this.getCurrentFile() == null)
+		{
+			this.showSplash();
+		}
+	});
+
+	dlg.init();
+}
+
+/** 创建临时文件 */
+App.prototype.createDaokeFile = function(title, data, libs, mode, done, replace, folderId, tempFile, clibs) {
+	data = (data != null) ? data : this.emptyDiagramXml;
+	console.log(title, data);
+	console.log(new LocalFile(this, data, title, false));
+	this.fileCreated(new LocalFile(this, data, title, false), libs, replace, done, clibs);
+}
+
+/** 更新当前图文件 */
+App.prototype.updateDaokeFile = function(title, data) {
+	data = (data != null) ? data : this.emptyDiagramXml;
+	console.log(title, data);
+	console.log(new LocalFile(this, data, title, false));
+	this.fileDaokeUpdated(new LocalFile(this, data, title, false));
+}
+
+App.prototype.fileDaokeUpdated = function(file, libs, replace, done, clibs) {
+	var url = window.location.pathname;
+	
+	if (libs != null && libs.length > 0)
+	{
+		url += '?libs=' + libs;
+	}
+
+	if (clibs != null && clibs.length > 0)
+	{
+		url += '?clibs=' + clibs;
+	}
+	
+	url = this.getUrl(url);
+
+	// Always opens a new tab for local files to avoid losing changes
+	if (file.getMode() != App.MODE_DEVICE)
+	{
+		url += '#' + file.getHash();
+	}
+
+	// Makes sure to produce consistent output with finalized files via createFileData this needs
+	// to save the file again since it needs the newly created file ID for redirecting in HTML
+	if (this.spinner.spin(document.body, mxResources.get('inserting')))
+	{
+		var data = file.getData();
+		var dataNode = (data.length > 0) ? this.editor.extractGraphModel(
+			mxUtils.parseXml(data).documentElement, true) : null;
+		var redirect = window.location.protocol + '//' + window.location.hostname + url;
+		var node = dataNode;
+		var graph = null;
+		
+		// Handles special case where SVG files need a rendered graph to be saved
+		if (dataNode != null && /\.svg$/i.test(file.getTitle()))
+		{
+			graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
+			document.body.appendChild(graph.container);
+			node = this.decodeNodeIntoGraph(node, graph);
+		}
+		
+		file.setData(this.createFileData(dataNode, graph, file, redirect));
+
+		if (graph != null)
+		{
+			graph.container.parentNode.removeChild(graph.container);
+		}
+
+		var complete = mxUtils.bind(this, function()
+		{
+			this.spinner.stop();
+		});
+		
+		var fn = mxUtils.bind(this, function()
+		{
+			complete();
+			
+			var currentFile = this.getCurrentFile();
+			
+			if (replace == null && currentFile != null)
+			{
+				console.log('我被执行了----6')
+				replace = !currentFile.isModified() && currentFile.getMode() == null;
+			}
+			console.log('我被执行了----1')
+			var fn3 = mxUtils.bind(this, function()
+			{
+				console.log('我被执行了----7')
+				window.openFile = null;
+				this.fileLoaded(file);
+				
+				if (replace)
+				{
+					file.addAllSavedStatus();
+				}
+				
+				if (libs != null)
+				{
+					this.sidebar.showEntries(libs);
+				}
+				
+				if (clibs != null)
+				{
+					var temp = [];
+					var tokens = clibs.split(';');
+					
+					for (var i = 0; i < tokens.length; i++)
+					{
+						temp.push(decodeURIComponent(tokens[i]));
+					}
+					
+					this.loadLibraries(temp);
+				}
+			});
+			console.log('我被执行了----2')
+			var fn2 = mxUtils.bind(this, function()
+			{
+				console.log('我被执行了----3')
+				if (replace || currentFile == null || !currentFile.isModified())
+				{
+					console.log('我被执行了----5')
+					fn3();
+				}
+				else
+				{
+					console.log('我被执行了----4')
+					// zhaodeezhu 提示跳转
+					// this.confirm(mxResources.get('allChangesLost'), null, fn3,
+					// 	mxResources.get('cancel'), mxResources.get('discardChanges'));
+				}
+			});
+
+			if (done != null)
+			{
+				done();
+			}
+			
+			// Opens the file in a new window
+			if (replace != null && !replace)
+			{
+				// Opens local file in a new window
+				if (file.constructor == LocalFile)
+				{
+					window.openFile = new OpenFile(function()
+					{
+						window.openFile = null;
+					});
+						
+					window.openFile.setData(file.getData(), file.getTitle(), file.getMode() == null);
+				}
+
+				if (done != null)
+				{
+					done();
+				}
+				console.log('我被执行了----9');
+				fn3();
+				// zhaodeezhu
+				// window.openWindow(url, null, fn2);
+			}
+			else
+			{
+				fn2();
+			}
+		});
+		
+		// Updates data in memory for local files
+		if (file.constructor == LocalFile)
+		{
+			fn();
+		}
+		else
+		{
+			file.saveFile(file.getTitle(), false, mxUtils.bind(this, function()
+			{
+				fn();
+			}), mxUtils.bind(this, function(resp)
+			{
+				complete();
+
+				if (resp == null || resp.name != 'AbortError')
+				{
+					this.handleError(resp);
+				}
+			}));
+		}
+	}
+}
 
 /**
  * Translates this point by the given vector.
@@ -4909,14 +5267,17 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
 			complete();
 			
 			var currentFile = this.getCurrentFile();
+			console.log('----------->', currentFile);
 			
 			if (replace == null && currentFile != null)
 			{
+				console.log('我被执行了----6')
 				replace = !currentFile.isModified() && currentFile.getMode() == null;
 			}
-			
+			console.log('我被执行了----1')
 			var fn3 = mxUtils.bind(this, function()
 			{
+				console.log('我被执行了----7')
 				window.openFile = null;
 				this.fileLoaded(file);
 				
@@ -4943,15 +5304,19 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
 					this.loadLibraries(temp);
 				}
 			});
-
+			console.log('我被执行了----2')
 			var fn2 = mxUtils.bind(this, function()
 			{
+				console.log('我被执行了----3')
 				if (replace || currentFile == null || !currentFile.isModified())
 				{
+					console.log('我被执行了----5')
 					fn3();
 				}
 				else
 				{
+					console.log('我被执行了----4')
+					// zhaodeezhu 提示跳转
 					this.confirm(mxResources.get('allChangesLost'), null, fn3,
 						mxResources.get('cancel'), mxResources.get('discardChanges'));
 				}
@@ -4980,7 +5345,7 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
 				{
 					done();
 				}
-				
+				console.log('我被执行了----9');
 				window.openWindow(url, null, fn2);
 			}
 			else
@@ -5020,17 +5385,19 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
  */
 App.prototype.loadFile = function(id, sameWindow, file, success, force)
 {
+	console.log('loadFile')
 	if (urlParams['openInSameWin'] == '1' || navigator.standalone)
 	{
 		sameWindow = true;
 	}
-	
+	// 将所有的框都隐藏
 	this.hideDialog();
 	
 	var fn2 = mxUtils.bind(this, function()
 	{
 		if (id == null || id.length == 0)
 		{
+			console.log('我是要执行的fn2')
 			this.editor.setStatus('');
 			this.fileLoaded(null);
 		}
@@ -5401,7 +5768,8 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 	});
 	
 	var currentFile = this.getCurrentFile();
-	
+	console.log('我是当前的文件----');
+	console.log(currentFile)
 	var fn = mxUtils.bind(this, function()
 	{
 		if (force || currentFile == null || !currentFile.isModified())
@@ -5422,6 +5790,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 	
 	if (id == null || id.length == 0)
 	{
+		console.log('我是ID------')
 		fn();
 	}
 	else if (currentFile != null && !sameWindow)
@@ -5874,7 +6243,7 @@ App.prototype.updateButtonContainer = function()
 						this.actions.get('share').funct();
 					}));
 					
-					this.buttonContainer.appendChild(this.shareButton);
+					// this.buttonContainer.appendChild(this.shareButton);
 				}
 			}
 			else if (this.shareButton != null)
@@ -6207,15 +6576,17 @@ App.prototype.save = function(name, done)
 			
 			file.handleFileError(err, err == null || err.name != 'AbortError');
 		});
-		
+		console.log(file);
 		try
 		{
 			if (name == file.getTitle())
 			{
+				console.log('我执行保存----')
 				file.save(true, success, error);
 			}
 			else
 			{
+				console.log('我执行另存为----')
 				file.saveAs(name, success, error)
 			}
 		}
@@ -6752,10 +7123,10 @@ App.prototype.updateHeader = function()
 	{
 		this.appIcon = document.createElement('a');
 		this.appIcon.style.display = 'block';
-		this.appIcon.style.position = 'absolute';
+		// this.appIcon.style.position = 'absolute';
 		this.appIcon.style.width = '32px';
 		this.appIcon.style.height = (this.menubarHeight - 28) + 'px';
-		this.appIcon.style.margin = '14px 0px 8px 16px';
+		// this.appIcon.style.margin = '14px 0px 8px 16px';
 		this.appIcon.style.opacity = '0.85';
 		this.appIcon.style.borderRadius = '3px';
 		
@@ -6766,14 +7137,16 @@ App.prototype.updateHeader = function()
 		
 		mxEvent.disableContextMenu(this.appIcon);
 		
-		mxEvent.addListener(this.appIcon, 'click', mxUtils.bind(this, function(evt)
-		{
-			this.appIconClicked(evt);
-		}));
+		// 去除Logo点击事件
+		// mxEvent.addListener(this.appIcon, 'click', mxUtils.bind(this, function(evt)
+		// {
+		// 	this.appIconClicked(evt);
+		// }));
 		
 		// LATER: Use Alpha image loader in IE6
 		// NOTE: This uses the diagram bit of the old logo as it looks better in this case
 		//this.appIcon.style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(src=' + IMAGE_PATH + '/logo-white.png,sizingMethod=\'scale\')';
+		// var logo = `url('/${IMAGE_PATH}/check.png')`
 		var logo = (!mxClient.IS_SVG) ? 'url(\'' + IMAGE_PATH + '/logo-white.png\')' :
 			((uiTheme == 'dark') ? 'url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIKICAgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMzA2LjE4NSAxMjAuMjk2IgogICB2aWV3Qm94PSIyNCAyNiA2OCA2OCIKICAgeT0iMHB4IgogICB4PSIwcHgiCiAgIHZlcnNpb249IjEuMSI+CiAgIAkgPGc+PGxpbmUKICAgICAgIHkyPSI3Mi4zOTQiCiAgICAgICB4Mj0iNDEuMDYxIgogICAgICAgeTE9IjQzLjM4NCIKICAgICAgIHgxPSI1OC4wNjkiCiAgICAgICBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiCiAgICAgICBzdHJva2Utd2lkdGg9IjMuNTUyOCIKICAgICAgIHN0cm9rZT0iI0ZGRkZGRiIKICAgICAgIGZpbGw9Im5vbmUiIC8+PGxpbmUKICAgICAgIHkyPSI3Mi4zOTQiCiAgICAgICB4Mj0iNzUuMDc2IgogICAgICAgeTE9IjQzLjM4NCIKICAgICAgIHgxPSI1OC4wNjgiCiAgICAgICBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiCiAgICAgICBzdHJva2Utd2lkdGg9IjMuNTAwOCIKICAgICAgIHN0cm9rZT0iI0ZGRkZGRiIKICAgICAgIGZpbGw9Im5vbmUiIC8+PGc+PHBhdGgKICAgICAgICAgZD0iTTUyLjc3Myw3Ny4wODRjMCwxLjk1NC0xLjU5OSwzLjU1My0zLjU1MywzLjU1M0gzNi45OTljLTEuOTU0LDAtMy41NTMtMS41OTktMy41NTMtMy41NTN2LTkuMzc5ICAgIGMwLTEuOTU0LDEuNTk5LTMuNTUzLDMuNTUzLTMuNTUzaDEyLjIyMmMxLjk1NCwwLDMuNTUzLDEuNTk5LDMuNTUzLDMuNTUzVjc3LjA4NHoiCiAgICAgICAgIGZpbGw9IiNGRkZGRkYiIC8+PC9nPjxnCiAgICAgICBpZD0iZzM0MTkiPjxwYXRoCiAgICAgICAgIGQ9Ik02Ny43NjIsNDguMDc0YzAsMS45NTQtMS41OTksMy41NTMtMy41NTMsMy41NTNINTEuOTg4Yy0xLjk1NCwwLTMuNTUzLTEuNTk5LTMuNTUzLTMuNTUzdi05LjM3OSAgICBjMC0xLjk1NCwxLjU5OS0zLjU1MywzLjU1My0zLjU1M0g2NC4yMWMxLjk1NCwwLDMuNTUzLDEuNTk5LDMuNTUzLDMuNTUzVjQ4LjA3NHoiCiAgICAgICAgIGZpbGw9IiNGRkZGRkYiIC8+PC9nPjxnPjxwYXRoCiAgICAgICAgIGQ9Ik04Mi43NTIsNzcuMDg0YzAsMS45NTQtMS41OTksMy41NTMtMy41NTMsMy41NTNINjYuOTc3Yy0xLjk1NCwwLTMuNTUzLTEuNTk5LTMuNTUzLTMuNTUzdi05LjM3OSAgICBjMC0xLjk1NCwxLjU5OS0zLjU1MywzLjU1My0zLjU1M2gxMi4yMjJjMS45NTQsMCwzLjU1MywxLjU5OSwzLjU1MywzLjU1M1Y3Ny4wODR6IgogICAgICAgICBmaWxsPSIjRkZGRkZGIiAvPjwvZz48L2c+PC9zdmc+)' :
 			'url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJFYmVuZV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKCSB2aWV3Qm94PSIwIDAgMjI1IDIyNSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMjI1IDIyNTsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPgoJLnN0MXtmaWxsOiNERjZDMEM7fQoJLnN0MntmaWxsOiNGRkZGRkY7fQo8L3N0eWxlPgo8cGF0aCBjbGFzcz0ic3QxIiBkPSJNMjI1LDIxNS40YzAsNS4zLTQuMyw5LjYtOS41LDkuNmwwLDBINzcuMWwtNDQuOC00NS41TDYwLjIsMTM0bDgyLjctMTAyLjdsODIuMSw4NC41VjIxNS40eiIvPgo8cGF0aCBjbGFzcz0ic3QyIiBkPSJNMTg0LjYsMTI1LjhoLTIzLjdsLTI1LTQyLjdjNS43LTEuMiw5LjgtNi4yLDkuNy0xMlYzOWMwLTYuOC01LjQtMTIuMy0xMi4yLTEyLjNoLTAuMUg5MS42CgljLTYuOCwwLTEyLjMsNS40LTEyLjMsMTIuMlYzOXYzMi4xYzAsNS44LDQsMTAuOCw5LjcsMTJsLTI1LDQyLjdINDAuNGMtNi44LDAtMTIuMyw1LjQtMTIuMywxMi4ydjAuMXYzMi4xCgljMCw2LjgsNS40LDEyLjMsMTIuMiwxMi4zaDAuMWg0MS43YzYuOCwwLDEyLjMtNS40LDEyLjMtMTIuMnYtMC4xdi0zMi4xYzAtNi44LTUuNC0xMi4zLTEyLjItMTIuM2gtMC4xaC00bDI0LjgtNDIuNGgxOS4zCglsMjQuOSw0Mi40SDE0M2MtNi44LDAtMTIuMyw1LjQtMTIuMywxMi4ydjAuMXYzMi4xYzAsNi44LDUuNCwxMi4zLDEyLjIsMTIuM2gwLjFoNDEuN2M2LjgsMCwxMi4zLTUuNCwxMi4zLTEyLjJ2LTAuMXYtMzIuMQoJYzAtNi44LTUuNC0xMi4zLTEyLjItMTIuM0MxODQuNywxMjUuOCwxODQuNywxMjUuOCwxODQuNiwxMjUuOHoiLz4KPC9zdmc+Cg==)');
@@ -6838,7 +7211,8 @@ App.prototype.updateHeader = function()
 		
 		if (urlParams['embed'] != '1')
 		{
-			this.menubarContainer.appendChild(this.appIcon);
+			// 加入图标
+			// this.menubarContainer.appendChild(this.appIcon);
 		}
 	
 		this.fnameWrapper = document.createElement('div');
@@ -6887,13 +7261,13 @@ App.prototype.updateHeader = function()
 		
 		if (urlParams['embed'] != '1')
 		{
-			this.menubarContainer.appendChild(this.fnameWrapper);
-		
-			this.menubar.container.style.position = 'absolute';
-			this.menubar.container.style.paddingLeft = '59px';
-			this.toolbar.container.style.paddingLeft = '16px';
-			this.menubar.container.style.boxSizing = 'border-box';
-			this.menubar.container.style.top = '34px';
+			// this.menubarContainer.appendChild(this.fnameWrapper);
+			// 去除顶部菜单栏的默认样式
+			// this.menubar.container.style.position = 'absolute';
+			// this.menubar.container.style.paddingLeft = '59px';
+			// this.toolbar.container.style.paddingLeft = '16px';
+			// this.menubar.container.style.boxSizing = 'border-box';
+			// this.menubar.container.style.top = '34px';
 		}
 		
 		/**

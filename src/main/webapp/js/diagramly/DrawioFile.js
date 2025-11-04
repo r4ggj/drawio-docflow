@@ -1513,8 +1513,10 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 
 			var status = mxUtils.htmlEntities(mxResources.get('unsavedChangesClickHereToSave')) +
 				((msg != null && msg != '') ? ' (' + mxUtils.htmlEntities(msg) + ')' : '');
-			this.ui.editor.setStatus('<div title="'+ status + '" class="geStatusAlertOrange">' + status +
-				' <img src="' + Editor.saveImage + '"/></div>');
+			// this.ui.editor.setStatus('<div title="'+ status + '" class="geStatusAlertOrange">' + status +
+			// 	' <img src="' + Editor.saveImage + '"/></div>');
+
+			this.ui.editor.setStatus('<div title="'+ status + '" class="geStatusAlertOrange">' + status);
 			
 			// Installs click handler for saving
 			var links = this.ui.statusContainer.getElementsByTagName('div');
@@ -1525,6 +1527,8 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 
 				mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
 				{
+					console.log('我已经被点击了-------->');
+					console.log(this.ui.actions);
 					this.ui.actions.get((this.ui.mode == null || !this.isEditable()) ?
 						'saveAs' : 'save').funct();
 				}));

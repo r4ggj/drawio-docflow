@@ -1815,7 +1815,8 @@ ArrangePanel.prototype.addGroupOps = function(div)
 
 	if (graph.getSelectionCount() == 1)
 	{
-		count += this.addActions(div, ['editData', 'editLink']);
+		//count += this.addActions(div, ['editData', 'editLink']);
+		count += this.addActions(div, ['editLink']);
 	}
 	
 	if (count == 0)
@@ -6647,7 +6648,7 @@ DiagramFormatPanel.prototype.addPaperSize = function(div)
  */
 DiagramFormatPanel.prototype.addStyleOps = function(div)
 {
-	this.addActions(div, ['editData']);
+	// this.addActions(div, ['editData']);
 	this.addActions(div, ['clearDefaultStyle']);
 
 	return div;

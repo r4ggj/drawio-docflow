@@ -1395,7 +1395,7 @@ Graph.zapGremlins = function(text)
 {
 	var lastIndex = 0;
 	var checked = [];
-	
+
 	for (var i = 0; i < text.length; i++)
 	{
 		var code = text.charCodeAt(i);
@@ -1537,27 +1537,38 @@ Graph.arrayBufferIndexOfString = function (uint8Array, str, start)
 
 /**
  * Returns a base64 encoded version of the compressed string.
+ * zhaodeezhu 修改判断是否对数据压缩直接压缩
  */
 Graph.compress = function(data, deflate)
 {
+	if (urlParams.noCompress) {
+	  return data;
+	}
 	if (data == null || data.length == 0 || typeof(pako) === 'undefined')
 	{
 		return data;
 	}
 	else
-	{
+	{	
+			const start = new Date().getTime();
    		var tmp = (deflate) ? pako.deflate(encodeURIComponent(data)) :
    			pako.deflateRaw(encodeURIComponent(data));
-   		
+				 const end = new Date().getTime();
+				 console.log(end - start, '--------->1111')
    		return btoa(Graph.arrayBufferToString(new Uint8Array(tmp)));
 	}
 };
 
 /**
  * Returns a decompressed version of the base64 encoded string.
+ * zhaodeezhu 修改判断是否对数据压缩直接压缩
  */
 Graph.decompress = function(data, inflate, checked)
 {
+	if (urlParams.noCompress) {
+		return data;
+	}
+	
    	if (data == null || data.length == 0 || typeof(pako) === 'undefined')
 	{
 		return data;

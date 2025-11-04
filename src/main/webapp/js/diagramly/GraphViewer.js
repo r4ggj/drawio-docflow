@@ -16,13 +16,16 @@ mxUtils.extend(GraphViewer, mxEventSource);
 /**
  * Redirects editing to absolue URLs.
  */
-GraphViewer.prototype.editBlankUrl = 'https://app.diagrams.net/';
+// GraphViewer.prototype.editBlankUrl = 'https://app.diagrams.net/';
+// GraphViewer.prototype.editBlankUrl = 'http://localhost:2008/';
+GraphViewer.prototype.editBlankUrl = '/webapp';
 
 /**
  * Base URL for relative images.
  */
-GraphViewer.prototype.imageBaseUrl = 'https://viewer.diagrams.net/';
-
+// GraphViewer.prototype.imageBaseUrl = 'https://viewer.diagrams.net/';
+// GraphViewer.prototype.imageBaseUrl = 'http://localhost:2008/';
+GraphViewer.prototype.imageBaseUrl = '/webapp';
 /**
  * Redirects editing to absolue URLs.
  */
@@ -1327,7 +1330,10 @@ GraphViewer.prototype.addToolbar = function()
 	var tagsComponent = null;
 	var tagsDialog = null;
 	var pageInfo = null;
-	
+	// zhaodeezhu 添加编辑图标
+	if(GraphViewer.editableCard) {
+		tokens.push('editor');
+	}
 	for (var i = 0; i < tokens.length; i++)
 	{
 		var token = tokens[i];
@@ -1551,6 +1557,26 @@ GraphViewer.prototype.addToolbar = function()
 				}), Editor.fullscreenImage, (mxResources.get('fullscreen') || 'Fullscreen'));
 			}
 		}
+		else if (token == 'editor') {
+			addButton(mxUtils.bind(this, function(e) {
+				if(e) {
+					if(e.stopPropagation) {
+						e.stopPropagation()
+					} else {
+						e.cancelBubble = true;
+					}
+				}
+				console.log('我是要触发编辑事件了--------->')
+				var viewerEditEvent = new CustomEvent('viewerEditEvent', {
+					detail: this.graphConfig
+				})
+				if(window.dispatchEvent) {  
+					window.dispatchEvent(viewerEditEvent);
+				} else {
+					window.fireEvent(viewerEditEvent);
+				}
+			}), Editor.editImage, (mxResources.get('edit') || 'edit'));
+		}
 		else if (this.graphConfig['toolbar-buttons'] != null)
 		{
 			var def = this.graphConfig['toolbar-buttons'][token];
@@ -1560,7 +1586,7 @@ GraphViewer.prototype.addToolbar = function()
 				def.elem = addButton((def.enabled == null || def.enabled) ? def.handler : function() {},
 					def.image, def.title, def.enabled);
 			}
-		}
+		} 
 	}
 	
 	if (this.graph.minimumContainerSize != null)
@@ -1610,8 +1636,12 @@ GraphViewer.prototype.addToolbar = function()
 			{
 				if (this.graphConfig['toolbar-position'] != 'inline')
 				{
-					toolbar.style.marginTop = -this.toolbarHeight + 'px';
-					toolbar.style.top = r.top + 1 + 'px';
+					// zhaodeezhu toolbar 鼠标划到图上执行
+					// toolbar.style.marginTop = -this.toolbarHeight + 'px';
+					// toolbar.style.top = r.top + 1 + 'px';
+					toolbar.style.top = '0' + 'px';
+					toolbar.style.left = '0' + 'px';
+					// container.style.overflow = 'visible';
 				}
 				else
 				{
@@ -1624,7 +1654,10 @@ GraphViewer.prototype.addToolbar = function()
 				container.style.border = '1px solid #d0d0d0';
 			}
 			
-			document.body.appendChild(toolbar);
+			// document.body.appendChild(toolbar);
+			// zhaodeezhu toolbar 将toolbar插在父元素上
+			container.appendChild(toolbar);
+
 
 			var hideToolbar = mxUtils.bind(this, function()
 			{
@@ -1655,7 +1688,6 @@ GraphViewer.prototype.addToolbar = function()
 					
 					source = source.parentNode;
 				}
-				
 				hideToolbar();
 			});
 			
@@ -1763,7 +1795,8 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 			(!mxEvent.isTouchEvent(evt) ||
 			this.toolbarItems.length == 0))
 		{
-			this.showLightbox();
+			// 点击图放大
+			// this.showLightbox();
 		}
 	}));
 };
@@ -2065,11 +2098,14 @@ GraphViewer.prototype.updateTitle = function(title)
 	}
 };
 
+GraphViewer.editableCard = true;
+
 /**
  * 
  */
-GraphViewer.processElements = function(classname)
+GraphViewer.processElements = function(classname, editable = true)
 {
+	GraphViewer.editableCard = editable;
 	mxUtils.forEach(GraphViewer.getElementsByClassName(classname || 'mxgraph'), function(div)
 	{
 		try
@@ -2135,16 +2171,20 @@ GraphViewer.getElementsByClassName = function(classname)
 /**
  * Adds the given array of stencils to avoid dynamic loading of shapes.
  */
-GraphViewer.createViewerForElement = function(element, callback)
+GraphViewer.createViewerForElement = function(element, callback, noToolbar = false)
 {
 	var data = element.getAttribute('data-mxgraph');
 	
 	if (data != null)
 	{
 		var config = JSON.parse(data);
+		if(noToolbar) {
+			config.toolbar = null;
+		}
 		
 		var createViewer = function(xml)
 		{
+			// zhaodeezhu 将xml转化回来
 			var xmlDoc = mxUtils.parseXml(xml);
 			var viewer = new GraphViewer(element, xmlDoc.documentElement, config);
 			
@@ -2165,6 +2205,7 @@ GraphViewer.createViewerForElement = function(element, callback)
 		{
 			createViewer(config.xml);
 		}
+		return this.graph
 	}
 };
 

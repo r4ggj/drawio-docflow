@@ -952,7 +952,8 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 		document.body.appendChild(this.bg);
 	}
 	
-	var div = editorUi.createDiv(transparent? 'geTransDialog' : 'geDialog');
+	//var div = editorUi.createDiv(transparent? 'geTransDialog' : 'geDialog');
+        var div = editorUi.createDiv(transparent? 'geTransDialog' : '');
 	var pos = this.getPosition(left, top, w, h);
 	left = pos.x;
 	top = pos.y;
@@ -962,7 +963,9 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	div.style.left = left + 'px';
 	div.style.top = top + 'px';
 	div.style.zIndex = this.zIndex;
-	
+	div.style.position = 'fixed'
+
+	// chenchenchen
 	div.appendChild(elt);
 	document.body.appendChild(div);
 	
@@ -973,26 +976,34 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	}
 	
 	//Prevent horizontal scrollbar
+	elt.style.width = '100%'
 	elt.style.overflowX = 'hidden';
-	
+	elt.style.background = 'rgb(255,255,255)'
+	elt.style.border = '1px solid rgb(172, 172, 172)'
+	elt.style.padding = '30px'
+	elt.style.boxShadov = 'rgb(213 213 213) 0px 0px 2px 2px' 
 	if (closable)
 	{
-		var img = document.createElement('img');
+		// var img = document.createElement('img');
 
-		img.setAttribute('src', Dialog.prototype.closeImage);
-		img.setAttribute('title', mxResources.get('close'));
-		img.className = 'geDialogClose';
-		img.style.top = (top + 14) + 'px';
-		img.style.left = (left + w + 38 - dx) + 'px';
-		img.style.zIndex = this.zIndex;
+		// img.setAttribute('src', Dialog.prototype.closeImage);
+		// img.setAttribute('title', mxResources.get('close'));
+		// img.className = 'geDialogClose';
+		// img.style.top = (top + 14) + 'px';
+		// img.style.left = (left + w + 38 - dx) + 'px';
+		// img.style.zIndex = this.zIndex;
 		
-		mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
-		{
-			editorUi.hideDialog(true);
-		}));
+		// mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
+		// {
+		// 	if (window.top !== window.self) {
+		// 		window.top.postMessage({ type: 'drawio-cancel',data: {} }, '*');
+		// 		return;
+		// 	}
+		// 	editorUi.hideDialog(false);
+		// }));
 		
-		document.body.appendChild(img);
-		this.dialogImg = img;
+		// document.body.appendChild(img);
+		// this.dialogImg = img;
 		
 		if (!ignoreBgClick)
 		{

@@ -3404,10 +3404,11 @@ EditorUi.prototype.addBeforeUnloadListener = function()
 	// This must be disabled during save and image export
 	window.onbeforeunload = mxUtils.bind(this, function()
 	{
-		if (!this.editor.isChromelessView())
-		{
-			return this.onBeforeUnload();
-		}
+		// zhaodeezhu 去除掉网页重新加载时的提示
+		// if (!this.editor.isChromelessView())
+		// {
+		// 	return this.onBeforeUnload();
+		// }
 	});
 };
 
@@ -4266,7 +4267,8 @@ EditorUi.prototype.createTabContainer = function()
  */
 EditorUi.prototype.createDivs = function()
 {
-	this.menubarContainer = this.createDiv('geMenubarContainer');
+	this.geReturnBarContainer = this.createDiv('ge-return-bar-container');
+	this.menubarContainer = this.createDiv('geMenubarContainer ge-menubar-container-custom');
 	this.toolbarContainer = this.createDiv('geToolbarContainer');
 	this.sidebarContainer = this.createDiv('geSidebarContainer');
 	this.formatContainer = this.createDiv('geSidebarContainer geFormatContainer');
@@ -4279,6 +4281,7 @@ EditorUi.prototype.createDivs = function()
 	this.menubarContainer.style.top = '0px';
 	this.menubarContainer.style.left = '0px';
 	this.menubarContainer.style.right = '0px';
+	this.menubarContainer.style.display = 'none';
 	this.toolbarContainer.style.left = '0px';
 	this.toolbarContainer.style.right = '0px';
 	this.sidebarContainer.style.left = '0px';
@@ -4320,28 +4323,47 @@ EditorUi.prototype.createSidebarFooterContainer = function()
  */
 EditorUi.prototype.createUi = function()
 {
+	var backButton = this.createBackButton();
+	var lineBack = this.createBackButtonLine();
+	var lineSave = this.createBackButtonLine();
+	var logo = this.createLogoAndTitle();
+	this.statusContainer = this.createStatusContainer();
+	var exportButton = this.createExportImgButton();
+	var logoContainer = this.createDiv('ge-logo-container-custom');
+	logoContainer.appendChild(backButton);
+	logoContainer.appendChild(lineBack);
+	logoContainer.appendChild(this.statusContainer);
+	logoContainer.appendChild(lineSave);
+	logoContainer.appendChild(logo);
 	// Creates menubar
-	this.menubar = (this.editor.chromeless) ? null : this.menus.createMenubar(this.createDiv('geMenubar'));
+	this.menubar = (this.editor.chromeless) ? null : this.menus.createMenubar(this.createDiv('geMenubar ge-menubar-custom'));
 	
 	if (this.menubar != null)
 	{
+		this.menubarContainer.appendChild(logoContainer);
 		this.menubarContainer.appendChild(this.menubar.container);
 	}
 	
 	// Adds status bar in menubar
 	if (this.menubar != null)
 	{
-		this.statusContainer = this.createStatusContainer();
+		// 添加保存按钮
+		// this.statusContainer = this.createStatusContainer();
+		// 添加退出按钮
+		this.backContainer = this.createBackContainer();
 	
 		// Connects the status bar to the editor status
 		this.editor.addListener('statusChanged', mxUtils.bind(this, function()
 		{
+			console.log('statusChanged', this.editor.getStatus());
 			this.setStatusText(this.editor.getStatus());
 		}));
 	
-		this.setStatusText(this.editor.getStatus());
-		this.menubar.container.appendChild(this.statusContainer);
-		
+		this.setStatusText('<div title="保存" class="geStatusAlertOrange">保存');
+		this.menubar.container.appendChild(exportButton);
+		// this.menubar.container.appendChild(this.backContainer);
+		// 将保存按钮添加到tip栏上
+		// this.menubar.container.appendChild(this.statusContainer);
 		// Inserts into DOM
 		this.container.appendChild(this.menubarContainer);
 	}
@@ -4405,6 +4427,101 @@ EditorUi.prototype.createUi = function()
 	}
 };
 
+/** 绘制退出按钮 */
+EditorUi.prototype.createBackButton = function() {
+	const backButton = this.createDiv('ge-back-button');
+	const backIcon = this.createDiv('ge-back-icon');
+	const backText = this.createDiv('ge-back-text');
+	backText.innerHTML = '退出';
+	const svgIcon = document.createElement('img');
+	svgIcon.src = '/images/back-custom.png';
+	svgIcon.style.width = '18px';
+	svgIcon.style.height = '18px';
+	backIcon.appendChild(svgIcon);
+	backButton.appendChild(backIcon);
+	backButton.appendChild(backText);
+
+	mxEvent.addListener(backButton, 'click', mxUtils.bind(this, function()
+	{
+		console.log('我执行了退出了------');
+		console.log(this.editor.getStatus());
+		const saveStatus = this.editor.getStatus();
+		// 说明存在没保存的数据，要先弹窗提醒
+		if (saveStatus) {
+			const value = confirm('您存在未保存的数据，是否直接退出');
+			if (value) {
+				// this.actions.get((this.mode == null || !this.currentFile.isEditable()) ?
+				// 'saveAs' : 'save').funct();
+				top && top.postMessage({
+					type: 'drawio-cancel'
+					// data: data
+				}, '*');
+				return;
+			}
+		} else {
+			top && top.postMessage({
+				type: 'drawio-cancel'
+				// data: data
+			}, '*');
+		}
+	}));
+
+	return backButton;
+}
+
+/** 绘制按钮分隔线 */
+EditorUi.prototype.createBackButtonLine = function() {
+	const backLine = this.createDiv('ge-back-button-line');
+	
+	return backLine;
+}
+
+/** 绘制logo和标题 */
+EditorUi.prototype.createLogoAndTitle = function() {
+	const logoAndTitle = this.createDiv('ge-logo-and-title');
+	const img = document.createElement('img');
+	img.src = '/docflow/drawio/images/android-chrome-192x192.png';
+	img.style.height = '42px';
+	img.style.width = '42px';
+	const title = this.createDiv('ge-title');
+	title.innerHTML = '流程图';
+	logoAndTitle.appendChild(img);
+	logoAndTitle.appendChild(title);
+	
+	return logoAndTitle;
+}
+
+/** 添加导出图片按钮 */
+EditorUi.prototype.createExportImgButton = function() {
+	const exportImgButton = this.createDiv('ge-export-img-button');
+	const exportImgIcon = this.createDiv('ge-export-img-icon');
+	const exportImgText = this.createDiv('ge-export-img-text');
+	exportImgText.innerHTML = '导出图片';
+	const svgIcon = document.createElement('img');
+	svgIcon.src = '/docflow/drawio/images/export-custom.png';
+	svgIcon.style.width = '18px';
+	svgIcon.style.height = '18px';
+	exportImgIcon.appendChild(svgIcon);
+	exportImgButton.appendChild(exportImgIcon);
+	exportImgButton.appendChild(exportImgText);
+
+	mxEvent.addListener(exportImgButton, 'click', mxUtils.bind(this, function()
+	{
+		this.editor.exportToCanvas(mxUtils.bind(this, function(canvas) {
+				var url = canvas.toDataURL('image/' + 'png', 1.0);
+				var a = document.createElement('a');
+				a.href = url;
+				a.download = '图像.png';
+				a.click();
+			}), null, this.thumbImageCache, null, mxUtils.bind(this, function(e) {
+			   		this.spinner.stop();
+			   		this.handleError(e);
+			}));
+		}, null, null, 1, false));
+
+	return exportImgButton;
+}
+
 /**
  * Creates a new toolbar for the given container.
  */
@@ -4416,11 +4533,55 @@ EditorUi.prototype.createStatusContainer = function()
 	return container;
 };
 
+EditorUi.prototype.createBackContainer = function()
+{
+	var container = document.createElement('a');
+	var exit = mxUtils.htmlEntities(mxResources.get('exit'));
+	container.innerHTML = `<div class="geBackAlertOrange">${exit}</div>`
+	container.className = 'geItem geStatus';
+	// 我要去执行退出
+	mxEvent.addListener(container, 'click', mxUtils.bind(this, function()
+	{
+		console.log('我执行了退出了------');
+		console.log(this.editor.getStatus());
+		const saveStatus = this.editor.getStatus();
+		// 说明存在没保存的数据，要先弹窗提醒
+		if (saveStatus) {
+			const value = confirm('您存在未保存的数据，是否直接退出');
+			if (value) {
+				// this.actions.get((this.mode == null || !this.currentFile.isEditable()) ?
+				// 'saveAs' : 'save').funct();
+				top && top.postMessage({
+					type: 'drawio-cancel'
+					// data: data
+				}, '*');
+				return;
+			}
+		} else {
+			top && top.postMessage({
+				type: 'drawio-cancel'
+				// data: data
+			}, '*');
+		}
+	}));
+	return container;
+};
+
+
+
 /**
  * Creates a new toolbar for the given container.
  */
 EditorUi.prototype.setStatusText = function(value)
 {
+	if (!value) {
+		value += '<div title="保存" class="geStatusAlertOrange">保存'
+	}
+
+	if (value) {
+		value += '</div><img src="/docflow/drawio/images/save-custom.png" height="18" width=""18 />'
+	}
+
 	this.statusContainer.innerHTML = value;
 };
 
@@ -4613,6 +4774,7 @@ EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, no
  */
 EditorUi.prototype.hideDialog = function(cancel, isEsc, matchContainer)
 {
+	console.log(this.dialogs);
 	if (this.dialogs != null && this.dialogs.length > 0)
 	{
 		if (matchContainer != null && matchContainer != this.dialog.container.firstChild)
@@ -5064,12 +5226,14 @@ EditorUi.prototype.isCompatibleString = function(data)
  */
 EditorUi.prototype.saveFile = function(forceDialog)
 {
+	console.log('我是文件名已经被执行了---------->111')
 	if (!forceDialog && this.editor.filename != null)
 	{
 		this.save(this.editor.getOrCreateFilename());
 	}
 	else
 	{
+		console.log('我是文件名已经被执行了---------->')
 		var dlg = new FilenameDialog(this, this.editor.getOrCreateFilename(), mxResources.get('save'), mxUtils.bind(this, function(name)
 		{
 			this.save(name);

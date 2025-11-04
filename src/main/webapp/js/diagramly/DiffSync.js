@@ -1035,6 +1035,8 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
 
 	if (oldCell.connectable != newCell.connectable)
 	{
+		console.log('我要对比了-----', newCell.connectable);
+
 		diff.connectable = (newCell.connectable) ? 1 : 0;
 	}
 	

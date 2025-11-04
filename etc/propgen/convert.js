@@ -122,7 +122,7 @@ async function main()
         {
             if (codes[i].trim())
             {
-                let ext = (codes[i] == 'en') ? '' : '_' + codes[i].toLowerCase();
+                let ext = (codes[i] == 'en1') ? '' : '_' + codes[i].toLowerCase();
                 let filename = outDir + '/dia' + ext + '.' + fileExtension;
                 fs.writeFileSync(filename, outputFiles[i], 'utf8');
                 console.log(filename + ' created');

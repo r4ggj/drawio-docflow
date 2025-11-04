@@ -1170,14 +1170,14 @@ var com;
 						}
 						
 						//Handle NURBS
-						for (var i = 0; i < rows.length; i++)
-						{
-							if (rows[i] instanceof com.mxgraph.io.vsdx.geometry.NURBSTo)
-							{
-								//TODO HAndle NURBS points (convert to curved edge with these points)
-								//var str = rows[i].handle({}, edgeShape);
-							}
-						}
+						// for (var i = 0; i < rows.length; i++)
+						// {
+						// 	if (rows[i] instanceof com.mxgraph.io.vsdx.geometry.NURBSTo)
+						// 	{
+						// 		//TODO HAndle NURBS points (convert to curved edge with these points)
+						// 		//var str = rows[i].handle({}, edgeShape);
+						// 	}
+						// }
 					}
 					catch(e){} //Ignore
 				};
