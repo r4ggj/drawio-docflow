@@ -38,4 +38,6 @@ window.OPEN_FORM = window.OPEN_FORM || 'open.html';
 window.mxBasePath = window.mxBasePath || 'mxgraph';
 window.mxImageBasePath = window.mxImageBasePath || 'mxgraph/images';
 window.mxLanguage = window.mxLanguage || urlParams['lang'];
-window.mxLanguages = window.mxLanguages || ['de', 'se'];
+// ganguojiang start 修改默认支持多语言
+window.mxLanguages = window.mxLanguages || ['zh', 'ja'];
+// ganguojiang end 修改默认支持多语言

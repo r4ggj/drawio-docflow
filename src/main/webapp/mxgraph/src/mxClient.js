@@ -344,7 +344,22 @@ var mxClient =
 	 */
 	include: function(src)
 	{
-		document.write('<script src="'+src+'"></script>');
+		// ganguojiang start
+		// 默认的加载方式报警告 Failed to execute 'write' on 'Document': It isn't possible to write into a document from an asynchronously-loaded external script unless it is explicitly opened.
+		// document.write('<script src="'+src+'"></script>');
+		
+		// 新的加载方式
+		// 创建script元素
+		const script = document.createElement('script');
+		// 设置脚本地址
+		script.src = src;
+		script.defer = true;
+		script.async = false;
+		// 可选：设置加载方式（如async/defer，根据需求决定）
+		// script.async = true; 
+		// 将脚本添加到DOM（如head或body中）
+		document.head.appendChild(script); // 或 document.body.appendChild(script)
+		// ganguojiang end
 	}
 };
 

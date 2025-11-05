@@ -76,7 +76,8 @@ window.DRAWIO_CONFIG = window.DRAWIO_CONFIG || null;
 // save a GET request. This requires that all resources be present in
 // the special bundle.
 window.mxLoadResources = window.mxLoadResources || false;
-window.mxLanguage = window.mxLanguage || (function() 
+// ganguojiang start 提取匿名函数为具名函数getInitMxLanguage
+window.getInitMxLanguage = function() 
 {
 	var lang = urlParams['lang'];
 	
@@ -122,7 +123,10 @@ window.mxLanguage = window.mxLanguage || (function()
 	}
 	
 	return lang;
-})();
+}
+
+window.mxLanguage = window.mxLanguage || window.getInitMxLanguage();
+// ganguoguojiang end 提取匿名函数为具名函数getInitMxLanguage 
 
 // Add new languages here. First entry is translated to [Automatic]
 // in the menu defintion in Diagramly.js.
