@@ -6593,9 +6593,9 @@
 		
 		var getInsertPoint = this.getInsertPoint;
 		
-		this.getInsertPoint = function()
+		this.getInsertPoint = function(ignoreMouseEvent)
 		{
-			if (mouseEvent != null)
+			if (mouseEvent != null && !ignoreMouseEvent)
 			{
 				return this.getPointForEvent(mouseEvent);
 			}

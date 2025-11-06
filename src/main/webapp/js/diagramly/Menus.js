@@ -3705,7 +3705,14 @@
 
         this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-			this.addMenuItems(menu, ['fromText', 'plantUml', 'formatSql', 'csv'], parent);
+			var insertMenuItems = ['fromText', 'plantUml', 'formatSql', 'csv'];
+
+			if (!EditorUi.enablePlantUml)
+			{
+				insertMenuItems.splice(1, 1);
+			}
+
+			this.addMenuItems(menu, insertMenuItems, parent);
 			
 			if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'min')
 			{

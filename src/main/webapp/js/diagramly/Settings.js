@@ -75,7 +75,16 @@ var mxSettings =
 	},
 	getGridColor: function(darkMode)
 	{
-		return (darkMode) ? mxSettings.settings.darkGridColor : mxSettings.settings.gridColor;
+		var result = (darkMode) ? mxSettings.settings.darkGridColor :
+			mxSettings.settings.gridColor;
+
+		if (mxUtils.isLightDarkColor(result))
+		{
+			var ld = mxUtils.getLightDarkColor(result);
+			result = (darkMode) ? ld.dark : ld.light;
+		}
+
+		return result;
 	},
 	setGridColor: function(gridColor, darkMode)
 	{

@@ -11461,7 +11461,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		/**
 		 * Returns a point that specifies the location for inserting cells.
 		 */
-		Graph.prototype.getInsertPoint = function()
+		Graph.prototype.getInsertPoint = function(ignoreMouseEvent)
 		{
 			var gs = this.getGridSize();
 			var dx = this.container.scrollLeft / this.view.scale - this.view.translate.x;
@@ -11481,11 +11481,11 @@ if (typeof mxVertexHandler !== 'undefined')
 		/**
 		 * 
 		 */
-		Graph.prototype.getFreeInsertPoint = function()
+		Graph.prototype.getFreeInsertPoint = function(ignoreMouseEvent)
 		{
 			var view = this.view;
 			var bds = this.getGraphBounds();
-			var pt = this.getInsertPoint();
+			var pt = this.getInsertPoint(ignoreMouseEvent);
 			
 			// Places at same x-coord and 2 grid sizes below existing graph
 			var x = this.snap(Math.round(Math.max(pt.x, bds.x / view.scale - view.translate.x +

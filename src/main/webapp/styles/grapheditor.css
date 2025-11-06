@@ -313,6 +313,11 @@ div[id*="dgeMermaidOutput-"] {
 	position: relative;
 }
 
+.geFreehandMode,
+.geFreehandMode * {
+	cursor: crosshair !important;
+}
+
 .geDarkMode .geButton,
 .geDarkMode .geHelpIcon:not(.geTitle *),
 .geDarkMode .mxPopupMenuItem>div:not(:has(img)),

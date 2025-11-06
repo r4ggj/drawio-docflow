@@ -1274,6 +1274,7 @@ EditorUi.prototype.findCommonProperties = function(cell, properties, addAll, sst
 				state.shape.stencil.desc != null)
 			{
 				var stencil = state.shape.stencil
+				var handledKeys = [];
 				
 				var getStencilColors = mxUtils.bind(this, function(nodeName)
 				{
@@ -1284,8 +1285,9 @@ EditorUi.prototype.findCommonProperties = function(cell, properties, addAll, sst
 					{
 						var name = nodes[i].getAttribute('color');
 
-						if (!mxUtils.isValidColor(name))
+						if (!mxUtils.isValidColor(name) && !handledKeys[name])
 						{
+							handledKeys[name] = true;
 							var label = nodes[i].getAttribute('name');
 							label = (label != null) ? label :
 								Editor.getLabelForStylename(name);
@@ -1303,9 +1305,11 @@ EditorUi.prototype.findCommonProperties = function(cell, properties, addAll, sst
 				});
 
 				Array.prototype.push.apply(state.shape.customProperties,
-						getStencilColors('fillcolor'))
+						getStencilColors('fillcolor'));
 				Array.prototype.push.apply(state.shape.customProperties,
-						getStencilColors('strokecolor'))
+						getStencilColors('strokecolor'));
+				Array.prototype.push.apply(state.shape.customProperties,
+						getStencilColors('fontcolor'));
 			}
 
 			// Adds common vertex/edge properties

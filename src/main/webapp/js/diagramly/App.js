@@ -3708,7 +3708,7 @@ App.prototype.openTemplateDialog = function(generatePrompt)
 			
 			if (xml != null)
 			{
-				var insertPoint = this.editor.graph.getFreeInsertPoint();
+				var insertPoint = this.editor.graph.getFreeInsertPoint(true);
 				graph.setSelectionCells(this.importXml(xml,
 					Math.max(insertPoint.x, 20),
 					Math.max(insertPoint.y, 20),

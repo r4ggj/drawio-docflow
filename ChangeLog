@@ -1,4 +1,11 @@
-23-OCT-2025 28.2.8
+03-NOV-2025: 28.2.9
+
+- Updates DOMPurify from 3.2.5 to 3.3.0
+- Adds handling of light-dark grid settings [jgraph/drawio#5285]
+- Fixes cursor state in freehand mode [jgraph/drawio#4936]
+- [conf forge] Changes to allow plantUml
+
+23-OCT-2025: 28.2.8
 
 - Hides inactive virtual bends for entity relations
 - Fixes preview button in smart template section

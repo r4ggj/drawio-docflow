@@ -2513,6 +2513,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	rightHighlightBorder = (rightHighlightBorder != null) ? rightHighlightBorder :
 		'2px dashed light-dark(#29b6f2, #00a8ff)';
 	templateFile = (templateFile != null) ? templateFile : EditorUi.templateFile;
+
+	// Handles click on insert while entering generate prompt
+	var insertWasPressed = false;
 	
 	var outer = document.createElement('div');
 	outer.style.userSelect = 'none';
@@ -3176,58 +3179,82 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	
 	function create()
 	{
-		if (templateExtUrl && openExtDocCallback != null)
+		if (selectedElt == generateElt && templateXml == null &&
+			generateButton != null && generateInput != null)
 		{
-			if (!showName)
+			if (callback && editorUi.spinner.spin(document.body,
+				mxResources.get('generate') + ' \''+
+					generateInput.value + '\''))
 			{
-				editorUi.hideDialog();
-			}
-			
-			openExtDocCallback(templateExtUrl, templateInfoObj, nameInput.value);
-		}
-		else if (callback)
-		{
-			if (!showName)
-			{
+				insertWasPressed = true;
 				editorUi.hideDialog();
 			}
 
-			callback(templateXml, nameInput.value, templateRealUrl, templateLibs);
+			generateButton.click();
 		}
 		else
 		{
-			var title = nameInput.value;
-				
-			if (title != null && title.length > 0)
+			if (insertWasPressed)
 			{
-				function doSave(mode, folderId, filename)
-				{
-					editorUi.createFile(filename, templateXml, (templateLibs != null &&
-						templateLibs.length > 0) ? templateLibs : null, mode, function()
-					{
-						editorUi.hideDialog();
-					}, null, folderId, null, (templateClibs != null &&
-						templateClibs.length > 0) ? templateClibs : null);
-				};
+				editorUi.spinner.stop();
+			}
 
-				if (editorUi.mode == App.MODE_GOOGLE || editorUi.mode == App.MODE_ONEDRIVE)
+			if (templateExtUrl && openExtDocCallback != null)
+			{
+				if (!showName && !insertWasPressed)
 				{
-					var dlg = new SaveDialog(editorUi, title, mxUtils.bind(this, function(input, mode, folderId)
-					{
-						doSave(mode, folderId, input.value);
-					}), null, null, null, null, editorUi.mode);
-
-					editorUi.showDialog(dlg.container, 420, 150, true, false);
-					dlg.init();
+					editorUi.hideDialog();
 				}
-				else
+				
+				openExtDocCallback(templateExtUrl, templateInfoObj, nameInput.value);
+			}
+			else if (callback)
+			{
+				if (!showName && !insertWasPressed)
 				{
-					editorUi.pickFolder(editorUi.mode, function(folderId)
+					editorUi.hideDialog();
+				}
+
+				callback(templateXml, nameInput.value, templateRealUrl, templateLibs);
+			}
+			else
+			{
+				var title = nameInput.value;
+					
+				if (title != null && title.length > 0)
+				{
+					function doSave(mode, folderId, filename)
 					{
-						doSave(editorUi.mode, folderId, title);
-					}, editorUi.mode != App.MODE_GOOGLE ||
-						editorUi.stateArg == null ||
-						editorUi.stateArg.folderId == null);
+						editorUi.createFile(filename, templateXml, (templateLibs != null &&
+							templateLibs.length > 0) ? templateLibs : null, mode, function()
+						{
+							if (!insertWasPressed)
+							{
+								editorUi.hideDialog();
+							}
+						}, null, folderId, null, (templateClibs != null &&
+							templateClibs.length > 0) ? templateClibs : null);
+					};
+
+					if (editorUi.mode == App.MODE_GOOGLE || editorUi.mode == App.MODE_ONEDRIVE)
+					{
+						var dlg = new SaveDialog(editorUi, title, mxUtils.bind(this, function(input, mode, folderId)
+						{
+							doSave(mode, folderId, input.value);
+						}), null, null, null, null, editorUi.mode);
+
+						editorUi.showDialog(dlg.container, 420, 150, true, false);
+						dlg.init();
+					}
+					else
+					{
+						editorUi.pickFolder(editorUi.mode, function(folderId)
+						{
+							doSave(editorUi.mode, folderId, title);
+						}, editorUi.mode != App.MODE_GOOGLE ||
+							editorUi.stateArg == null ||
+							editorUi.stateArg.folderId == null);
+					}
 				}
 			}
 		}
@@ -3486,8 +3513,16 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		magnifyGenerate.style.visibility = 'visible';
 	};
 
+	var generatingDiagram = false;
+
 	function generateDiagram(cancel)
 	{
+		if (generatingDiagram)
+		{
+			return;
+		}
+
+		generatingDiagram = true;
 		var desc = mxUtils.trim(generateInput.value);
 
 		if (!cancel && desc != '')
@@ -3499,6 +3534,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 			editorUi.generateDiagram(desc, mxUtils.bind(this, function(xml, imageData)
 			{
+				generatingDiagram = false;
+
 				if (selectedElt == generateElt && generateForm.style.display == 'none')
 				{
 					generateBackground = 'url(' + 'data:image/svg+xml;base64,' +
@@ -3510,17 +3547,24 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					lastAiTitle = desc;
 
 					stopInput();
+
+					if (insertWasPressed)
+					{
+						create();
+					}
 				}
 			}), mxUtils.bind(this, function(e)
 			{
-					if (selectedElt == generateElt)
-					{
-						generateForm.style.display = '';
-						generatePreview.style.display = 'none';
-						editGenerate.style.visibility = 'hidden';
-						magnifyGenerate.style.visibility = 'hidden';
-						editorUi.handleError(e);
-					}
+				generatingDiagram = false;
+
+				if (selectedElt == generateElt)
+				{
+					generateForm.style.display = '';
+					generatePreview.style.display = 'none';
+					editGenerate.style.visibility = 'hidden';
+					magnifyGenerate.style.visibility = 'hidden';
+					editorUi.handleError(e);
+				}
 			}));
 		}
 		else if (lastAiTitle != null)

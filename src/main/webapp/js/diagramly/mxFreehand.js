@@ -126,7 +126,16 @@ function mxFreehand(graph)
 		graph.getRubberband().setEnabled(!isEnabled);
 		graph.graphHandler.setSelectEnabled(!isEnabled);
 		graph.graphHandler.setMoveEnabled(!isEnabled);
-		graph.container.style.cursor = (isEnabled) ? 'crosshair' : '';
+
+		if (isEnabled)
+		{
+			graph.container.classList.add('geFreehandMode');
+		}
+		else
+		{
+			graph.container.classList.remove('geFreehandMode');
+		}
+
 		graph.fireEvent(new mxEventObject('freehandStateChanged'));
 	};
 	
@@ -351,20 +360,12 @@ function mxFreehand(graph)
         setEnabled(false);
 	};
 
-	// Stops all interactions if freehand is enabled
+	// Stops all shape interactions if freehand is enabled
 	graph.addListener(mxEvent.FIRE_MOUSE_EVENT, mxUtils.bind(this, function(sender, evt)
 	{
-		var evtName = evt.getProperty('eventName');
-		var me = evt.getProperty('event');
-		
-		if (evtName == mxEvent.MOUSE_MOVE && enabled)
+		if (enabled)
 		{
-			if (me.sourceState != null)
-			{
-				me.sourceState.setCursor('crosshair');
-			}
-			
-			me.consume();
+			evt.getProperty('event').consume();
 		}
 	}));
 	
