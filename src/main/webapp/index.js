@@ -280,11 +280,14 @@ window.RUN_ENV = process.env.RUN_ENV;
 if (process.env.RUN_ENV === "prod") {
   mxScriptsLoaded = true;
   mxscript("js/PreConfig.js", function () {
-    mxscript("js/app.min.js", function () {
-      mxScriptsLoaded = true;
-      checkAllLoaded();
-      mxscript("js/PostConfig.js");
-    });
+    // 先加载base.min.js，再加载app.min.js
+    mxscript('base.min.js', function() {
+      mxscript("js/app.min.js", function () {
+        mxScriptsLoaded = true;
+        checkAllLoaded();
+        mxscript("js/PostConfig.js");
+      });
+    })
   });
 } else if (process.env.RUN_ENV === "dev") {
   // Used to request grapheditor/mxgraph sources in dev mode
@@ -333,30 +336,33 @@ if (process.env.RUN_ENV === "prod") {
       // ganguojiang start
       // mxscript('js/app.min.js', function()
       // ganguojiang end
-      mxscript("js/app.min.js", function () {
-        mxScriptsLoaded = true;
-        checkAllLoaded();
+      // 先加载base.min.js，再加载app.min.js
+      mxscript('base.min.js', function() {
+        mxscript("js/app.min.js", function () {
+          mxScriptsLoaded = true;
+          checkAllLoaded();
 
-        // Electron
-        if (mxIsElectron) {
-          mxscript("js/diagramly/DesktopLibrary.js", function () {
-            mxscript("js/diagramly/ElectronApp.js", function () {
-              mxscript("js/extensions.min.js", function () {
-                mxscript("js/stencils.min.js", function () {
-                  mxscript("js/shapes-14-6-5.min.js", function () {
-                    mxscript("js/PostConfig.js");
+          // Electron
+          if (mxIsElectron) {
+            mxscript("js/diagramly/DesktopLibrary.js", function () {
+              mxscript("js/diagramly/ElectronApp.js", function () {
+                mxscript("js/extensions.min.js", function () {
+                  mxscript("js/stencils.min.js", function () {
+                    mxscript("js/shapes-14-6-5.min.js", function () {
+                      mxscript("js/PostConfig.js");
+                    });
                   });
                 });
               });
             });
-          });
-        } else if (!supportedDomain) {
-          // ganguojiang start
-          // mxscript('js/PostConfig.js');
-          mxscript("webapp/js/PostConfig.js");
-          // ganguojiang end
-        }
-      });
+          } else if (!supportedDomain) {
+            // ganguojiang start
+            // mxscript('js/PostConfig.js');
+            mxscript("webapp/js/PostConfig.js");
+            // ganguojiang end
+          }
+        });
+      })
     }
 
     if (!supportedDomain || mxIsElectron) {

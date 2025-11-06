@@ -10,7 +10,7 @@ const {
 
 const basePath = path.join(__dirname + '/../src/main/webapp')
 const joinPath = (path, name) => `${basePath}${path}/${name}.js`
-const version = fs.readFileSync(path.join(__dirname, '../VERSION')).trim()
+const version = fs.readFileSync(path.join(__dirname, '../VERSION')).toString().trim()
 
 const shapes = [...getJsFileList(basePath + '/shapes/'), ...getJsFileList(basePath + '/stencils/')]
 
@@ -20,9 +20,10 @@ const client = ['js/deflate/base64', 'js/diagramly/Init', 'js/grapheditor/Init',
   // 'js/jscolor/jscolor'
 ].map(item => joinPath('', item))
 
+// SketchExtraTheme 是从drawio官网提取的，增加sketch等主题
 const grapheditorTemp = [
   ...['Editor', 'EditorUi', 'Graph', 'Shapes', 'Actions'].map(item => joinPath('/js/grapheditor', item)),
-  ...['DrawioFile', 'LocalFile', 'Editor', 'EditorUi', 'Pages', 'Trees', 'Minimal', 'DrawioComment', 'DrawioUser'].map(item => joinPath('/js/diagramly', item)),
+  ...['DrawioFile', 'LocalFile', 'Editor', 'EditorUi', 'Pages', 'Trees', 'Minimal', 'SketchExtraTheme','DrawioComment', 'DrawioUser'].map(item => joinPath('/js/diagramly', item)),
   ...['Graph-Resources', 'Graph-Stylesheet', 'js/diagramly/GraphViewer'].map(item => joinPath('', item))
 ]
 const baseView = [
@@ -111,7 +112,8 @@ const tmp1 = [...[
 // const stencils = [...getJsFileList(basePath + '/stencils/'), basePath + '/js/stencils.min.js']
 async function init() {
   // 1.合并shapes和stencils下的所有js文件
-  await mergeFiles(basePath + '/js/shapes-14-6-5.min.js', shapes, false)
+  // 暂时不处理shapes了，最新的源代码把shapes源码干掉了，使用了压缩文件，直接用
+  // await mergeFiles(basePath + '/js/shapes-14-6-5.min.js', shapes, false)
   // 2.<target name="app" depends="merge">
   // 2.1添加环境变量
   await mergeFiles(basePath + '/tmp0.js', null, false, `

@@ -40,7 +40,10 @@ const options = {
 
 (async () => {
 
-  const port = 2302;
+  let port = 2302;
+  if(process.env.RUN_ENV === 'prod'){
+    port = 2303;
+  }
 
 
   const mergeConfig = await config('dev');
