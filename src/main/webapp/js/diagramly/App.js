@@ -8426,6 +8426,15 @@ Editor.prototype.resetGraph = function()
 		}
 		return container
 	}
+	// Menus.prototype.createMenubar 函数重写 去掉帮助按钮
+	const createMenubar = Menus.prototype.createMenubar;
+	Menus.prototype.createMenubar = function()
+	{
+		Menus.prototype.defaultMenuItems = Menus.prototype.defaultMenuItems.filter(function(item){
+			return item !== 'help';
+		});
+		return createMenubar.apply(this, arguments);
+	}
 	  
 })()
 // ganguojiang end

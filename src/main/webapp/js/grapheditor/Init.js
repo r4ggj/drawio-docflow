@@ -39,5 +39,13 @@ window.mxBasePath = window.mxBasePath || 'mxgraph';
 window.mxImageBasePath = window.mxImageBasePath || 'mxgraph/images';
 window.mxLanguage = window.mxLanguage || urlParams['lang'];
 // ganguojiang start 修改默认支持多语言
-window.mxLanguages = window.mxLanguages || ['zh', 'ja'];
+// window.mxLanguages = window.mxLanguages || ['zh', 'ja'];
+window.mxLanguages = ['zh', 'en'];
+window.window.mxLanguageMap = {
+    'i18n': '',
+    'en' : 'English',
+    // 'ja' : '日本語',
+	'zh' : '简体中文',
+	// 'zh-tw' : '繁體中文'
+}
 // ganguojiang end 修改默认支持多语言
