@@ -149,6 +149,9 @@ mxscript(geBasePath +'/Editor.js', function(){
 
 			mxscript(drawDevUrl + 'js/diagramly/Trees.js');
 			mxscript(drawDevUrl + 'js/diagramly/Minimal.js');
+			// ganguojiang start add sketch etc. theme
+			mxscript(drawDevUrl + 'js/diagramly/SketchExtraTheme.js');
+			// ganguojiang end add sketch etc. theme
 			mxscript(drawDevUrl + 'js/diagramly/App.js');
 
 			// GraphMl Import
