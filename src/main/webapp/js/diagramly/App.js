@@ -147,6 +147,23 @@ App = function(editor, container, lightbox)
 		}), 5000); //5 sec timeout
 	}
 
+	// ganguojiang start 监听message事件 start
+	const listener = mxUtils.bind(this, function (e) {
+		var data = e.data || {};
+		if(data){
+			if (data.type == 'edit') {
+			this.hideDialog()
+			this.updateDaokeFile(data.title, data.xml)
+			} else if(data.type === 'create'){
+				this.editor.graph.model.clear()
+				this.hideDialog()
+				this.updateDaokeFile(data.title, data.xml)
+			}
+		}
+	})
+
+	window.addEventListener('message', listener);
+	// ganguojiang start 监听message事件 end
 	this.load();
 };
 
@@ -8154,3 +8171,261 @@ Editor.prototype.resetGraph = function()
 		this.graph.pageFormat = mxSettings.getPageFormat();
 	}
 };
+
+/**
+ * ganguojiang start
+ * Addons to the App.js
+ */
+
+(function(){
+	// 新增方法 start
+	/** 选择模板创建 */
+	App.prototype.selectTemplateCreate = function() {
+	this.setCurrentFile(null);
+	var compact = this.isOffline();
+	// editorUi.mode = 'device'
+	var dlg = new NewDialog(this, compact, !(this.mode == App.MODE_DEVICE && 'chooseFileSystemEntries' in window));
+	this.showDialog(dlg.container, (compact) ? 350 : 620, (compact) ? 70 : 460, true, true, function(cancel)
+	{
+		// this.sidebar.hideTooltip();
+		if (cancel && this.getCurrentFile() == null)
+		{
+			this.showSplash();
+		}
+	});
+	
+	dlg.init();
+	}
+	
+	/** 创建临时文件 */
+	App.prototype.createDaokeFile = function(title, data, libs, mode, done, replace, folderId, tempFile, clibs) {
+	data = (data != null) ? data : this.emptyDiagramXml;
+	console.log(title, data);
+	console.log(new LocalFile(this, data, title, false));
+	this.fileCreated(new LocalFile(this, data, title, false), libs, replace, done, clibs);
+	}
+	
+	/** 更新当前图文件 */
+	App.prototype.updateDaokeFile = function(title, data) {
+	data = (data != null) ? data : this.emptyDiagramXml;
+	console.log(title, data);
+	console.log(new LocalFile(this, data, title, false));
+	this.fileDaokeUpdated(new LocalFile(this, data, title, false));
+	}
+	
+	App.prototype.fileDaokeUpdated = function(file, libs, replace, done, clibs) {
+	var url = window.location.pathname;
+	
+	if (libs != null && libs.length > 0)
+	{
+		url += '?libs=' + libs;
+	}
+	
+	if (clibs != null && clibs.length > 0)
+	{
+		url += '?clibs=' + clibs;
+	}
+	
+	url = this.getUrl(url);
+	
+	// Always opens a new tab for local files to avoid losing changes
+	if (file.getMode() != App.MODE_DEVICE)
+	{
+		url += '#' + file.getHash();
+	}
+	
+	// Makes sure to produce consistent output with finalized files via createFileData this needs
+	// to save the file again since it needs the newly created file ID for redirecting in HTML
+	if (this.spinner.spin(document.body, mxResources.get('inserting')))
+	{
+		var data = file.getData();
+		var dataNode = (data.length > 0) ? this.editor.extractGraphModel(
+			mxUtils.parseXml(data).documentElement, true) : null;
+		var redirect = window.location.protocol + '//' + window.location.hostname + url;
+		var node = dataNode;
+		var graph = null;
+		
+		// Handles special case where SVG files need a rendered graph to be saved
+		if (dataNode != null && /\.svg$/i.test(file.getTitle()))
+		{
+			graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
+			document.body.appendChild(graph.container);
+			node = this.decodeNodeIntoGraph(node, graph);
+		}
+		
+		file.setData(this.createFileData(dataNode, graph, file, redirect));
+	
+		if (graph != null)
+		{
+			graph.container.parentNode.removeChild(graph.container);
+		}
+	
+		var complete = mxUtils.bind(this, function()
+		{
+			this.spinner.stop();
+		});
+		
+		var fn = mxUtils.bind(this, function()
+		{
+			complete();
+			
+			var currentFile = this.getCurrentFile();
+			
+			if (replace == null && currentFile != null)
+			{
+				replace = !currentFile.isModified() && currentFile.getMode() == null;
+			}
+			var fn3 = mxUtils.bind(this, function()
+			{
+				window.openFile = null;
+				this.fileLoaded(file);
+				
+				if (replace)
+				{
+					file.addAllSavedStatus();
+				}
+				
+				if (libs != null)
+				{
+					this.sidebar.showEntries(libs);
+				}
+				
+				if (clibs != null)
+				{
+					var temp = [];
+					var tokens = clibs.split(';');
+					
+					for (var i = 0; i < tokens.length; i++)
+					{
+						temp.push(decodeURIComponent(tokens[i]));
+					}
+					
+					this.loadLibraries(temp);
+				}
+			});
+			var fn2 = mxUtils.bind(this, function()
+			{
+				if (replace || currentFile == null || !currentFile.isModified())
+				{
+					fn3();
+				}
+				else
+				{
+					// ganguojiang 提示跳转
+					// this.confirm(mxResources.get('allChangesLost'), null, fn3,
+					// 	mxResources.get('cancel'), mxResources.get('discardChanges'));
+				}
+			});
+	
+			if (done != null)
+			{
+				done();
+			}
+			
+			// Opens the file in a new window
+			if (replace != null && !replace)
+			{
+				// Opens local file in a new window
+				if (file.constructor == LocalFile)
+				{
+					window.openFile = new OpenFile(function()
+					{
+						window.openFile = null;
+					});
+						
+					window.openFile.setData(file.getData(), file.getTitle(), file.getMode() == null);
+				}
+	
+				if (done != null)
+				{
+					done();
+				}
+				console.log('我被执行了----9');
+				fn3();
+				// ganguojiang
+				// window.openWindow(url, null, fn2);
+			}
+			else
+			{
+				fn2();
+			}
+		});
+		
+		// Updates data in memory for local files
+		if (file.constructor == LocalFile)
+		{
+			fn();
+		}
+		else
+		{
+			file.saveFile(file.getTitle(), false, mxUtils.bind(this, function()
+			{
+				fn();
+			}), mxUtils.bind(this, function(resp)
+			{
+				complete();
+	
+				if (resp == null || resp.name != 'AbortError')
+				{
+					this.handleError(resp);
+				}
+			}));
+		}
+	}
+	}
+	// 新增方法 end
+	// App saveFile 函数重写
+	App.prototype.saveFile = function(forceDialog, success)
+	{
+		var file = this.getCurrentFile();
+		if (this.editor.graph.isEditing())
+		{
+			this.editor.graph.stopEditing();
+		}
+		// TODO:项目给到我的时候是打包成png格式,现在波哥改成了流程图.svg格式
+		// TODO:以前是处理了file.data里面的xml,现在是直接把file.data传给外面需要接收的方法
+		// TODO:现在我们需求是要求改成svg
+		file.fileHandle = null
+		file.desc = null;
+		file.title = '流程图.drawio';
+		file.updateFileData();
+		parent.parent && parent.parent.postMessage({
+			type: 'drawio',
+			data: file.data
+		}, '*');
+	}
+	// App load 函数重写
+	const load = App.prototype.load;
+	App.prototype.load = function()
+	{
+		// 主函数从这里开始执行
+		parent.parent && parent.parent.postMessage({
+			type: 'loaded',
+		}, '*');
+		// 其他代码...
+		load.apply(this, arguments)
+	}
+	// App.prototype.updateButtonContainer 函数重写
+	const updateButtonContainer = App.prototype.updateButtonContainer;
+	App.prototype.updateButtonContainer = function()
+	{
+		updateButtonContainer.apply(this, arguments);
+		if(this.shareButton) {
+			// 隐藏共享按钮
+			this.shareButton.style.display = 'none';
+		}
+	}
+	// EditorUi.prototype.createStatusContainer 函数重写
+	const createStatusContainer = EditorUi.prototype.createStatusContainer;
+	EditorUi.prototype.createStatusContainer = function()
+	{
+		const container = createStatusContainer.apply(this, arguments);
+		if(container) {
+			// 隐藏未保存提示
+			container.style.display = 'none';
+		}
+		return container
+	}
+	  
+})()
+// ganguojiang end
