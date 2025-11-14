@@ -124,10 +124,6 @@
 	EditorUi.defaultMermaidConfig = {
 		theme:'neutral',
 		arrowMarkerAbsolute:false,
-	    flowchart:
-	    {
-	    	htmlLabels:false
-	    },
 	    sequence:
 	    {
 	    	diagramMarginX:50,
@@ -15502,7 +15498,7 @@
 					if (mxClient.IS_GC)
 					{
 						css += '@media print {\n' +
-							'.MathJax svg { shape-rendering: crispEdges; }\n' +
+							'  .MathJax svg { shape-rendering: crispEdges; }\n' +
 							'}\n';
 					}
 					

@@ -127,8 +127,6 @@ function mxmeta(name, content, httpEquiv)
  */
 function mxscript(src, onLoad, id, dataAppKey, noWrite, onError)
 {
-    var defer = onLoad == null && !noWrite;
-    
     if ((urlParams['dev'] != '1' && typeof document.createElement('canvas').getContext === "function") ||
         onLoad != null || noWrite)
     {

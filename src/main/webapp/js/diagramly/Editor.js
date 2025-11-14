@@ -3076,7 +3076,7 @@
 	 */
 	Editor.initMath = function(src, config)
 	{
-		if (typeof window.MathJax === 'undefined' && !mxClient.IS_IE && !mxClient.IS_IE11)
+		if (typeof window.MathJax === 'undefined')
 		{
 			src = (src != null) ? src : DRAW_MATH_URL + '/startup.js';
 			Editor.mathJaxQueue = [];
@@ -3153,7 +3153,18 @@
 				{
 					load: [(urlParams['math-output'] == 'html') ?
 						'output/chtml' : 'output/svg', 'input/tex',
-						'input/asciimath', 'ui/safe']
+						'input/asciimath', 'ui/safe'],
+					paths: {
+						'fonts': DRAW_MATH_URL + '/fonts',
+						'mathjax-tex': DRAW_MATH_URL + '/fonts/mathjax-tex-font',
+						'mathjax-mhchem-extension': DRAW_MATH_URL + '/fonts/mathjax-mhchem-font-extension',
+						'mathjax-bbm-extension': DRAW_MATH_URL + '/fonts/mathjax-bbm-font-extension',
+						'mathjax-bboldx-extension': DRAW_MATH_URL + '/fonts/mathjax-bboldx-font-extension',
+						'mathjax-dsfont-extension': DRAW_MATH_URL + '/fonts/mathjax-dsfont-font-extension',
+					}
+				},
+				output: {
+					font: 'mathjax-tex',
 				},
 				startup:
 				{

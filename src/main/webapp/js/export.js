@@ -105,7 +105,7 @@ if (mxIsElectron)
 }
 
 // TODO Add support for loading math from a local folder
-Editor.initMath((remoteMath? 'https://app.diagrams.net/' : '') + 'math/es5/startup.js');
+Editor.initMath((remoteMath? 'https://app.diagrams.net/' : '') + 'math4/es5/startup.js');
 
 // Marks individual font and CSS URLs as preloaded
 var fontPreload = {};
