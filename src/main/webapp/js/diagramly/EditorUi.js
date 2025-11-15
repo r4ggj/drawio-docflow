@@ -176,7 +176,7 @@
 					message != EditorUi.lastErrorMessage && message.indexOf('extension:') < 0 &&
 					message.indexOf('ResizeObserver loop completed with undelivered notifications') < 0 &&
 					err.stack.indexOf('extension:') < 0 && err.stack.indexOf('<anonymous>:') < 0 &&
-					err.stack.indexOf('/math/es5/') < 0)
+					err.stack.indexOf('/math4/es5/') < 0)
 				{
 					EditorUi.lastErrorMessage = message;
 

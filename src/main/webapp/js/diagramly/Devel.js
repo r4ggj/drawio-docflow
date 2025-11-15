@@ -45,8 +45,7 @@ if (!mxIsElectron)
 			'https://graph.microsoft.com https://my.microsoftpersonalcontent.com https://*.sharepoint.com https://*.sharepoint.de  ' +
 			'https://*.1drv.com https://api.onedrive.com https://dl.dropboxusercontent.com https://api.openai.com ' +
 			'https://*.google.com https://fonts.gstatic.com https://fonts.googleapis.com; ' +
-			// font-src about: is required for MathJax HTML-CSS output with STIX
-			'img-src * data: blob:; media-src * data:; font-src * data: about:; ' +
+			'img-src * data: blob:; media-src * data:; font-src * data:; ' +
 			// www.draw.io required for browser data migration to app.diagrams.net and
 			// viewer.diagrams.net required for iframe embed preview
 			'frame-src %frame-src% \'self\' https://viewer.diagrams.net https://www.draw.io https://*.google.com; ' +
@@ -84,7 +83,7 @@ if (!mxIsElectron)
 				'connect-src *; ' +
 				'img-src * data: blob:; ' +
 				'media-src * data:; ' +
-				'font-src * data: about:; ' +
+				'font-src * data:; ' +
 				'style-src \'self\' https://fonts.googleapis.com \'unsafe-inline\'; ' +
 				'base-uri \'none\';' +
 				'object-src \'none\';' +
