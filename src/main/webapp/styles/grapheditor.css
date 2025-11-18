@@ -26,6 +26,12 @@
 	--dark-header-color: #1B1D1E;
 }
 
+/* ganguojiang start 隐藏html边框 */
+html {
+	border: none;
+}
+/* ganguojiang end 隐藏html边框 */
+
 .geEditor * {
 	forced-color-adjust: none;
 }
@@ -71,7 +77,10 @@ div[id*="dgeMermaidOutput-"] {
 	grid-column: 1 / -1;
 	grid-row: 1;
 	width: 100%;
-	height: 60px;
+	/* ganguojiang start 修改menubar高度为30px */
+	/* height: 60px; */
+	height: 30px;
+	/* ganguojiang end 修改menubar高度为30px */
 	margin-top: 4px;
 }
 
@@ -168,6 +177,9 @@ div[id*="dgeMermaidOutput-"] {
 
 .geSmallAppIcon {
 	padding: 0 4px 0 8px;
+	/* ganguojiang start 隐藏小logo */
+	display: none;
+	/* ganguojiang end 隐藏小logo */
 }
 
 .geAtlas .geSmallAppIcon {
@@ -189,17 +201,24 @@ div[id*="dgeMermaidOutput-"] {
 	cursor: pointer;
 	background-size: 100%;
 	opacity: 0.9;
+	/* ganguojiang start 隐藏logo */
+	display: none;
+	/* ganguojiang end 隐藏logo */
 }
 
 .geMenubar {
-	top: 28px;
+	/* ganguojiang start menubar取消top */
+	/* top: 28px; */
+	/* ganguojiang end menubar取消top */
 	width: 100%;
 	height: 30px;
 	display: flex;
 	position: absolute;
 	align-items: center;
 	box-sizing: border-box;
-	padding: 0px 2px 0px 58px;
+	/* ganguojiang start menubar取消padding-left */
+	padding: 0px 2px 0px 2px;
+	/* ganguojiang end menubar取消padding-left */
 }
 
 .geFilenameContainer {
@@ -212,6 +231,9 @@ div[id*="dgeMermaidOutput-"] {
 	margin-left: 0px;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	/* ganguojiang start 隐藏标题 */
+	display: none;
+	/* ganguojiang end 隐藏标题 */
 }
 
 .geFilename {
@@ -2846,7 +2868,10 @@ table.geProperties tr th {
 }
 
 .geEditor.geAtlas>.geMenubarContainer .geMenubar {
-	padding-left: 12px;
+	/* ganguojiang start 调整小logo隐藏后menubar的padding-left */
+	/* padding-left: 12px; */
+	padding-left: 2px;
+	/* ganguojiang end 调整小logo隐藏后menubar的padding-left */
 	height: 100%;
 	top: 0;
 }

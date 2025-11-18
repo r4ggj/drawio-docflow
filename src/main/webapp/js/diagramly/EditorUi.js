@@ -98,8 +98,15 @@
 	/**
 	 * Specifies if drafts should be saved in IndexedDB.
 	 */
-	EditorUi.enableDrafts = !mxClient.IS_CHROMEAPP &&
-		isLocalStorage && urlParams['drafts'] != '0';
+	// ganguojiang start 默认禁用保存数据包本地IndexedDB
+	// EditorUi.enableDrafts = !mxClient.IS_CHROMEAPP &&
+	// 	isLocalStorage && urlParams['drafts'] != '0';
+	EditorUi.enableDrafts = false;
+	// ganguojiang end 默认禁用保存数据包本地IndexedDB
+
+	/**
+	 * Specifies if the editor should use the native file dialog.
+	 */
 	
 	/**
 	 * Link for scratchpad help.
@@ -4305,13 +4312,15 @@
 				this.addSelectionToScratchpad = addSelection;
 			}
 			
-			if (!this.isOffline() && file.title == '.scratchpad' &&
-				EditorUi.scratchpadHelpLink != null)
-			{
-				var link = this.createHelpIcon(EditorUi.scratchpadHelpLink, true);
-				link.className = 'geLibraryButton';
-				buttons.insertBefore(link, buttons.firstChild);
-			}
+			// ganguojiang start 隐藏便笺本帮助按钮
+			// if (!this.isOffline() && file.title == '.scratchpad' &&
+			// 	EditorUi.scratchpadHelpLink != null)
+			// {
+			// 	var link = this.createHelpIcon(EditorUi.scratchpadHelpLink, true);
+			// 	link.className = 'geLibraryButton';
+			// 	buttons.insertBefore(link, buttons.firstChild);
+			// }
+			// ganguojiang end 隐藏便笺本帮助按钮
 		}
 		
 		title.appendChild(buttons);
@@ -6876,7 +6885,9 @@
 
 		if (file == null || file.getHash() == '')
 		{
-			helpLink = (helpLink != null) ? helpLink : 'https://www.drawio.com/doc/faq/publish-diagram-as-link';
+			// ganguojiang start 隐藏发布为链接帮助按钮
+			// helpLink = (helpLink != null) ? helpLink : 'https://www.drawio.com/doc/faq/publish-diagram-as-link';
+			// ganguojiang end 隐藏发布为链接帮助按钮
 			var makeCopy = document.createElement('option');
 			mxUtils.write(makeCopy, mxResources.get('makeCopy'));
 			makeCopy.setAttribute('value', 'copy');
@@ -13382,59 +13393,61 @@
 			return elt;
 		});
 		
-		if (Editor.enableCustomLibraries && (urlParams['embed'] != '1' ||
-			urlParams['libraries'] == '1'))
-		{
+		// ganguojiang start 隐藏新增库、从...打开库
+		// if (Editor.enableCustomLibraries && (urlParams['embed'] != '1' ||
+		// 	urlParams['libraries'] == '1'))
+		// {
 			// Defined in native apps together with openLibrary
-			if (this.actions.get('newLibrary') != null)
-			{
-				var div = document.createElement('div');
-				div.style.cssText = css;
-				div.className = 'geButton';
-				div.style.left = '0px';
-				div.style.right = '50%';
-				mxUtils.write(div, mxResources.get('newLibrary'));
-				container.appendChild(div);
+			// if (this.actions.get('newLibrary') != null)
+			// {
+			// 	var div = document.createElement('div');
+			// 	div.style.cssText = css;
+			// 	div.className = 'geButton';
+			// 	div.style.left = '0px';
+			// 	div.style.right = '50%';
+			// 	mxUtils.write(div, mxResources.get('newLibrary'));
+			// 	container.appendChild(div);
 				
-				mxEvent.addListener(div, 'click', this.actions.get('newLibrary').funct);
+			// 	mxEvent.addListener(div, 'click', this.actions.get('newLibrary').funct);
 				
-				var div = div.cloneNode(false);
-				div.style.left = '50%';
-				div.style.right = '0px';
-				mxUtils.write(div, mxResources.get('openLibrary'));
-				container.appendChild(div);
+			// 	var div = div.cloneNode(false);
+			// 	div.style.left = '50%';
+			// 	div.style.right = '0px';
+			// 	mxUtils.write(div, mxResources.get('openLibrary'));
+			// 	container.appendChild(div);
 				
-				mxEvent.addListener(div, 'click', this.actions.get('openLibrary').funct);
-			}
-			else
-			{
-				var elt1 = addMenu('newLibrary', '');
-				elt1.style.left = '0px';
-				elt1.style.right = '50%';
+			// 	mxEvent.addListener(div, 'click', this.actions.get('openLibrary').funct);
+			// }
+			// else
+			// {
+			// 	var elt1 = addMenu('newLibrary', '');
+			// 	elt1.style.left = '0px';
+			// 	elt1.style.right = '50%';
 
-				var title1 = document.createElement('span');
-				elt1.appendChild(title1);
+			// 	var title1 = document.createElement('span');
+			// 	elt1.appendChild(title1);
 				
-				var elt2 = addMenu('openLibraryFrom', '');
-				elt2.style.borderLeftWidth = '1px';
-				elt2.style.left = '50%';
-				elt2.style.right = '0px';
+			// 	var elt2 = addMenu('openLibraryFrom', '');
+			// 	elt2.style.borderLeftWidth = '1px';
+			// 	elt2.style.left = '50%';
+			// 	elt2.style.right = '0px';
 
-				var title2 = document.createElement('span');
-				elt2.appendChild(title2);
+			// 	var title2 = document.createElement('span');
+			// 	elt2.appendChild(title2);
 
-				this.dependsOnLanguage(mxUtils.bind(this, function()
-				{
-					title1.innerHTML = '';
-					mxUtils.write(title1, mxResources.get('newLibrary'));
-					elt1.setAttribute('title', mxResources.get('newLibrary'));
+			// 	this.dependsOnLanguage(mxUtils.bind(this, function()
+			// 	{
+			// 		title1.innerHTML = '';
+			// 		mxUtils.write(title1, mxResources.get('newLibrary'));
+			// 		elt1.setAttribute('title', mxResources.get('newLibrary'));
 
-					title2.innerHTML = '';
-					mxUtils.write(title2, mxResources.get('openLibraryFrom'));
-					elt2.setAttribute('title', mxResources.get('openLibraryFrom'));
-				}));
-			}
-		}
+			// 		title2.innerHTML = '';
+			// 		mxUtils.write(title2, mxResources.get('openLibraryFrom'));
+			// 		elt2.setAttribute('title', mxResources.get('openLibraryFrom'));
+			// 	}));
+			// }
+		// }
+		// ganguojiang end 隐藏新增库、从...打开库
 
 		container.appendChild(this.sidebar.container);
 		container.style.overflow = 'hidden';
@@ -17992,7 +18005,10 @@
 				copyBtn.setAttribute('title', 'copy');
 				copyBtn.className = 'geBtn';
 				buttons.appendChild(copyBtn);
-			}), true, null, null, 'https://www.drawio.com/doc/faq/apply-layouts');
+			// ganguojiang start 隐藏布局帮助按钮
+			// }), true, null, null, 'https://www.drawio.com/doc/faq/apply-layouts');
+			}), true, null, null, null);
+			// ganguojiang end 隐藏布局帮助按钮
 
 			this.showDialog(dlg.container, 620, 460, true, true);
 			dlg.init();
@@ -19435,7 +19451,10 @@
 			}
 			
 			if (pendingLibs == 0) this.spinner.stop();
-		}), null, null, 'https://www.drawio.com/doc/faq/custom-libraries-confluence-cloud');
+		// ganguojiang start 隐藏新增库 帮助按钮
+		// }), null, null, 'https://www.drawio.com/doc/faq/custom-libraries-confluence-cloud');
+		// ganguojiang end 隐藏新增库 帮助按钮
+		}), null, null, null);
 		this.showDialog(dlg.container, 340, 390, true, true, null, null, null, null, true);
 	};
 	

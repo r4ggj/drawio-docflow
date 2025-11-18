@@ -263,27 +263,29 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		Editor.useLocalStorage = prev;
 	});
 	
+	// ganguojiang start 隐藏缺失Google Drive 帮助
 	// Checks if Google Drive is missing after a 5 sec delay
-	if (mxClient.IS_SVG && isLocalStorage && urlParams['gapi'] != '0' &&
-		(document.documentMode == null || document.documentMode >= 10))
-	{
-		window.setTimeout(function()
-		{
-			if (editorUi.drive == null)
-			{
-				// To check for Disconnect plugin in chrome use mxClient.IS_GC and check for URL:
-				// chrome-extension://jeoacafpbcihiomhlakheieifhpjdfeo/scripts/vendor/jquery/jquery-2.0.3.min.map
-				p3.style.padding = '7px';
-				p3.style.fontSize = '9pt';
-				p3.style.marginTop = '-14px';
-				p3.innerHTML = '<a style="background-color:#dcdcdc;padding:6px;color:black;text-decoration:none;" ' +
-					'href="https://www.drawio.com/doc/faq/google-drive-connection-problems" target="_blank">' +
-					'<img border="0" src="' + mxGraph.prototype.warningImage.src + '" align="absmiddle" ' +
-					'style="margin-top:-4px"> ' + mxResources.get('googleDriveMissingClickHere') + '</a>';
-				div.appendChild(p3);
-			}
-		}, 5000);
-	}
+	// if (mxClient.IS_SVG && isLocalStorage && urlParams['gapi'] != '0' &&
+	// 	(document.documentMode == null || document.documentMode >= 10))
+	// {
+	// 	window.setTimeout(function()
+	// 	{
+	// 		if (editorUi.drive == null)
+	// 		{
+	// 			// To check for Disconnect plugin in chrome use mxClient.IS_GC and check for URL:
+	// 			// chrome-extension://jeoacafpbcihiomhlakheieifhpjdfeo/scripts/vendor/jquery/jquery-2.0.3.min.map
+	// 			p3.style.padding = '7px';
+	// 			p3.style.fontSize = '9pt';
+	// 			p3.style.marginTop = '-14px';
+	// 			p3.innerHTML = '<a style="background-color:#dcdcdc;padding:6px;color:black;text-decoration:none;" ' +
+	// 				'href="https://www.drawio.com/doc/faq/google-drive-connection-problems" target="_blank">' +
+	// 				'<img border="0" src="' + mxGraph.prototype.warningImage.src + '" align="absmiddle" ' +
+	// 				'style="margin-top:-4px"> ' + mxResources.get('googleDriveMissingClickHere') + '</a>';
+	// 			div.appendChild(p3);
+	// 		}
+	// 	}, 5000);
+	// }
+	// ganguojiang end 隐藏缺失Google Drive 帮助
 	
 	this.container = div;
 };
@@ -2427,14 +2429,16 @@ var ParseDialog = function(editorUi, title, defaultType)
 		buttons.appendChild(warning);
 	}
 
-	if ((!editorUi.isOffline() || mxClient.IS_CHROMEAPP) &&
-		(defaultType == 'mermaid' || defaultType == 'plantUml'))
-	{
-		buttons.appendChild(editorUi.createHelpIcon(
-			(defaultType == 'mermaid') ?
-				'https://mermaid.js.org/intro/' :
-				'https://plantuml.com/'));
-	}
+	// ganguojiang start 隐藏 mermaid帮助
+	// if ((!editorUi.isOffline() || mxClient.IS_CHROMEAPP) &&
+	// 	(defaultType == 'mermaid' || defaultType == 'plantUml'))
+	// {
+	// 	buttons.appendChild(editorUi.createHelpIcon(
+	// 		(defaultType == 'mermaid') ?
+	// 			'https://mermaid.js.org/intro/' :
+	// 			'https://plantuml.com/'));
+	// }
+	// ganguojiang end 隐藏 mermaid帮助
 	
 	buttons.appendChild(typeSelect);
 	
@@ -3454,15 +3458,17 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	editGenerate.style.visibility = 'hidden';
 	editGenerate.style.left = '0px';
 
-	var helpGenerate = magnifyImage.cloneNode(true);
-	helpGenerate.setAttribute('src', Editor.helpImage);
-	helpGenerate.setAttribute('title', mxResources.get('help'));
+	// ganguojiang start 隐藏标签帮助
+	// var helpGenerate = magnifyImage.cloneNode(true);
+	// helpGenerate.setAttribute('src', Editor.helpImage);
+	// helpGenerate.setAttribute('title', mxResources.get('help'));
 
-	mxEvent.addListener(helpGenerate, 'click', function(evt)
-	{
-		editorUi.openLink('https://www.drawio.com/blog/write-query-generate-diagram');
-		mxEvent.consume(evt);
-	});
+	// mxEvent.addListener(helpGenerate, 'click', function(evt)
+	// {
+	// 	editorUi.openLink('https://www.drawio.com/blog/write-query-generate-diagram');
+	// 	mxEvent.consume(evt);
+	// });
+	// ganguojiang end 隐藏标签帮助
 	
 	generateForm.appendChild(generateInput);
 	generateForm.appendChild(generateButton);
@@ -4880,40 +4886,42 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 
 	function addStorageEntries()
 	{
-		var recent = editorUi.getRecent('Folders');
-		var recentCount = 0;
+		// ganguojiang start 隐藏其他存储位置，只能保留保存到设备
+		// var recent = editorUi.getRecent('Folders');
+		// var recentCount = 0;
 
-		if (recent != null && recent.length > 0)
-		{
-			for (var i = 0; i < recent.length; i++)
-			{
-				if (addStorageEntry(recent[i].mode, recent[i].path, recent[i].id) != null)
-				{
-					recentCount++;
-				}
-			}
-		}
+		// if (recent != null && recent.length > 0)
+		// {
+		// 	for (var i = 0; i < recent.length; i++)
+		// 	{
+		// 		if (addStorageEntry(recent[i].mode, recent[i].path, recent[i].id) != null)
+		// 		{
+		// 			recentCount++;
+		// 		}
+		// 	}
+		// }
 
-		addStorageEntry(App.MODE_GOOGLE, mxResources.get('myDrive'),
-			'root', null, null, 'root');
-		addStorageEntry(App.MODE_GOOGLE, null, null, null, null, 'pick');
+		// addStorageEntry(App.MODE_GOOGLE, mxResources.get('myDrive'),
+		// 	'root', null, null, 'root');
+		// addStorageEntry(App.MODE_GOOGLE, null, null, null, null, 'pick');
 
-		if (editorUi.oneDrive != null)
-		{
-			addStorageEntry(App.MODE_ONEDRIVE, mxResources.get('myFiles'),
-				OneDriveFile.prototype.getIdOf(editorUi.oneDrive.rootId),
-				null, null, 'root');
-			addStorageEntry(App.MODE_ONEDRIVE, null, null, null, null, 'pick');
-		}
+		// if (editorUi.oneDrive != null)
+		// {
+		// 	addStorageEntry(App.MODE_ONEDRIVE, mxResources.get('myFiles'),
+		// 		OneDriveFile.prototype.getIdOf(editorUi.oneDrive.rootId),
+		// 		null, null, 'root');
+		// 	addStorageEntry(App.MODE_ONEDRIVE, null, null, null, null, 'pick');
+		// }
 		
-		if (editorUi.dropbox != null)
-		{
-			addStorageEntry(App.MODE_DROPBOX, 'Apps' + editorUi.dropbox.appPath);
-		}
+		// if (editorUi.dropbox != null)
+		// {
+		// 	addStorageEntry(App.MODE_DROPBOX, 'Apps' + editorUi.dropbox.appPath);
+		// }
 
-		addStorageEntry(App.MODE_GITHUB, null, null, null, null, 'pick');
-		addStorageEntry(App.MODE_GITLAB, null, null, null, null, 'pick');
-		addStorageEntry(App.MODE_TRELLO);
+		// addStorageEntry(App.MODE_GITHUB, null, null, null, null, 'pick');
+		// addStorageEntry(App.MODE_GITLAB, null, null, null, null, 'pick');
+		// addStorageEntry(App.MODE_TRELLO);
+		// ganguojiang end 隐藏其他存储位置，只能保留保存到设备
 
 		var allowDevice = !Editor.useLocalStorage || urlParams['storage'] == 'device' ||
 			(editorUi.getCurrentFile() != null && urlParams['noDevice'] != '1');
@@ -4925,20 +4933,22 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 					App.MODE_BROWSER) >= 0) ? true : null);
 		}
 		
-		if (isLocalStorage && urlParams['browser'] != '0')
-		{
-			addStorageEntry(App.MODE_BROWSER);
-		}
+		// ganguojiang start 隐藏其他存储位置，只能保留保存到设备1
+		// if (isLocalStorage && urlParams['browser'] != '0')
+		// {
+		// 	addStorageEntry(App.MODE_BROWSER);
+		// }
 
-		if (allowDevice)
-		{
-			addStorageEntry('download');
-		}
+		// if (allowDevice)
+		// {
+		// 	addStorageEntry('download');
+		// }
 		
-		if (Editor.popupsAllowed)
-		{
-			addStorageEntry('_blank', null, null, null, mxResources.get('openInNewWindow'));
-		}
+		// if (Editor.popupsAllowed)
+		// {
+		// 	addStorageEntry('_blank', null, null, null, mxResources.get('openInNewWindow'));
+		// }
+		// ganguojiang end 隐藏其他存储位置，只能保留保存到设备1
 
 		// Adds title to avoid entries that execute an action
 		if (storageSelect.value.substring(0, 11) == 'pickFolder-')
@@ -5037,11 +5047,13 @@ var SaveDialog = function(editorUi, title, saveFn, disabledModes, data, mimeType
 	btns.style.textAlign = 'right';
 	btns.style.marginTop = (mimeType != null) ? '16px' : '8px';
 
-	if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
-	{
-		btns.appendChild(editorUi.createHelpIcon(
-			'https://www.drawio.com/doc/faq/save-file-formats'));
-	}
+	// ganguojiang start 隐藏 另存为 帮助
+	// if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+	// {
+	// 	btns.appendChild(editorUi.createHelpIcon(
+	// 		'https://www.drawio.com/doc/faq/save-file-formats'));
+	// }
+	// ganguojiang end 隐藏 另存为 帮助
 
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
@@ -6391,10 +6403,12 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	btns.style.marginTop = '16px';
 	btns.style.textAlign = 'right';
 
-	if (!editorUi.isOffline())
-	{
-		btns.appendChild(editorUi.createHelpIcon('https://www.drawio.com/doc/faq/custom-links'));
-	}
+	// ganguojiang start 隐藏插入链接帮助
+	// if (!editorUi.isOffline())
+	// {
+	// 	btns.appendChild(editorUi.createHelpIcon('https://www.drawio.com/doc/faq/custom-links'));
+	// }
+	// ganguojiang end 隐藏插入链接帮助
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
@@ -6569,19 +6583,21 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 		});
 	}
 
-	if (selectDropdown.children.length > 1)
-	{
-		btns.appendChild(selectDropdown);
+	// ganguojiang start 隐藏插入链接从其他地方插入的下拉框
+	// if (selectDropdown.children.length > 1)
+	// {
+	// 	btns.appendChild(selectDropdown);
 
-		mxEvent.addListener(selectDropdown, 'change', function(evt)
-		{
-			if (selectFn[selectDropdown.value] != null)
-			{
-				selectFn[selectDropdown.value]();
-				selectDropdown.value = '';
-			}
-		});
-	}
+	// 	mxEvent.addListener(selectDropdown, 'change', function(evt)
+	// 	{
+	// 		if (selectFn[selectDropdown.value] != null)
+	// 		{
+	// 			selectFn[selectDropdown.value]();
+	// 			selectDropdown.value = '';
+	// 		}
+	// 	});
+	// }
+	// ganguojiang end 隐藏插入链接从其他地方插入的下拉框
 
 	mxEvent.addListener(linkInput, 'keypress', function(e)
 	{
@@ -7904,10 +7920,12 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 	mxUtils.write(regexLabel, mxResources.get('regularExpression'));
 	div.appendChild(regexLabel);
 	
-    var help = ui.menus.createHelpLink('https://www.drawio.com/doc/faq/find-shapes');
-    help.style.position = 'relative';
-    help.style.marginLeft = '6px';
-    div.appendChild(help);
+	// ganguojiang start 隐藏查找 正则表达式 帮助
+    // var help = ui.menus.createHelpLink('https://www.drawio.com/doc/faq/find-shapes');
+    // help.style.position = 'relative';
+    // help.style.marginLeft = '6px';
+    // div.appendChild(help);
+	// ganguojiang end 隐藏查找 正则表达式 帮助
     
 	mxUtils.br(div);
 
@@ -9541,10 +9559,12 @@ var TagsWindow = function(editorUi, x, y, w, h)
 	var graph = editorUi.editor.graph;
 	var helpButton = null;
 
-	if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
-	{
-		helpButton = editorUi.menus.createHelpLink('https://www.drawio.com/blog/tags-in-diagrams');
-	}
+	// ganguojiang start 隐藏标签帮助
+	// if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+	// {
+	// 	helpButton = editorUi.menus.createHelpLink('https://www.drawio.com/blog/tags-in-diagrams');
+	// }
+	// ganguojiang end 隐藏标签帮助
 
 	var tagsComponent = editorUi.editor.graph.createTagsDialog(mxUtils.bind(this, function()
 	{
@@ -9587,8 +9607,10 @@ var TagsWindow = function(editorUi, x, y, w, h)
 						graph.addTagsForCells(graph.getSelectionCells(), tags);
 					}
 				}
-			}, mxResources.get('tags'), null, null, 'https://www.drawio.com/blog/tags-in-diagrams');
-			
+			// ganguojiang start 隐藏标签帮助
+			// }, mxResources.get('tags'), null, null, 'https://www.drawio.com/blog/tags-in-diagrams');
+			}, mxResources.get('tags'), null, null, null);
+			// ganguojiang end 隐藏标签帮助
 			editorUi.showDialog(dlg.container, 320, 80, true, true);
 			dlg.init();
 		}
@@ -10388,10 +10410,12 @@ var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
 	buttons.style.marginTop = '14px';
 	buttons.style.textAlign = 'right';
 
-	if (!editorUi.isOffline())
-	{
-		buttons.appendChild(editorUi.createHelpIcon('https://www.drawio.com/doc/faq/plugins'));
-	}
+	// ganguojiang start 隐藏 插件帮助按钮
+	// if (!editorUi.isOffline())
+	// {
+	// 	buttons.appendChild(editorUi.createHelpIcon('https://www.drawio.com/doc/faq/plugins'));
+	// }
+	// ganguojiang end 隐藏 插件帮助按钮
 	
 	if (editorUi.editor.cancelFirst)
 	{
@@ -11991,16 +12015,18 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 	td.style.whiteSpace = 'nowrap';
 	td.setAttribute('align', 'right');
 	
-	if (!editorUi.isOffline())
-	{
-		var helpBtn = mxUtils.button(mxResources.get('help'), function()
-		{
-			editorUi.openLink('https://www.drawio.com/doc/faq/shape-complex-create-edit');
-		});
+	// ganguojiang start 隐藏插入形状帮助按钮
+	// if (!editorUi.isOffline())
+	// {
+	// 	var helpBtn = mxUtils.button(mxResources.get('help'), function()
+	// 	{
+	// 		editorUi.openLink('https://www.drawio.com/doc/faq/shape-complex-create-edit');
+	// 	});
 		
-		helpBtn.className = 'geBtn';
-		td.appendChild(helpBtn);
-	}
+	// 	helpBtn.className = 'geBtn';
+	// 	td.appendChild(helpBtn);
+	// }
+	// ganguojiang end 隐藏插入形状帮助按钮
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
@@ -13789,11 +13815,13 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		buttons.style.marginTop = '10px';
 		buttons.style.textAlign = 'right';
 
-		if (!editorUi.isOffline())
-		{
-			buttons.appendChild(editorUi.createHelpIcon(
-				'https://www.drawio.com/doc/faq/shape-connection-points-customise'));
-		}
+		// ganguojiang start 隐藏编辑连接点的帮助
+		// if (!editorUi.isOffline())
+		// {
+		// 	buttons.appendChild(editorUi.createHelpIcon(
+		// 		'https://www.drawio.com/doc/faq/shape-connection-points-customise'));
+		// }
+		// ganguojiang end 隐藏编辑连接点的帮助
 
 		if (editorUi.editor.cancelFirst)
 		{

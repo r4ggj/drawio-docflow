@@ -77,22 +77,19 @@ window.Cookies = {
  * - embedInline=1: sketch画板模式
  */
 // Parses URL parameters
-window.urlParams = (function()
-{
-    var result = new Object();
-    var params = window.location.search.slice(1).split('&');
-    
-    for (var i = 0; i < params.length; i++)
-    {
-        var idx = params[i].indexOf('=');
-        
-        if (idx > 0)
-        {
-            result[params[i].substring(0, idx)] = params[i].substring(idx + 1);
-        }
+window.urlParams = (function () {
+  var result = new Object();
+  var params = window.location.search.slice(1).split("&");
+
+  for (var i = 0; i < params.length; i++) {
+    var idx = params[i].indexOf("=");
+
+    if (idx > 0) {
+      result[params[i].substring(0, idx)] = params[i].substring(idx + 1);
     }
-    
-    return result;
+  }
+
+  return result;
 })();
 
 // Forces CDN caches by passing URL parameters via URL hash
@@ -267,7 +264,10 @@ Object.assign(window, {
 
 function checkAllLoaded() {
   if (mxScriptsLoaded && mxWinLoaded) {
-    App.main();
+    App.main((app) => {
+      // 挂载drawio实例到window上
+      window.drawio = app;
+    });
   }
 }
 
@@ -280,14 +280,11 @@ window.RUN_ENV = process.env.RUN_ENV;
 if (process.env.RUN_ENV === "prod") {
   mxScriptsLoaded = true;
   mxscript("js/PreConfig.js", function () {
-    // 先加载base.min.js，再加载app.min.js
-    mxscript('base.min.js', function() {
-      mxscript("js/app.min.js", function () {
-        mxScriptsLoaded = true;
-        checkAllLoaded();
-        mxscript("js/PostConfig.js");
-      });
-    })
+    mxscript("js/app.prod.js", function () {
+      mxScriptsLoaded = true;
+      checkAllLoaded();
+      mxscript("js/PostConfig.js");
+    });
   });
 } else if (process.env.RUN_ENV === "dev") {
   // Used to request grapheditor/mxgraph sources in dev mode
@@ -333,42 +330,30 @@ if (process.env.RUN_ENV === "prod") {
         ".diagrams.net";
 
     function loadAppJS() {
-      // ganguojiang start
-      // mxscript('js/app.min.js', function()
-      // ganguojiang end
-      // 先加载base.min.js，再加载app.min.js
-      mxscript('base.min.js', function() {
-        mxscript("js/app.min.js", function () {
-          mxScriptsLoaded = true;
-          checkAllLoaded();
+      mxscript("js/app.min.js", function () {
+        mxScriptsLoaded = true;
+        checkAllLoaded();
 
-          // Electron
-          if (mxIsElectron) {
-            mxscript("js/diagramly/DesktopLibrary.js", function () {
-              mxscript("js/diagramly/ElectronApp.js", function () {
-                mxscript("js/extensions.min.js", function () {
-                  mxscript("js/stencils.min.js", function () {
-                    mxscript("js/shapes-14-6-5.min.js", function () {
-                      mxscript("js/PostConfig.js");
-                    });
+        // Electron
+        if (mxIsElectron) {
+          mxscript("js/diagramly/DesktopLibrary.js", function () {
+            mxscript("js/diagramly/ElectronApp.js", function () {
+              mxscript("js/extensions.min.js", function () {
+                mxscript("js/stencils.min.js", function () {
+                  mxscript("js/shapes-14-6-5.min.js", function () {
+                    mxscript("js/PostConfig.js");
                   });
                 });
               });
             });
-          } else if (!supportedDomain) {
-            // ganguojiang start
-            // mxscript('js/PostConfig.js');
-            mxscript("webapp/js/PostConfig.js");
-            // ganguojiang end
-          }
-        });
-      })
+          });
+        } else if (!supportedDomain) {
+          mxscript("webapp/js/PostConfig.js");
+        }
+      });
     }
 
     if (!supportedDomain || mxIsElectron) {
-      // ganguojiang start
-      // mxscript('js/PreConfig.js', loadAppJS);
-      // ganguojiang end
       mxscript("js/PreConfig.js", loadAppJS);
     } else {
       loadAppJS();

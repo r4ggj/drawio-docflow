@@ -4,13 +4,9 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const webpack = require("webpack");
-
-// const {
-//   packageMap,
-//   init,
-//   ...route
-// } = require('./index')
+const { deleteFile } = require("./utils");
 const basePath = path.join(__dirname + "/../src/main/webapp");
+
 module.exports = (options = {}) => {
   return {
     entry: {
@@ -68,16 +64,16 @@ module.exports = (options = {}) => {
           },
           {
             from: basePath + "/js",
-            // filter: (resourcesPath) => {
-            //   if (
-            //     /(app.min.js)|(PreConfig.js)|(PostConfig.js)|(shashapes-14-6-5.min)|(extensions.min)|(orgchart.min)/.test(
-            //       resourcesPath
-            //     )
-            //   ) {
-            //     return true;
-            //   }
-            //   return false;
-            // },
+            filter: (resourcesPath) => {
+              if (
+                /(app.min.js)|(app.prod.js)|(PreConfig.js)|(PostConfig.js)|(shapes-14-6-5.min)|(shapes.min)|(stencils.min)|(extensions.min)|(orgchart.min)/.test(
+                  resourcesPath
+                )
+              ) {
+                return true;
+              }
+              return false;
+            },
             to: "js",
           },
           {
@@ -94,12 +90,6 @@ module.exports = (options = {}) => {
           },
           {
             from: basePath + "/math",
-            // filter: (resourcesPath) => {
-            //   if (/MathJax.js/.test(resourcesPath)) {
-            //     return true;
-            //   }
-            //   return false;
-            // },
             to: "math",
           },
           {
@@ -110,16 +100,6 @@ module.exports = (options = {}) => {
             from: basePath + "/templates",
             to: "templates",
           },
-          // {
-          //   from: basePath + "/math",
-          //   filter: (resourcesPath) => {
-          //     if (/(TeX-MML-AM_SVG-full.js)|(ontdata.js)/.test(resourcesPath)) {
-          //       return true;
-          //     }
-          //     return false;
-          //   },
-          //   to: "math",
-          // },
         ],
       }),
       new webpack.DefinePlugin({
@@ -127,6 +107,16 @@ module.exports = (options = {}) => {
           RUN_ENV: options.RUN_ENV,
         }),
       }),
+      {
+        apply: (compiler) => {
+          compiler.hooks.done.tap("MyAfterBuildPlugin", (stats) => {
+            deleteFile(
+              path.join(__dirname, "../src/main/webapp/js/app.prod.js")
+            );
+            console.log("\n webpack 编译完成\n");
+          });
+        },
+      },
     ],
     module: {
       rules: [

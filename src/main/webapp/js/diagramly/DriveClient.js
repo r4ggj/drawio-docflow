@@ -292,7 +292,9 @@ DriveClient.prototype.execute = function(fn)
 				
 				this.ui.showError(mxResources.get('error'), msg, mxResources.get('help'), mxUtils.bind(this, function()
 				{
-					this.ui.openLink('https://www.drawio.com/doc/faq/gsuite-authorisation-troubleshoot');
+					// ganguojiang start 隐藏 Google Workspace 授权失败的帮助链接
+					// this.ui.openLink('https://www.drawio.com/doc/faq/gsuite-authorisation-troubleshoot');
+					// ganguojiang end 隐藏 Google Workspace 授权失败的帮助链接
 				}), null, mxResources.get('ok'));
 			}), remember);
 		}));

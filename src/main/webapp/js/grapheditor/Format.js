@@ -4706,10 +4706,12 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 			}
 		}
 
-		if (libs != null)
-		{
-			ops.push('openLibrary');
-		}
+		// ganguojiang start 隐藏 打开库 菜单
+		// if (libs != null)
+		// {
+		// 	ops.push('openLibrary');
+		// }
+		// ganguojiang end 隐藏 打开库 菜单
 
 		for (var i = 0; i < ops.length; i++)
 		{
@@ -6347,11 +6349,13 @@ DiagramStylePanel.prototype.addView = function(div)
 		
 		right.appendChild(dropdown);
 
-		if (!ui.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-		{
-			right.appendChild(ui.menus.createHelpLink(
-				'https://github.com/jgraph/drawio/discussions/4713'));
-		}
+		// ganguojiang start 隐藏右侧面板样式自适应颜色帮助按钮
+		// if (!ui.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+		// {
+		// 	right.appendChild(ui.menus.createHelpLink(
+		// 		'https://github.com/jgraph/drawio/discussions/4713'));
+		// }
+		// ganguojiang end 隐藏右侧面板样式自适应颜色帮助按钮
 
 		row.appendChild(left);
 		row.appendChild(right);

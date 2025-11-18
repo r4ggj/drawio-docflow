@@ -80,7 +80,7 @@ window.mxLoadResources = window.mxLoadResources || false;
 window.getInitMxLanguage = function() 
 {
 	var lang = urlParams['lang'];
-	
+
 	// Known issue: No JSON object at this point in quirks in IE8
 	if (lang == null && typeof(JSON) != 'undefined')
 	{
@@ -121,7 +121,7 @@ window.getInitMxLanguage = function()
 			}
 		}
 	}
-	
+
 	return lang;
 }
 

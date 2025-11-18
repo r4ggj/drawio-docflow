@@ -49,6 +49,19 @@ Menus.prototype.init = function()
 	this.customFonts = [];
 	this.customFontSizes = [];
 
+	// ganguojiang start 隐藏文件、帮助菜单 (增加的代码)
+	(function(){
+		function deleteMenu(menuName){
+			const fileIndex = Menus.prototype.defaultMenuItems.indexOf(menuName);
+			if(fileIndex >-1 ){
+				Menus.prototype.defaultMenuItems.splice(fileIndex, 1);
+			}
+		}
+		deleteMenu('file');
+		deleteMenu('help');
+	})()
+	// ganguojiang end 隐藏文件、帮助菜单
+
 	this.put('edgeShape', new Menu(mxUtils.bind(this, function(menu)
 	{
 		var keys = [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, mxConstants.STYLE_DASHED, 'width'];

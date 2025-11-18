@@ -626,12 +626,14 @@
 		noAdaptiveColors.setToggleAction(true);
 		noAdaptiveColors.setSelectedCallback(function() { return graph.adaptiveColors == 'none'; });
 
-		this.put('adaptiveColors', new Menu(mxUtils.bind(this, function(menu, parent)
-		{
-			this.addMenuItems(menu, ['defaultAdaptiveColors', '-',
-				'automaticAdaptiveColors', 'simpleAdaptiveColors',
-				'noAdaptiveColors'], parent);
-		})));
+		// ganguojiang start 隐藏 自适应颜色 按钮
+		// this.put('adaptiveColors', new Menu(mxUtils.bind(this, function(menu, parent)
+		// {
+		// 	this.addMenuItems(menu, ['defaultAdaptiveColors', '-',
+		// 		'automaticAdaptiveColors', 'simpleAdaptiveColors',
+		// 		'noAdaptiveColors'], parent);
+		// })));
+		// ganguojiang end 隐藏 自适应颜色 按钮
 
 		if (isLocalStorage)
 		{
@@ -712,7 +714,10 @@
 		editorUi.actions.put('exportSvg', new Action('formatSvg' + '...', function()
 		{
 			editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
-				'https://www.drawio.com/doc/faq/export-diagram',
+				// ganguojiang start 隐藏导出为svg帮助按钮
+				// 'https://www.drawio.com/doc/faq/export-diagram',
+				null,
+				// ganguojiang end 隐藏导出为svg帮助按钮
 				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
 					addShadow, editable, embedImages, border, cropImage, currentPage,
 					linkTarget, grid, theme, exportType, embedFonts)
@@ -734,7 +739,10 @@
 			if (editorUi.editor.isExportToCanvas())
 			{
 				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
-					'https://www.drawio.com/doc/faq/export-diagram',
+					// ganguojiang start 隐藏导出为图片帮助按钮
+					// 'https://www.drawio.com/doc/faq/export-diagram',
+					null,
+					// ganguojiang end 隐藏导出为图片帮助按钮
 					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
 						embedImages, border, cropImage, currentPage, dummy, grid, theme, exportType)
 					{
@@ -1088,7 +1096,10 @@
 				}
 				
 				editorUi.showLocalStorageDialog(mxResources.get('configuration') + ':', Editor.configurationKey,
-					buttons, splashCb.parentNode, 'https://www.drawio.com/doc/faq/configure-diagram-editor',
+					// ganguojiang start 隐藏配置帮助按钮
+					// buttons, splashCb.parentNode, 'https://www.drawio.com/doc/faq/configure-diagram-editor',
+					buttons, splashCb.parentNode, null,
+					// ganguojiang end 隐藏配置帮助按钮
 					function()
 					{
 						if (splashCb.parentNode != null)
@@ -2778,39 +2789,49 @@
 			{
 				this.addMenuItems(menu, ['exportPdf'], parent);
 			}
+			// ganguojiang start 隐藏导出为pdf菜单
 			// Disabled for standalone mode in iOS because new tab cannot be closed
-			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
-			{
-				this.addMenuItems(menu, ['exportPdf'], parent);
-			}
+			// else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
+			// {
+			// 	this.addMenuItems(menu, ['exportPdf'], parent);
+			// }
+			// ganguojiang end 隐藏导出为pdf菜单
 
 			if (editorUi.vsdxExportEnabled() && !mxClient.IS_IE &&
 				(typeof(VsdxExport) !== 'undefined' || !editorUi.isOffline()))
 			{
 				this.addMenuItems(menu, ['exportVsdx'], parent);
 			}
+			// ganguojiang start 隐藏导出为html、导出为url菜单
+			// this.addMenuItems(menu, ['-', 'exportHtml', 'exportXml', 'exportUrl'], parent);
+			this.addMenuItems(menu, ['-', 'exportXml'], parent);
+			// ganguojiang end 隐藏导出为html、导出为url菜单
 
-			this.addMenuItems(menu, ['-', 'exportHtml', 'exportXml', 'exportUrl'], parent);
+			// ganguojiang start 隐藏导出高级菜单
+			// if (!editorUi.isOffline())
+			// {
+			// 	menu.addSeparator(parent);
+			// 	this.addMenuItem(menu, 'export', parent).firstChild.nextSibling.innerHTML = mxResources.get('advanced') + '...';
+			// }
+			// ganguojiang end 隐藏导出高级菜单
 
-			if (!editorUi.isOffline())
-			{
-				menu.addSeparator(parent);
-				this.addMenuItem(menu, 'export', parent).firstChild.nextSibling.innerHTML = mxResources.get('advanced') + '...';
-			}
+			// ganguojiang start 隐藏导出发布链接菜单
+			// if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+			// 	Editor.currentTheme == 'min' && !editorUi.isOffline())
+			// {
+			// 	this.addMenuItems(menu, ['publishLink'], parent);
+			// }
+			// ganguojiang end 隐藏导出发布链接菜单
 
-			if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-				Editor.currentTheme == 'min' && !editorUi.isOffline())
-			{
-				this.addMenuItems(menu, ['publishLink'], parent);
-			}
-
-			if (editorUi.mode != App.MODE_ATLAS && urlParams['extAuth'] != '1' &&
-				(Editor.currentTheme == 'simple' || Editor.currentTheme == 'sketch' ||
-				Editor.currentTheme == 'min') && !editorUi.isOffline())
-			{
-				menu.addSeparator(parent);
-				editorUi.menus.addSubmenu('embed', menu, parent);
-			}
+			// ganguojiang start 隐藏导出嵌入菜单
+			// if (editorUi.mode != App.MODE_ATLAS && urlParams['extAuth'] != '1' &&
+			// 	(Editor.currentTheme == 'simple' || Editor.currentTheme == 'sketch' ||
+			// 	Editor.currentTheme == 'min') && !editorUi.isOffline())
+			// {
+			// 	menu.addSeparator(parent);
+			// 	editorUi.menus.addSubmenu('embed', menu, parent);
+			// }
+			// ganguojiang end 隐藏导出嵌入菜单
 		})));
 
 		this.put('importFrom', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -3090,11 +3111,13 @@
 					this.addSubmenu('insert', menu, parent);
 				}
 
-				if (iw < 360  && urlParams['embed'] != '1' &&
-					editorUi.getServiceName() == 'draw.io')
-				{
-					this.addSubmenu('share', menu, parent);
-				}
+				// ganguojiang start 隐藏共享菜单
+				// if (iw < 360  && urlParams['embed'] != '1' &&
+				// 	editorUi.getServiceName() == 'draw.io')
+				// {
+				// 	this.addSubmenu('share', menu, parent);
+				// }
+				// ganguojiang end 隐藏共享菜单
 			}
 		})));
 		
@@ -3114,11 +3137,12 @@
 
 			this.addMenuItems(menu, ['lightMode', 'darkMode', '-'], parent);
 			var item = editorUi.menus.addMenuItem(menu, 'highContrast', parent);
-
-			if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-			{
-				editorUi.menus.addLinkToItem(item, 'https://github.com/jgraph/drawio/issues/4296');
-			}
+			// ganguojiang start 不显示highContrast帮助跳转连接
+			// if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+			// {
+			// 	editorUi.menus.addLinkToItem(item, 'https://github.com/jgraph/drawio/issues/4296');
+			// }
+			// ganguojiang end
 		})));
 
 		editorUi.actions.addAction('addToScratchpad', function(evt)
@@ -4258,10 +4282,12 @@
 				{
 					var item = editorUi.menus.addMenuItem(menu, 'scratchpad', parent);
 					
-					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-					{
-						editorUi.menus.addLinkToItem(item, 'https://www.drawio.com/doc/faq/scratchpad');
-					}
+					// ganguojiang start 隐藏便笺本帮助按钮
+					// if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+					// {
+					// 	editorUi.menus.addLinkToItem(item, 'https://www.drawio.com/doc/faq/scratchpad');
+					// }
+					// ganguojiang end 隐藏便笺本帮助按钮
 				}
 				
 				editorUi.menus.addMenuItems(menu, ['-', 'findReplace',
@@ -4291,10 +4317,12 @@
 				{
 					var item = this.addMenuItem(menu, 'scratchpad', parent);
 					
-					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-					{
-						this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/scratchpad');
-					}
+					// ganguojiang start 隐藏便笺本帮助按钮
+					// if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+					// {
+					// 	this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/scratchpad');
+					// }
+					// ganguojiang end 隐藏便笺本帮助按钮
 				}
 				
 				this.addMenuItems(menu, ['toggleShapes', '-', 'pageView', 'pageScale']);
@@ -4356,16 +4384,18 @@
 					editorUi.duplicatePage(page, mxResources.get('copyOf', [page.getName()]));
 				}), parent);
 				
-				if (urlParams['embed'] != 1)
-				{
-					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && editorUi.getServiceName() == 'draw.io')
-					{
-						menu.addItem(mxResources.get('openInNewWindow'), null, mxUtils.bind(this, function()
-						{
-							editorUi.editor.editAsNew(editorUi.getFileData(true, null, null, null, true, true));
-						}), parent);
-					}
-				}
+				// ganguojiang start 隐藏 新窗口打开 菜单
+				// if (urlParams['embed'] != 1)
+				// {
+				// 	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && editorUi.getServiceName() == 'draw.io')
+				// 	{
+				// 		menu.addItem(mxResources.get('openInNewWindow'), null, mxUtils.bind(this, function()
+				// 		{
+				// 			editorUi.editor.editAsNew(editorUi.getFileData(true, null, null, null, true, true));
+				// 		}), parent);
+				// 	}
+				// }
+				// ganguojiang end 隐藏 新窗口打开 菜单
 			}
 		})));
 
@@ -4540,13 +4570,17 @@
 					editorUi.menus.addMenuItems(menu, ['-', 'googleFonts', 'spellCheck', 'autoBkp', 'drafts', '-'], parent);
 				}
 
-				this.addSubmenu('diagramLanguage', menu, parent);
-				menu.addSeparator(parent);
+				// ganguojiang start 隐藏绘图语言按钮
+				// this.addSubmenu('diagramLanguage', menu, parent);
+				// menu.addSeparator(parent);
+				// ganguojiang end 隐藏绘图语言按钮
 				
-				if (editorUi.mode != App.MODE_ATLAS) 
-				{
-					editorUi.menus.addMenuItem(menu, 'configuration', parent);
-				}
+				// ganguojiang start 隐藏配置按钮
+				// if (editorUi.mode != App.MODE_ATLAS) 
+				// {
+				// 	editorUi.menus.addMenuItem(menu, 'configuration', parent);
+				// }
+				// ganguojiang end 隐藏配置按钮
 				
 				// Adds trailing separator in case new plugin entries are added
 				menu.addSeparator(parent);
@@ -4576,20 +4610,24 @@
 	
 				menu.addSeparator(parent);
 				var item = this.addSubmenu('adaptiveColors', menu, parent);
-
-				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-				{
-					editorUi.menus.addLinkToItem(item, 'https://github.com/jgraph/drawio/discussions/4713');
-				}
+				
+				// ganguojiang start 隐藏右侧面板样式自适应颜色帮助按钮
+				// if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+				// {
+				// 	editorUi.menus.addLinkToItem(item, 'https://github.com/jgraph/drawio/discussions/4713');
+				// }
+				// ganguojiang end 隐藏右侧面板样式自适应颜色帮助按钮
 				
 				if (typeof(MathJax) !== 'undefined')
 				{
 					var item = this.addMenuItem(menu, 'mathematicalTypesetting', parent);
 					
-					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-					{
-						this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/math-typesetting');
-					}
+					// ganguojiang start 隐藏数学排版 帮助按钮
+					// if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+					// {
+					// 	this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/math-typesetting');
+					// }
+					// ganguojiang end 隐藏数学排版 帮助按钮
 				}
 				
 				if (urlParams['embed'] != '1')
@@ -4603,24 +4641,35 @@
 
 					menu.addSeparator(parent);
 					
-					if (isLocalStorage || mxClient.IS_CHROMEAPP)
-					{
-						this.addMenuItems(menu, ['showStartScreen'], parent);
-					}
+					// ganguojiang start 隐藏 显示开始画面 按钮
+					// if (isLocalStorage || mxClient.IS_CHROMEAPP)
+					// {
+					// 	this.addMenuItems(menu, ['showStartScreen'], parent);
+					// }
+					// ganguojiang end 隐藏 显示开始画面 按钮
 
 					this.addMenuItems(menu, ['autosave'], parent);
 				}
 
 				this.addMenuItems(menu, ['-', 'copyConnect', 'collapseExpand', '-'], parent);
-				this.addSubmenu('diagramLanguage', menu, parent);
-				this.addMenuItems(menu, ['editDiagram', '-'], parent);
+				// ganguojiang start 隐藏 绘图语言按钮
+				// this.addSubmenu('diagramLanguage', menu, parent);
+				// ganguojiang end 隐藏 绘图语言按钮
 
-				if (!editorUi.isOfflineApp() && isLocalStorage)
-				{
-					this.addMenuItem(menu, 'plugins', parent);
-				}
-	
-				this.addMenuItems(menu, ['configuration'], parent);
+				// ganguojiang start 隐藏 编辑绘图按钮
+				// this.addMenuItems(menu, ['editDiagram', '-'], parent);
+				// ganguojiang end 隐藏 编辑绘图按钮
+				
+				// ganguojiang start 隐藏 插件按钮
+				// if (!editorUi.isOfflineApp() && isLocalStorage)
+				// {
+				// 	this.addMenuItem(menu, 'plugins', parent);
+				// }
+				// ganguojiang end 隐藏 插件按钮
+
+				// ganguojiang start 隐藏 配置按钮
+				// this.addMenuItems(menu, ['configuration'], parent);
+				// ganguojiang end 隐藏 配置按钮
 			}
 		})));
 
@@ -4648,37 +4697,41 @@
 			}
 		})));
 
-		this.put('share', new Menu(mxUtils.bind(this, function(menu, parent)
-		{
-			if (!editorUi.isStandaloneApp())
-			{
-				var err = (editorUi.isOffline(true)) ?
-					mxResources.get('offline') :
-					editorUi.getNetworkStatus();
+		// ganguojiang start 隐藏分享按钮
+		// this.put('share', new Menu(mxUtils.bind(this, function(menu, parent)
+		// {
+		// 	if (!editorUi.isStandaloneApp())
+		// 	{
+		// 		var err = (editorUi.isOffline(true)) ?
+		// 			mxResources.get('offline') :
+		// 			editorUi.getNetworkStatus();
 
-				if (err != null)
-				{
-					menu.addItem(err, null, null, parent, null, false);
-					menu.addSeparator(parent);
-				}
+		// 		if (err != null)
+		// 		{
+		// 			menu.addItem(err, null, null, parent, null, false);
+		// 			menu.addSeparator(parent);
+		// 		}
+		// 		// ganguojiang start 隐藏共享菜单
+		// 		// editorUi.menus.addMenuItems(menu, ['share'], parent);
+		// 		// ganguojiang end 隐藏共享菜单
+		// 	}
+		// 	// ganguojiang start 隐藏发布为链接菜单
+		// 	// this.addMenuItem(menu, 'publishLink', parent, null,
+		// 	// 	null, mxResources.get('publish') + '...');
+		// 	// ganguojiang end 隐藏发布为链接菜单
 
-				editorUi.menus.addMenuItems(menu, ['share'], parent);
-			}
+		// 	if (!EditorUi.isElectronApp && editorUi.isOwnGDriveDomain() &&
+		// 		editorUi.getServiceName() == 'draw.io' && !navigator.standalone)
+		// 	{
+		// 		this.addMenuItem(menu, 'presentationMode', parent);
+		// 	}
 
-			this.addMenuItem(menu, 'publishLink', parent, null,
-				null, mxResources.get('publish') + '...');
-
-			if (!EditorUi.isElectronApp && editorUi.isOwnGDriveDomain() &&
-				editorUi.getServiceName() == 'draw.io' && !navigator.standalone)
-			{
-				this.addMenuItem(menu, 'presentationMode', parent);
-			}
-
-			if (editorUi.getMainUser() != null)
-			{
-				this.addMenuItems(menu, ['accounts'], parent);
-			}
-		})));
+		// 	if (editorUi.getMainUser() != null)
+		// 	{
+		// 		this.addMenuItems(menu, ['accounts'], parent);
+		// 	}
+		// })));
+		// ganguojiang end 隐藏分享按钮
 
 		this.put('diagram', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
@@ -4730,7 +4783,9 @@
 			}
 			else if (urlParams['noFileMenu'] != '1')
 			{
-				editorUi.menus.addSubmenu('file', menu, parent);
+				// ganguojiang start隐藏文件按钮
+				// editorUi.menus.addSubmenu('file', menu, parent);
+				// ganguojiang end隐藏文件按钮
 				menu.addSeparator(parent);
 
 				if (Editor.currentTheme == 'min')
@@ -4756,7 +4811,9 @@
 			}
 			else if (urlParams['noFileMenu'] != '1')
 			{
-				editorUi.menus.addSubmenu('importFrom', menu, parent);
+				// ganguojiang start 隐藏从...导入按钮
+				// editorUi.menus.addSubmenu('importFrom', menu, parent);
+				// ganguojiang end 隐藏从...导入按钮
 			}
 	
 			if (Editor.currentTheme != 'simple' && Editor.currentTheme != 'min')
@@ -4775,17 +4832,23 @@
 			else if (Editor.currentTheme != 'min')
 			{
 				this.addMenuItems(menu, ['-'], parent);
-				this.addSubmenu('newLibrary', menu, parent);
-				this.addSubmenu('openLibraryFrom', menu, parent);
+				// ganguojiang start 隐藏新增库按钮
+				// this.addSubmenu('newLibrary', menu, parent);
+				// ganguojiang end 隐藏新增库按钮
+				// ganguojiang start 隐藏从...打开库按钮
+				// this.addSubmenu('openLibraryFrom', menu, parent);
+				// ganguojiang end 隐藏从...打开库按钮
 			}
 	
 			menu.addSeparator(parent);
 
+			// ganguojiang start 隐藏打印菜单
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
-			if (urlParams['noFileMenu'] != '1' && (!mxClient.IS_IOS || !navigator.standalone))
-			{
-				editorUi.menus.addMenuItems(menu, ['print'], parent);
-			}
+			// if (urlParams['noFileMenu'] != '1' && (!mxClient.IS_IOS || !navigator.standalone))
+			// {
+			// 	editorUi.menus.addMenuItems(menu, ['print'], parent);
+			// }
+			// ganguojiang end 隐藏打印菜单
 	
 			if (!sketchTheme && Editor.currentTheme != 'min')
 			{
@@ -4809,7 +4872,10 @@
 				menu.addSeparator(parent);
 			}
 
-			editorUi.menus.addSubmenu('help', menu, parent);
+			// ganguojiang start 隐藏帮助按钮
+			// editorUi.menus.addSubmenu('help', menu, parent);
+			// ganguojiang end 隐藏帮助按钮
+
 			menu.addSeparator(parent);
 
 			if (urlParams['embed'] == '1')
@@ -4841,10 +4907,12 @@
 				}
 			}
 			
-			if (urlParams['embed'] != '1' && file != null && typeof AtlasFile == 'undefined') // Exclude Atlasian plugin
-			{
-				editorUi.menus.addMenuItems(menu, ['-', 'close'], parent);
-			}
+			// ganguojiang start 隐藏关闭菜单
+			// if (urlParams['embed'] != '1' && file != null && typeof AtlasFile == 'undefined') // Exclude Atlasian plugin
+			// {
+			// 	editorUi.menus.addMenuItems(menu, ['-', 'close'], parent);
+			// }
+			// ganguojiang start 隐藏关闭菜单
 		})));
 
 		this.put('save', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -4878,15 +4946,21 @@
 
 			if (urlParams['embed'] == '1')
 			{
-				this.addSubmenu('importFrom', menu, parent);
+				// ganguojiang start 隐藏从...导入按钮
+				// this.addSubmenu('importFrom', menu, parent);
+				// ganguojiang end 隐藏从...导入按钮
 				this.addSubmenu('exportAs', menu, parent);
 				this.addSubmenu('embed', menu, parent);
 
 				if (urlParams['libraries'] == '1')
 				{
 					this.addMenuItems(menu, ['-'], parent);
-					this.addSubmenu('newLibrary', menu, parent);
-					this.addSubmenu('openLibraryFrom', menu, parent);
+					// ganguojiang start 隐藏新增库按钮
+					// this.addSubmenu('newLibrary', menu, parent);
+					// ganguojiang end 隐藏新增库按钮
+					// ganguojiang start 隐藏从...打开按钮
+					// this.addSubmenu('openLibraryFrom', menu, parent);
+					// ganguojiang end 隐藏从...打开按钮
 				}
 				
 				if (editorUi.isRevisionHistorySupported())
@@ -4924,13 +4998,19 @@
 			else if (minTheme)
 			{
 				var file = editorUi.getCurrentFile();
-				editorUi.menus.addMenuItems(menu, ['new'], parent);
-				editorUi.menus.addSubmenu('openFrom', menu, parent);
+				// ganguojiang start 隐藏新建按钮
+				// editorUi.menus.addMenuItems(menu, ['new'], parent);
+				// ganguojiang end 隐藏新建按钮
+				// ganguojiang start 隐藏从...打开按钮
+				// editorUi.menus.addSubmenu('openFrom', menu, parent);
+				// ganguojiang end 隐藏从...打开按钮
 
-				if (isLocalStorage)
-				{
-					this.addSubmenu('openRecent', menu, parent);
-				}
+				// ganguojiang start 隐藏打开最近使用的文件按钮
+				// if (isLocalStorage)
+				// {
+				// 	this.addSubmenu('openRecent', menu, parent);
+				// }
+				// ganguojiang end 隐藏打开最近使用的文件按钮
 				
 				menu.addSeparator(parent);
 				editorUi.menus.addMenuItems(menu, ['-', 'save'], parent);
@@ -4951,20 +5031,24 @@
 
 				if (file != null)
 				{
-					if (Editor.currentTheme != 'simple' &&
-						(file.constructor == DriveFile ||
-						file.constructor == GitHubFile ||
-						file.constructor == OneDriveFile))
-					{
-						editorUi.menus.addMenuItems(menu, ['share'], parent);
-					}
+					// ganguojiang start 隐藏共享菜单
+					// if (Editor.currentTheme != 'simple' &&
+					// 	(file.constructor == DriveFile ||
+					// 	file.constructor == GitHubFile ||
+					// 	file.constructor == OneDriveFile))
+					// {
+					// 	editorUi.menus.addMenuItems(menu, ['share'], parent);
+					// }
+					// ganguojiang end 隐藏共享菜单
 
-					if ((Editor.currentTheme == 'sketch' || Editor.currentTheme == 'min') &&
-						!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
-					{
-						this.addMenuItem(menu, 'publishLink', parent, null, null,
-							mxResources.get('publish') + '...');
-					}
+					// ganguojiang start 隐藏发布为链接菜单
+					// if ((Editor.currentTheme == 'sketch' || Editor.currentTheme == 'min') &&
+					// 	!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
+					// {
+					// 	this.addMenuItem(menu, 'publishLink', parent, null, null,
+					// 		mxResources.get('publish') + '...');
+					// }
+					// ganguojiang end 隐藏发布为链接菜单
 
 					if ((Editor.currentTheme == 'sketch' || Editor.currentTheme == 'min') &&
 						!EditorUi.isElectronApp && editorUi.isOwnGDriveDomain() &&
@@ -5046,14 +5130,19 @@
 						this.addMenuItems(menu, ['exportOptionsDisabled'], parent);
 					}
 					
-					this.addMenuItems(menu, ['save', '-', 'share'], parent);
+					// ganguojiang start 隐藏共享菜单
+					// this.addMenuItems(menu, ['save', '-', 'share'], parent);
+					this.addMenuItems(menu, ['save'], parent);
+					// ganguojiang end 隐藏共享菜单
 					
 					var item = this.addMenuItem(menu, 'synchronize', parent);
 					
-					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-					{
-						this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/synchronize');
-					}
+					// ganguojiang start 隐藏 同步按钮 帮助按钮
+					// if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+					// {
+					// 	this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/synchronize');
+					// }
+					// ganguojiang end 隐藏 同步按钮 帮助按钮
 					
 					menu.addSeparator(parent);
 				}
@@ -5083,20 +5172,24 @@
 						menu.addSeparator(parent);
 						var item = this.addMenuItem(menu, 'synchronize', parent);
 						
-						if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-						{
-							this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/synchronize');
-						}
+						// ganguojiang start 隐藏 同步按钮 帮助按钮
+						// if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+						// {
+						// 	this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/synchronize');
+						// }
+						// ganguojiang end 隐藏 同步按钮 帮助按钮
 					}
 					
 					this.addMenuItems(menu, ['-', 'save', 'saveAs', '-'], parent);
 					
-					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-						editorUi.getServiceName() == 'draw.io' &&
-						!editorUi.isOfflineApp() && file != null)
-					{
-						this.addMenuItems(menu, ['share', '-'], parent);
-					}
+					// ganguojiang start 隐藏共享菜单
+					// if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+					// 	editorUi.getServiceName() == 'draw.io' &&
+					// 	!editorUi.isOfflineApp() && file != null)
+					// {
+					// 	this.addMenuItems(menu, ['share', '-'], parent);
+					// }
+					// ganguojiang end 隐藏共享菜单
 					
 					if (file != null && file.isRenamable())
 					{
@@ -5127,7 +5220,9 @@
 				}
 				
 				menu.addSeparator(parent);
-				this.addSubmenu('importFrom', menu, parent);
+				// ganguojiang start 隐藏从...导入按钮
+				// this.addSubmenu('importFrom', menu, parent);
+				// ganguojiang end 隐藏从...导入按钮
 				this.addSubmenu('exportAs', menu, parent);
 
 				if (!editorUi.isOffline())
@@ -5138,8 +5233,12 @@
 				}
 				
 				menu.addSeparator(parent);
-				this.addSubmenu('newLibrary', menu, parent);
-				this.addSubmenu('openLibraryFrom', menu, parent);
+				// ganguojiang start 隐藏新增库按钮
+				// this.addSubmenu('newLibrary', menu, parent);
+				// ganguojiang end 隐藏新增库按钮
+				// ganguojiang start 隐藏从...打开库按钮
+				// this.addSubmenu('openLibraryFrom', menu, parent);
+				// ganguojiang end 隐藏从...打开库按钮
 				
 				if (editorUi.isRevisionHistorySupported())
 				{
@@ -5159,14 +5258,17 @@
 				}
 				
 				this.addMenuItems(menu, ['-', 'pageSetup'], parent);
-				
+				// ganguojiang start 隐藏打印菜单
 				// Cannot use print in standalone mode on iOS as we cannot open new windows
-				if (!mxClient.IS_IOS || !navigator.standalone)
-				{
-					this.addMenuItems(menu, ['print'], parent);
-				}
+				// if (!mxClient.IS_IOS || !navigator.standalone)
+				// {
+				// 	this.addMenuItems(menu, ['print'], parent);
+				// }
+				// ganguojiang end 隐藏打印菜单
 
-				this.addMenuItems(menu, ['-', 'close']);
+				// ganguojiang start 隐藏关闭菜单
+				// this.addMenuItems(menu, ['-', 'close']);
+				// ganguojiang end 隐藏关闭菜单
 			}
 		})));
 		

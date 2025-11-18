@@ -1,23 +1,26 @@
-const webpackDevServer = require('webpack-dev-server');
-const webpack = require('webpack');
-const execSync = require('child_process').execSync;
-const config = require('./webpack.config.js');
-const open = require('open');
-const path = require('path');
-const HOT_ENV = process.env.HOT_ENV;
+const webpackDevServer = require("webpack-dev-server");
+const webpack = require("webpack");
+const config = require("./webpack.config.js");
+const open = require("open");
+const path = require("path");
+const { PUBLIC_PATH, HOT_ENV } = require("./const.js");
 
-let hots = {}
+let hots = {};
 
 if (!HOT_ENV) {
   hots.hot = true;
 }
 
-console.log('%c⧭', 'color: #eeff00', __dirname);
 const options = {
   // hot: 'only',
   hot: true,
   historyApiFallback: true,
-  static: [path.join(__dirname, '../src/main/webapp')],
+  static: [
+    {
+      directory: path.join(__dirname, "../src/main/webapp"),
+      publicPath: PUBLIC_PATH,
+    },
+  ],
   // stats: 'errors-only',
   // disableHostCheck: true,
   // inline: true,
@@ -25,8 +28,8 @@ const options = {
   // hotOnly: true,
   // host: '172.17.229.216:3000',
   headers: {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Credentials': true
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Credentials": true,
   },
   // proxy: {
   //   "/": { // 这是请求接口中要替换的标识
@@ -35,37 +38,20 @@ const options = {
   //     secure: false, // 若代理的地址是https协议，需要配置这个属性
   //   }
   // },
-  ...hots
+  ...hots,
 };
 
 (async () => {
+  const port = 2302;
 
-  let port = 2302;
-  if(process.env.RUN_ENV === 'prod'){
-    port = 2303;
-  }
-
-
-  const mergeConfig = await config('dev');
-
+  const mergeConfig = await config("dev");
 
   const compiler = webpack(mergeConfig);
   const server = new webpackDevServer(compiler, options);
 
-  server.listen(port, '0.0.0.0', () => {
-    console.log('dev server listening on port 2301');
+  server.listen(port, "0.0.0.0", () => {
+    console.log("dev server listening on port 2301");
   });
-
-  const supportedChromiumBrowsers = [
-    'Google Chrome Canary',
-    'Google Chrome Dev',
-    'Google Chrome Beta',
-    'Google Chrome',
-    'Microsoft Edge',
-    'Brave Browser',
-    'Vivaldi',
-    'Chromium',
-  ];
 
   // for (let chromiumBrowser of supportedChromiumBrowsers) {
   //   try {
@@ -94,7 +80,7 @@ const options = {
       name: open.apps.chrome,
       wait: false,
       // arguments: ['--incognito'],
-      url: true
-    }
+      url: true,
+    },
   });
-})()
+})();

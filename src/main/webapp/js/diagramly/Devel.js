@@ -258,7 +258,16 @@ mxscript(drawDevUrl + 'js/diagramly/DrawioFile.js', function(){
 		mxscript(drawDevUrl + 'js/diagramly/RemoteLibrary.js');
 	});
 	mxscript(drawDevUrl + 'js/diagramly/EmbedFile.js');
-	
+
+	// ganguojiang start 解决不加载Drive导致全局变量找不到，报错
+	Object.assign(window, {
+		DriveFile: undefined,
+		DropboxFile: undefined,
+		GitHubFile: undefined,
+		OneDriveFile: undefined,
+		TrelloFile: undefined,
+	});
+	// ganguojiang end 解决不加载Drive导致全局变量找不到，报错
 });
 
 
@@ -276,36 +285,38 @@ mxscript(drawDevUrl + 'js/diagramly/DrawioComment.js', function(){
 mxscript(drawDevUrl + 'js/diagramly/DrawioClient.js');
 mxscript(drawDevUrl + 'js/diagramly/DrawioUser.js');
 
-mxscript(drawDevUrl + 'js/diagramly/DriveFile.js', function(){
-	mxscript(drawDevUrl + 'js/diagramly/DriveClient.js');
-});
+// ganguojiang start 不加载Drive功能
+// mxscript(drawDevUrl + 'js/diagramly/DriveFile.js', function(){
+// 	mxscript(drawDevUrl + 'js/diagramly/DriveClient.js');
+// });
 
-mxscript(drawDevUrl + 'js/diagramly/DropboxFile.js', function(){
-	mxscript(drawDevUrl + 'js/diagramly/DropboxLibrary.js');
-	mxscript(drawDevUrl + 'js/diagramly/DropboxClient.js');
-});
+// mxscript(drawDevUrl + 'js/diagramly/DropboxFile.js', function(){
+// 	mxscript(drawDevUrl + 'js/diagramly/DropboxLibrary.js');
+// 	mxscript(drawDevUrl + 'js/diagramly/DropboxClient.js');
+// });
 
-mxscript(drawDevUrl + 'js/diagramly/GitHubFile.js', function(){
-	mxscript(drawDevUrl + 'js/diagramly/GitHubLibrary.js');
-	mxscript(drawDevUrl + 'js/diagramly/GitHubClient.js');
-});
+// mxscript(drawDevUrl + 'js/diagramly/GitHubFile.js', function(){
+// 	mxscript(drawDevUrl + 'js/diagramly/GitHubLibrary.js');
+// 	mxscript(drawDevUrl + 'js/diagramly/GitHubClient.js');
+// });
 
-mxscript(drawDevUrl + 'js/diagramly/OneDriveFile.js', function(){
-	mxscript(drawDevUrl + 'js/diagramly/OneDriveLibrary.js');
-	mxscript(drawDevUrl + 'js/diagramly/OneDriveClient.js');
-});
+// mxscript(drawDevUrl + 'js/diagramly/OneDriveFile.js', function(){
+// 	mxscript(drawDevUrl + 'js/diagramly/OneDriveLibrary.js');
+// 	mxscript(drawDevUrl + 'js/diagramly/OneDriveClient.js');
+// });
 
-mxscript(drawDevUrl + 'js/onedrive/mxODPicker.js');
+// mxscript(drawDevUrl + 'js/onedrive/mxODPicker.js');
 
-mxscript(drawDevUrl + 'js/diagramly/TrelloFile.js', function(){
-	mxscript(drawDevUrl + 'js/diagramly/TrelloLibrary.js');
-	mxscript(drawDevUrl + 'js/diagramly/TrelloClient.js');
-});
+// mxscript(drawDevUrl + 'js/diagramly/TrelloFile.js', function(){
+// 	mxscript(drawDevUrl + 'js/diagramly/TrelloLibrary.js');
+// 	mxscript(drawDevUrl + 'js/diagramly/TrelloClient.js');
+// });
 
-mxscript(drawDevUrl + 'js/diagramly/GitLabFile.js', function(){
-	mxscript(drawDevUrl + 'js/diagramly/GitLabLibrary.js');
-	mxscript(drawDevUrl + 'js/diagramly/GitLabClient.js');
-});
+// mxscript(drawDevUrl + 'js/diagramly/GitLabFile.js', function(){
+// 	mxscript(drawDevUrl + 'js/diagramly/GitLabLibrary.js');
+// 	mxscript(drawDevUrl + 'js/diagramly/GitLabClient.js');
+// });
+// ganguojiang end 不加载Drive功能
 
 mxscript(drawDevUrl + 'js/diagramly/DistanceGuides.js');
 mxscript(drawDevUrl + 'js/diagramly/mxRuler.js');

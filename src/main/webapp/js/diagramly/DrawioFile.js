@@ -1949,12 +1949,14 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 					msg = msg.substring(0, 60) + '...';
 				}
 
-				var status = mxUtils.htmlEntities(mxResources.get('unsavedChangesClickHereToSave')) +
-					((msg != null && msg != '') ? ' (' + mxUtils.htmlEntities(msg) + ')' : '');
-				var action = 'data-action="' + ((this.ui.mode == null || !this.isEditable()) ?
-					'saveAs' : 'save') + '"';
-				this.ui.editor.setStatus('<div ' + action + ' title="' +
-					status + '" class="geStatusAlert">' + status + '</div>');
+				// ganguojiang start 隐藏修改未保存。点击此处保存提示
+				// var status = mxUtils.htmlEntities(mxResources.get('unsavedChangesClickHereToSave')) +
+				// 	((msg != null && msg != '') ? ' (' + mxUtils.htmlEntities(msg) + ')' : '');
+				// var action = 'data-action="' + ((this.ui.mode == null || !this.isEditable()) ?
+				// 	'saveAs' : 'save') + '"';
+				// this.ui.editor.setStatus('<div ' + action + ' title="' +
+				// 	status + '" class="geStatusAlert">' + status + '</div>');
+				// ganguojiang end 隐藏修改未保存。点击此处保存提示
 			}));
 			
 			if (EditorUi.enableDrafts && (this.getMode() == null || EditorUi.isElectronApp))

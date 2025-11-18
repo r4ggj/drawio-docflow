@@ -44,36 +44,44 @@ App = function(editor, container, lightbox)
 	// Global helper method to deal with popup blockers
 	window.geOpenWindow = mxUtils.bind(this, function(url, pre, fallback)
 	{
-		if (urlParams['openInSameWin'] == '1' || navigator.standalone)
-		{
-			if (fallback != null)
-			{
-				fallback();
-			}
-		}
-		else
-		{
-			var wnd = null;
+		// ganguojiang start 禁止新窗口打开，只能在当前窗口打开
+		// if (urlParams['openInSameWin'] == '1' || navigator.standalone)
+		// {
+		// 	if (fallback != null)
+		// 	{
+		// 		fallback();
+		// 	}
+		// }
+		// else
+		// {
+		// 	var wnd = null;
 			
-			try
-			{
-				wnd = window.open(url);
-			}
-			catch (e)
-			{
-				// ignore
-			}
+		// 	try
+		// 	{
+		// 		wnd = window.open(url);
+		// 	}
+		// 	catch (e)
+		// 	{
+		// 		// ignore
+		// 	}
 			
-			if (wnd == null || wnd === undefined)
-			{
-				this.showDialog(new PopupDialog(this, url,pre, fallback).
-					container, 340, 140, true, true);
-			}
-			else if (pre != null)
-			{
-				pre();
-			}
+		// 	if (wnd == null || wnd === undefined)
+		// 	{
+		// 		this.showDialog(new PopupDialog(this, url,pre, fallback).
+		// 			container, 340, 140, true, true);
+		// 	}
+		// 	else if (pre != null)
+		// 	{
+		// 		pre();
+		// 	}
+		// }
+		// ganguojiang add start
+		if (pre != null)
+		{
+			pre();
 		}
+		// ganguojiang add end
+		// ganguojiang end 禁止新窗口打开，只能在当前窗口打开
 	});
 
 	// Initial state for toolbar items is disabled
@@ -152,12 +160,9 @@ App = function(editor, container, lightbox)
 		var data = e.data || {};
 		if(data){
 			if (data.type == 'edit') {
-			this.hideDialog()
-			this.updateDaokeFile(data.title, data.xml)
+				this.editTempFile(data);
 			} else if(data.type === 'create'){
-				this.editor.graph.model.clear()
-				this.hideDialog()
-				this.updateDaokeFile(data.title, data.xml)
+				this.newTempFile(data);
 			}
 		}
 	})
@@ -449,113 +454,121 @@ App.getStoredMode = function()
 			// Loads gapi for all browsers but IE8 and below if not disabled or if enabled and in embed mode
 			if (urlParams['embed'] != '1')
 			{
-				if (typeof window.DriveClient === 'function')
-				{
-					if (urlParams['gapi'] != '0' && isSvgBrowser &&
-						(document.documentMode == null || document.documentMode >= 10))
-					{
-						// Immediately loads client
-						if (App.mode == App.MODE_GOOGLE || (urlParams['state'] != null &&
-							window.location.hash == '') || (window.location.hash != null &&
-							window.location.hash.substring(0, 2) == '#G'))
-						{
-							mxscript('https://apis.google.com/js/api.js');
-						}
-						// Keeps lazy loading for fallback to authenticated Google file if not public in loadFile
-						else if (urlParams['chrome'] == '0' && (window.location.hash == null ||
-							window.location.hash.substring(0, 45) !== '#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D'))
-						{
-							// Disables loading of client
-							window.DriveClient = null;
-						}
-					}
-					else
-					{
-						// Disables loading of client
-						window.DriveClient = null;
-					}
-				}
+				// ganguojiang start 不需要 DriveClient 逻辑
+				// if (typeof window.DriveClient === 'function')
+				// {
+					// if (urlParams['gapi'] != '0' && isSvgBrowser &&
+					// 	(document.documentMode == null || document.documentMode >= 10))
+					// {
+					// 	// Immediately loads client
+					// 	if (App.mode == App.MODE_GOOGLE || (urlParams['state'] != null &&
+					// 		window.location.hash == '') || (window.location.hash != null &&
+					// 		window.location.hash.substring(0, 2) == '#G'))
+					// 	{
+					// 		mxscript('https://apis.google.com/js/api.js');
+					// 	}
+					// 	// Keeps lazy loading for fallback to authenticated Google file if not public in loadFile
+					// 	else if (urlParams['chrome'] == '0' && (window.location.hash == null ||
+					// 		window.location.hash.substring(0, 45) !== '#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D'))
+					// 	{
+					// 		// Disables loading of client
+					// 		window.DriveClient = null;
+					// 	}
+					// }
+					// else
+					// {
+					// 	// Disables loading of client
+					// 	window.DriveClient = null;
+					// }
+				// }
+				// ganguojiang end 不需要 DriveClient 逻辑
 	
 				// Loads dropbox for all browsers but IE8 and below (no CORS) if not disabled or if enabled and in embed mode
 				// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
-				if (typeof window.DropboxClient === 'function')
-				{
-					if (urlParams['db'] != '0' && isSvgBrowser &&
-						(document.documentMode == null || document.documentMode > 9))
-					{
-						// Immediately loads client
-						if (App.mode == App.MODE_DROPBOX || (window.location.hash != null &&
-							window.location.hash.substring(0, 2) == '#D'))
-						{
-							mxscript(App.DROPBOX_URL, function()
-							{
-								// Must load this after the dropbox SDK since they use the same namespace
-								mxscript(App.DROPINS_URL, null, 'dropboxjs', App.DROPBOX_APPKEY, true);
-							});							
-						}
-						else if (urlParams['chrome'] == '0')
-						{
-							window.DropboxClient = null;
-						}
-					}
-					else
-					{
-						// Disables loading of client
-						window.DropboxClient = null;
-					}
-				}
+				// ganguojiang start 不需要 DropboxClient 逻辑
+				// if (typeof window.DropboxClient === 'function')
+				// {
+					// if (urlParams['db'] != '0' && isSvgBrowser &&
+					// 	(document.documentMode == null || document.documentMode > 9))
+					// {
+					// 	// Immediately loads client
+					// 	if (App.mode == App.MODE_DROPBOX || (window.location.hash != null &&
+					// 		window.location.hash.substring(0, 2) == '#D'))
+					// 	{
+					// 		mxscript(App.DROPBOX_URL, function()
+					// 		{
+					// 			// Must load this after the dropbox SDK since they use the same namespace
+					// 			mxscript(App.DROPINS_URL, null, 'dropboxjs', App.DROPBOX_APPKEY, true);
+					// 		});							
+					// 	}
+					// 	else if (urlParams['chrome'] == '0')
+					// 	{
+					// 		window.DropboxClient = null;
+					// 	}
+					// }
+					// else
+					// {
+					// 	// Disables loading of client
+					// 	window.DropboxClient = null;
+					// }
+				// }
+				// ganguojiang end 不需要 DropboxClient 逻辑
 				
 				// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
-				if (typeof window.OneDriveClient === 'function')
-				{
-					if (urlParams['od'] != '0' && (navigator.userAgent == null ||
-						navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
-					{
-						// Immediately loads client
-						if (App.mode == App.MODE_ONEDRIVE || (window.location.hash != null &&
-							window.location.hash.substring(0, 2) == '#W'))
-						{
-							//Editor.oneDriveInlinePicker can be set with configuration which is done later, so load it all time
-							mxscript(App.ONEDRIVE_URL);
-						}
-						else if (urlParams['chrome'] == '0')
-						{
-							window.OneDriveClient = null;
-						}
-					}
-					else
-					{
-						// Disables loading of client
-						window.OneDriveClient = null;
-					}
-				}
+				// ganguojiang start 不需要 OneDriveClient 逻辑
+				// if (typeof window.OneDriveClient === 'function')
+				// {
+					// if (urlParams['od'] != '0' && (navigator.userAgent == null ||
+					// 	navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
+					// {
+					// 	// Immediately loads client
+					// 	if (App.mode == App.MODE_ONEDRIVE || (window.location.hash != null &&
+					// 		window.location.hash.substring(0, 2) == '#W'))
+					// 	{
+					// 		//Editor.oneDriveInlinePicker can be set with configuration which is done later, so load it all time
+					// 		mxscript(App.ONEDRIVE_URL);
+					// 	}
+					// 	else if (urlParams['chrome'] == '0')
+					// 	{
+					// 		window.OneDriveClient = null;
+					// 	}
+					// }
+					// else
+					// {
+					// 	// Disables loading of client
+					// 	window.OneDriveClient = null;
+					// }
+				// }
+				// ganguojiang end 不需要 OneDriveClient 逻辑
 				
 				// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
-				if (typeof window.TrelloClient === 'function')
-				{
-					if (urlParams['tr'] == '1' && isSvgBrowser && !mxClient.IS_IE11 &&
-						(document.documentMode == null || document.documentMode >= 10))
-					{
-						// Immediately loads client
-						if (App.mode == App.MODE_TRELLO || (window.location.hash != null &&
-							window.location.hash.substring(0, 2) == '#T'))
-						{
-							mxscript(App.TRELLO_JQUERY_URL, function()
-							{
-								mxscript(App.TRELLO_URL);
-							});
-						}
-						else if (urlParams['chrome'] == '0')
-						{
-							window.TrelloClient = null;
-						}
-					}
-					else
-					{
-						// Disables loading of client
-						window.TrelloClient = null;
-					}
-				}
+				// ganguojiang start 不需要 TrelloClient 逻辑
+				// if (typeof window.TrelloClient === 'function')
+				// {
+					// if (urlParams['tr'] == '1' && isSvgBrowser && !mxClient.IS_IE11 &&
+					// 	(document.documentMode == null || document.documentMode >= 10))
+					// {
+					// 	// Immediately loads client
+					// 	if (App.mode == App.MODE_TRELLO || (window.location.hash != null &&
+					// 		window.location.hash.substring(0, 2) == '#T'))
+					// 	{
+					// 		mxscript(App.TRELLO_JQUERY_URL, function()
+					// 		{
+					// 			mxscript(App.TRELLO_URL);
+					// 		});
+					// 	}
+					// 	else if (urlParams['chrome'] == '0')
+					// 	{
+					// 		window.TrelloClient = null;
+					// 	}
+					// }
+					// else
+					// {
+					// 	// Disables loading of client
+					// 	window.TrelloClient = null;
+					// }
+				// }
+				// ganguojiang end 不需要 TrelloClient 逻辑
 			}
 		}
 	}
@@ -862,18 +875,20 @@ App.main = function(callback, createUi)
 			
 			// Loads gapi for all browsers but IE8 and below if not disabled or if enabled and in embed mode
 			// Special case: Cannot load in asynchronous code below
-			if (typeof window.DriveClient === 'function' &&
-				(typeof gapi === 'undefined' && (((urlParams['embed'] != '1' && urlParams['gapi'] != '0') ||
-				(urlParams['embed'] == '1' && urlParams['gapi'] == '1')) && isSvgBrowser &&
-				isLocalStorage && (document.documentMode == null || document.documentMode >= 10))))
-			{
-				mxscript('https://apis.google.com/js/api.js?onload=DrawGapiClientCallback', null, null, null, mxClient.IS_SVG);
-			}
-			// Disables client
-			else if (typeof window.gapi === 'undefined')
-			{
-				window.DriveClient = null;
-			}
+			// ganguojiang start 不需要 DriveClient 逻辑
+			// if (typeof window.DriveClient === 'function' &&
+			// 	(typeof gapi === 'undefined' && (((urlParams['embed'] != '1' && urlParams['gapi'] != '0') ||
+			// 	(urlParams['embed'] == '1' && urlParams['gapi'] == '1')) && isSvgBrowser &&
+			// 	isLocalStorage && (document.documentMode == null || document.documentMode >= 10))))
+			// {
+			// 	mxscript('https://apis.google.com/js/api.js?onload=DrawGapiClientCallback', null, null, null, mxClient.IS_SVG);
+			// }
+			// // Disables client
+			// else if (typeof window.gapi === 'undefined')
+			// {
+			// 	window.DriveClient = null;
+			// }
+			// ganguojiang end 不需要 DriveClient 逻辑
 		}
 		
 		/**
@@ -3985,16 +4000,24 @@ App.prototype.showSplash = function(force)
 	else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 		(this.mode == null || force))
 	{
-		var rowLimit = (serviceCount == 4) ? 2 : 3;
+		// ganguojiang start 启动时不显示打开本地未保存提示框
+		// var rowLimit = (serviceCount == 4) ? 2 : 3;
 		
-		var dlg = new StorageDialog(this, mxUtils.bind(this, function()
-		{
-			this.hideDialog();
-			showSecondDialog();
-		}), rowLimit);
+		// var dlg = new StorageDialog(this, mxUtils.bind(this, function()
+		// {
+		// 	this.hideDialog();
+		// 	showSecondDialog();
+		// }), rowLimit);
 		
-		this.showDialog(dlg.container, (rowLimit < 3) ? 200 : 300,
-			((serviceCount > 3) ? 320 : 210), true, false);
+		// this.showDialog(dlg.container, (rowLimit < 3) ? 200 : 300,
+		// 	((serviceCount > 3) ? 320 : 210), true, false);
+		// ganguojiang end 启动时不显示打开本地未保存提示框
+		// ganguojiang start 默认创建一个新的流程图
+		var prev = Editor.useLocalStorage;
+		this.createFile(this.defaultFilename + (EditorUi.isElectronApp? '.drawio' : ''),
+			null, null, null, null, null, null, urlParams['local'] != '1');
+		Editor.useLocalStorage = prev;
+		// ganguojiang end 默认创建一个新的流程图
 	}
 	else if (urlParams['create'] == null)
 	{
@@ -8172,206 +8195,210 @@ Editor.prototype.resetGraph = function()
 	}
 };
 
-/**
- * ganguojiang start
- * Addons to the App.js
- */
 
+// ganguojiang start 扩展App.js代码
 (function(){
 	// 新增方法 start
 	/** 选择模板创建 */
 	App.prototype.selectTemplateCreate = function() {
-	this.setCurrentFile(null);
-	var compact = this.isOffline();
-	// editorUi.mode = 'device'
-	var dlg = new NewDialog(this, compact, !(this.mode == App.MODE_DEVICE && 'chooseFileSystemEntries' in window));
-	this.showDialog(dlg.container, (compact) ? 350 : 620, (compact) ? 70 : 460, true, true, function(cancel)
-	{
-		// this.sidebar.hideTooltip();
-		if (cancel && this.getCurrentFile() == null)
+		this.setCurrentFile(null);
+		var compact = this.isOffline();
+		// editorUi.mode = 'device'
+		var dlg = new NewDialog(this, compact, !(this.mode == App.MODE_DEVICE && 'chooseFileSystemEntries' in window));
+		this.showDialog(dlg.container, (compact) ? 350 : 620, (compact) ? 70 : 460, true, true, function(cancel)
 		{
-			this.showSplash();
-		}
-	});
-	
-	dlg.init();
+			// this.sidebar.hideTooltip();
+			if (cancel && this.getCurrentFile() == null)
+			{
+				this.showSplash();
+			}
+		});
+		
+		dlg.init();
 	}
 	
 	/** 创建临时文件 */
-	App.prototype.createDaokeFile = function(title, data, libs, mode, done, replace, folderId, tempFile, clibs) {
-	data = (data != null) ? data : this.emptyDiagramXml;
-	console.log(title, data);
-	console.log(new LocalFile(this, data, title, false));
-	this.fileCreated(new LocalFile(this, data, title, false), libs, replace, done, clibs);
+	App.prototype.createTempFile = function(title, data, libs, mode, done, replace, folderId, tempFile, clibs) {
+		data = (data != null) ? data : this.emptyDiagramXml;
+		this.fileCreated(new LocalFile(this, data, title, false), libs, replace, done, clibs);
 	}
 	
 	/** 更新当前图文件 */
-	App.prototype.updateDaokeFile = function(title, data) {
-	data = (data != null) ? data : this.emptyDiagramXml;
-	console.log(title, data);
-	console.log(new LocalFile(this, data, title, false));
-	this.fileDaokeUpdated(new LocalFile(this, data, title, false));
+	App.prototype.updateTempFile = function(title, data) {
+		data = (data != null) ? data : this.emptyDiagramXml;
+		this.fileTempUpdated(new LocalFile(this, data, title, false));
 	}
 	
-	App.prototype.fileDaokeUpdated = function(file, libs, replace, done, clibs) {
-	var url = window.location.pathname;
-	
-	if (libs != null && libs.length > 0)
-	{
-		url += '?libs=' + libs;
-	}
-	
-	if (clibs != null && clibs.length > 0)
-	{
-		url += '?clibs=' + clibs;
-	}
-	
-	url = this.getUrl(url);
-	
-	// Always opens a new tab for local files to avoid losing changes
-	if (file.getMode() != App.MODE_DEVICE)
-	{
-		url += '#' + file.getHash();
-	}
-	
-	// Makes sure to produce consistent output with finalized files via createFileData this needs
-	// to save the file again since it needs the newly created file ID for redirecting in HTML
-	if (this.spinner.spin(document.body, mxResources.get('inserting')))
-	{
-		var data = file.getData();
-		var dataNode = (data.length > 0) ? this.editor.extractGraphModel(
-			mxUtils.parseXml(data).documentElement, true) : null;
-		var redirect = window.location.protocol + '//' + window.location.hostname + url;
-		var node = dataNode;
-		var graph = null;
+	App.prototype.fileTempUpdated = function(file, libs, replace, done, clibs) {
+		var url = window.location.pathname;
 		
-		// Handles special case where SVG files need a rendered graph to be saved
-		if (dataNode != null && /\.svg$/i.test(file.getTitle()))
+		if (libs != null && libs.length > 0)
 		{
-			graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
-			document.body.appendChild(graph.container);
-			node = this.decodeNodeIntoGraph(node, graph);
+			url += '?libs=' + libs;
 		}
 		
-		file.setData(this.createFileData(dataNode, graph, file, redirect));
-	
-		if (graph != null)
+		if (clibs != null && clibs.length > 0)
 		{
-			graph.container.parentNode.removeChild(graph.container);
+			url += '?clibs=' + clibs;
 		}
-	
-		var complete = mxUtils.bind(this, function()
-		{
-			this.spinner.stop();
-		});
 		
-		var fn = mxUtils.bind(this, function()
+		url = this.getUrl(url);
+		
+		// Always opens a new tab for local files to avoid losing changes
+		if (file.getMode() != App.MODE_DEVICE)
 		{
-			complete();
+			url += '#' + file.getHash();
+		}
+		
+		// Makes sure to produce consistent output with finalized files via createFileData this needs
+		// to save the file again since it needs the newly created file ID for redirecting in HTML
+		if (this.spinner.spin(document.body, mxResources.get('inserting')))
+		{
+			var data = file.getData();
+			var dataNode = (data.length > 0) ? this.editor.extractGraphModel(
+				mxUtils.parseXml(data).documentElement, true) : null;
+			var redirect = window.location.protocol + '//' + window.location.hostname + url;
+			var node = dataNode;
+			var graph = null;
 			
-			var currentFile = this.getCurrentFile();
-			
-			if (replace == null && currentFile != null)
+			// Handles special case where SVG files need a rendered graph to be saved
+			if (dataNode != null && /\.svg$/i.test(file.getTitle()))
 			{
-				replace = !currentFile.isModified() && currentFile.getMode() == null;
+				graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
+				document.body.appendChild(graph.container);
+				node = this.decodeNodeIntoGraph(node, graph);
 			}
-			var fn3 = mxUtils.bind(this, function()
+			
+			file.setData(this.createFileData(dataNode, graph, file, redirect));
+		
+			if (graph != null)
 			{
-				window.openFile = null;
-				this.fileLoaded(file);
+				graph.container.parentNode.removeChild(graph.container);
+			}
+		
+			var complete = mxUtils.bind(this, function()
+			{
+				this.spinner.stop();
+			});
+			
+			var fn = mxUtils.bind(this, function()
+			{
+				complete();
 				
-				if (replace)
+				var currentFile = this.getCurrentFile();
+				
+				if (replace == null && currentFile != null)
 				{
-					file.addAllSavedStatus();
+					replace = !currentFile.isModified() && currentFile.getMode() == null;
 				}
-				
-				if (libs != null)
+				var fn3 = mxUtils.bind(this, function()
 				{
-					this.sidebar.showEntries(libs);
-				}
-				
-				if (clibs != null)
-				{
-					var temp = [];
-					var tokens = clibs.split(';');
+					window.openFile = null;
+					this.fileLoaded(file);
 					
-					for (var i = 0; i < tokens.length; i++)
+					if (replace)
 					{
-						temp.push(decodeURIComponent(tokens[i]));
+						file.addAllSavedStatus();
 					}
 					
-					this.loadLibraries(temp);
-				}
-			});
-			var fn2 = mxUtils.bind(this, function()
-			{
-				if (replace || currentFile == null || !currentFile.isModified())
-				{
-					fn3();
-				}
-				else
-				{
-					// ganguojiang 提示跳转
-					// this.confirm(mxResources.get('allChangesLost'), null, fn3,
-					// 	mxResources.get('cancel'), mxResources.get('discardChanges'));
-				}
-			});
-	
-			if (done != null)
-			{
-				done();
-			}
-			
-			// Opens the file in a new window
-			if (replace != null && !replace)
-			{
-				// Opens local file in a new window
-				if (file.constructor == LocalFile)
-				{
-					window.openFile = new OpenFile(function()
+					if (libs != null)
 					{
-						window.openFile = null;
-					});
+						this.sidebar.showEntries(libs);
+					}
+					
+					if (clibs != null)
+					{
+						var temp = [];
+						var tokens = clibs.split(';');
 						
-					window.openFile.setData(file.getData(), file.getTitle(), file.getMode() == null);
-				}
-	
+						for (var i = 0; i < tokens.length; i++)
+						{
+							temp.push(decodeURIComponent(tokens[i]));
+						}
+						
+						this.loadLibraries(temp);
+					}
+				});
+				var fn2 = mxUtils.bind(this, function()
+				{
+					if (replace || currentFile == null || !currentFile.isModified())
+					{
+						fn3();
+					}
+					else
+					{
+						// ganguojiang 提示跳转
+						// this.confirm(mxResources.get('allChangesLost'), null, fn3,
+						// 	mxResources.get('cancel'), mxResources.get('discardChanges'));
+					}
+				});
+		
 				if (done != null)
 				{
 					done();
 				}
-				console.log('我被执行了----9');
-				fn3();
-				// ganguojiang
-				// window.openWindow(url, null, fn2);
+				
+				// Opens the file in a new window
+				if (replace != null && !replace)
+				{
+					// Opens local file in a new window
+					if (file.constructor == LocalFile)
+					{
+						window.openFile = new OpenFile(function()
+						{
+							window.openFile = null;
+						});
+							
+						window.openFile.setData(file.getData(), file.getTitle(), file.getMode() == null);
+					}
+		
+					if (done != null)
+					{
+						done();
+					}
+					console.log('我被执行了----9');
+					fn3();
+					// ganguojiang
+					// window.openWindow(url, null, fn2);
+				}
+				else
+				{
+					fn2();
+				}
+			});
+			
+			// Updates data in memory for local files
+			if (file.constructor == LocalFile)
+			{
+				fn();
 			}
 			else
 			{
-				fn2();
-			}
-		});
-		
-		// Updates data in memory for local files
-		if (file.constructor == LocalFile)
-		{
-			fn();
-		}
-		else
-		{
-			file.saveFile(file.getTitle(), false, mxUtils.bind(this, function()
-			{
-				fn();
-			}), mxUtils.bind(this, function(resp)
-			{
-				complete();
-	
-				if (resp == null || resp.name != 'AbortError')
+				file.saveFile(file.getTitle(), false, mxUtils.bind(this, function()
 				{
-					this.handleError(resp);
-				}
-			}));
+					fn();
+				}), mxUtils.bind(this, function(resp)
+				{
+					complete();
+		
+					if (resp == null || resp.name != 'AbortError')
+					{
+						this.handleError(resp);
+					}
+				}));
+			}
 		}
 	}
+	// 编辑临时文件
+	App.prototype.editTempFile = function(data){
+		this.hideDialog();
+		this.updateTempFile(data.title, data.xml);
+	}
+	// 新建临时文件
+	App.prototype.newTempFile = function(data){
+		this.editor.graph.model.clear();
+		this.hideDialog();
+		this.updateTempFile(data.title, data.xml);
 	}
 	// 新增方法 end
 	// App saveFile 函数重写
@@ -8389,9 +8416,18 @@ Editor.prototype.resetGraph = function()
 		file.desc = null;
 		file.title = '流程图.drawio';
 		file.updateFileData();
+		const xml = file.data;
+		file.title = '流程图.svg';
+		file.updateFileData();
+		const svg = file.data;
+		console.log('xml',xml);
+		console.log('svg',svg);
 		parent.parent && parent.parent.postMessage({
 			type: 'drawio',
-			data: file.data
+			data: {
+				xml,
+				svg,
+			}
 		}, '*');
 	}
 	// App load 函数重写
@@ -8436,5 +8472,5 @@ Editor.prototype.resetGraph = function()
 		return createMenubar.apply(this, arguments);
 	}
 	  
-})()
-// ganguojiang end
+})();
+// ganguojiang end 扩展App.js代码

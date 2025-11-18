@@ -1205,10 +1205,12 @@ var ColorDialog = function(editorUi, color, apply, cancelFn, defaultColor, defau
 	buttons.style.alignItems = 'center';
 	buttons.style.justifyContent = 'end';
 
-	if (!editorUi.isOffline())
-	{
-		buttons.appendChild(editorUi.createHelpIcon('https://github.com/jgraph/drawio/discussions/4713'));
-	}
+	// ganguojiang start 隐藏右侧面板样式自适应颜色帮助按钮
+	// if (!editorUi.isOffline())
+	// {
+	// 	buttons.appendChild(editorUi.createHelpIcon('https://github.com/jgraph/drawio/discussions/4713'));
+	// }
+	// ganguojiang end 隐藏右侧面板样式自适应颜色帮助按钮
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
@@ -3009,11 +3011,13 @@ var EditDataDialog = function(ui, cell)
 		replace.appendChild(input);
 		mxUtils.write(replace, mxResources.get('placeholders'));
 		
-		if (EditDataDialog.placeholderHelpLink != null)
-		{
-			replace.appendChild(ui.createHelpIcon(
-				EditDataDialog.placeholderHelpLink));
-		}
+		// ganguojiang start 隐藏预定义占位符帮助链接
+		// if (EditDataDialog.placeholderHelpLink != null)
+		// {
+		// 	replace.appendChild(ui.createHelpIcon(
+		// 		EditDataDialog.placeholderHelpLink));
+		// }
+		// ganguojiang end 隐藏预定义占位符帮助链接
 		
 		buttons.appendChild(replace);
 	}

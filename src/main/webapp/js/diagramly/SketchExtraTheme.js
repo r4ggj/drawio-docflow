@@ -483,34 +483,37 @@ Editor.themes.push("atlas");
             null == this.shareElt &&
               "1" != urlParams.embed &&
               "draw.io" == this.getServiceName())
-          )
-            if (
-              ((this.shareElt = this.createMenu(
-                "share",
-                Editor.thinUserAddImage
-              )),
-              (this.shareElt.style.backgroundSize = "24px"),
-              (this.shareElt.style.flexShrink = "0"),
-              this.isStandaloneApp())
-            )
-              this.shareElt.style.backgroundImage =
-                "url(" + Editor.thinShareImage + ")";
-            else {
-              var b = mxUtils.bind(this, function () {
-                var c = mxResources.get("share"),
-                  f = Editor.thinUserAddImage,
-                  g = this.getNetworkStatus();
-                null != g &&
-                  ((c = c + " (" + g + ")"), (f = Editor.thinUserFlashImage));
-                this.shareElt.style.backgroundImage = "url(" + f + ")";
-                this.shareElt.setAttribute("title", c);
-              });
-              this.addListener("realtimeStateChanged", b);
-              this.editor.addListener("statusChanged", b);
-              mxEvent.addListener(window, "offline", b);
-              mxEvent.addListener(window, "online", b);
-              b();
-            }
+          ){
+            // ganguojiang start 隐藏共享按钮
+            // if (
+            //   ((this.shareElt = this.createMenu(
+            //     "share",
+            //     Editor.thinUserAddImage
+            //   )),
+            //   (this.shareElt.style.backgroundSize = "24px"),
+            //   (this.shareElt.style.flexShrink = "0"),
+            //   this.isStandaloneApp())
+            // )
+            //   this.shareElt.style.backgroundImage =
+            //     "url(" + Editor.thinShareImage + ")";
+            // else {
+            //   var b = mxUtils.bind(this, function () {
+            //     var c = mxResources.get("share"),
+            //       f = Editor.thinUserAddImage,
+            //       g = this.getNetworkStatus();
+            //     null != g &&
+            //       ((c = c + " (" + g + ")"), (f = Editor.thinUserFlashImage));
+            //     this.shareElt.style.backgroundImage = "url(" + f + ")";
+            //     this.shareElt.setAttribute("title", c);
+            //   });
+            //   this.addListener("realtimeStateChanged", b);
+            //   this.editor.addListener("statusChanged", b);
+            //   mxEvent.addListener(window, "offline", b);
+            //   mxEvent.addListener(window, "online", b);
+            //   b();
+            // }
+            // ganguojiang end 隐藏共享按钮
+          }
         } else
           (this.sketchMenubarElt.style.cssText =
             "position:absolute;right:12px;top:10px;height:44px;border-radius:4px;overflow:hidden;user-select:none;max-width:calc(100% - 170px);box-sizing:border-box;justify-content:flex-end;z-index:1;padding:7px 12px;display:flex;white-space:nowrap;user-select:none;justify-content:flex-end;align-items:center;flex-wrap:nowrap;gap:6px;"),

@@ -1986,17 +1986,19 @@ EditorUi.prototype.createPageMenu = function(page, label)
 {
 	return mxUtils.bind(this, function(menu, parent)
 	{
-		if (urlParams['embed'] != 1)
-		{
-			if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-				this.getServiceName() == 'draw.io' && !navigator.standalone)
-			{
-				menu.addItem(mxResources.get('openInNewWindow'), null, mxUtils.bind(this, function()
-				{
-					this.editor.editAsNew(this.getFileData(true, null, null, null, true, true));
-				}), parent);
-			}
-		}
+		// ganguojiang start 隐藏页面在新窗口打开按钮
+		// if (urlParams['embed'] != 1)
+		// {
+		// 	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+		// 		this.getServiceName() == 'draw.io' && !navigator.standalone)
+		// 	{
+		// 		menu.addItem(mxResources.get('openInNewWindow'), null, mxUtils.bind(this, function()
+		// 		{
+		// 			this.editor.editAsNew(this.getFileData(true, null, null, null, true, true));
+		// 		}), parent);
+		// 	}
+		// }
+		// ganguojiang end 隐藏页面在新窗口打开按钮
 
 		if (this.editor.graph.isEnabled())
 		{

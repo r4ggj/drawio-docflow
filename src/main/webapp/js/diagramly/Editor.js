@@ -4518,8 +4518,10 @@
 	 */
 	if (window.ColorDialog)
 	{
-		FilenameDialog.filenameHelpLink = 'https://www.drawio.com/doc/faq/save-file-formats'; 
-		
+		// ganguojiang start 隐藏保存为文件名帮助
+		// FilenameDialog.filenameHelpLink = 'https://www.drawio.com/doc/faq/save-file-formats'; 
+		// ganguojiang end 隐藏保存为文件名帮助
+
 		var colorDialogAddRecentColor = ColorDialog.addRecentColor;
 		
 		ColorDialog.addRecentColor = function(color, max)
@@ -4877,11 +4879,13 @@
 				
 				div.appendChild(option);
 				
-				if (!ui.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-				{
-					option.appendChild(ui.menus.createHelpLink(
-						'https://www.drawio.com/doc/faq/math-typesetting'));
-				}
+				// ganguojiang start 隐藏math typesetting帮助
+				// if (!ui.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+				// {
+				// 	option.appendChild(ui.menus.createHelpLink(
+				// 		'https://www.drawio.com/doc/faq/math-typesetting'));
+				// }
+				// ganguojiang end 隐藏math typesetting帮助
 			}
 			
 			return div;
@@ -9044,8 +9048,10 @@
 
 		if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 		{
-			span.appendChild(editorUi.createHelpIcon(
-				'https://github.com/jgraph/drawio/discussions/5136'));
+			// ganguojiang start 隐藏打印阴影帮助按钮
+			// span.appendChild(editorUi.createHelpIcon(
+			// 	'https://github.com/jgraph/drawio/discussions/5136'));
+			// ganguojiang end 隐藏打印阴影帮助按钮
 		}
 
 		mxEvent.addListener(span, 'click', function(e)
@@ -9174,12 +9180,14 @@
 			return (fn != null) ? fn(!print, args) : editorUi.print(!print, args);
 		};
 
-		if ((!editorUi.isOffline() || mxClient.IS_CHROMEAPP) && fn == null)
-		{
-			buttons.appendChild(editorUi.createHelpIcon(
-				'https://www.drawio.com/doc/faq/print-diagram'));
-		}
-		
+		// ganguojiang start 隐藏打印帮助链接
+		// if ((!editorUi.isOffline() || mxClient.IS_CHROMEAPP) && fn == null)
+		// {
+		// 	buttons.appendChild(editorUi.createHelpIcon(
+		// 		'https://www.drawio.com/doc/faq/print-diagram'));
+		// }
+		// ganguojiang end 隐藏打印帮助链接
+
 		var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 		{
 			editorUi.hideDialog();
