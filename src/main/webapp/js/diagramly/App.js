@@ -4751,18 +4751,22 @@ App.prototype.saveFile = function(forceDialog, success)
 			{
 				// Workaround for possible status update while save as dialog is showing
 				// is to show no saved status for device files
-				if (file.getMode() != App.MODE_DEVICE)
-				{
-					this.updateStatus(mxUtils.bind(this, function()
-					{
-						this.editor.setStatus(mxUtils.htmlEntities(
-							mxResources.get('allChangesSaved')));
-					}));
-				}
-				else
-				{
+
+				// ganguojiang start 隐藏 所有更改均已保存 状态提示
+				// if (file.getMode() != App.MODE_DEVICE)
+				// {
+				// 	this.updateStatus(mxUtils.bind(this, function()
+				// 	{
+				// 		this.editor.setStatus(mxUtils.htmlEntities(
+				// 			mxResources.get('allChangesSaved')));
+				// 	}));
+					
+				// }
+				// else
+				// {
 					this.clearStatus();
-				}
+				// }
+				// ganguojiang end 隐藏 所有更改均已保存 状态提示
 			}
 			
 			if (success != null)

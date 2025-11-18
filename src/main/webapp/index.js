@@ -330,7 +330,7 @@ if (process.env.RUN_ENV === "prod") {
         ".diagrams.net";
 
     function loadAppJS() {
-      mxscript("js/app.min.js", function () {
+      mxscript("js/app.prod.js", function () {
         mxScriptsLoaded = true;
         checkAllLoaded();
 
