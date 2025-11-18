@@ -10,7 +10,7 @@ const packageMap = {
   shapes: "js/shapes-14-6-5.min",
   extensions: "js/extensions.min",
   orgchart: "js/orgchart.min",
-  app: "js/app.min",
+  app: "js/app.prod",
 };
 
 module.exports = {

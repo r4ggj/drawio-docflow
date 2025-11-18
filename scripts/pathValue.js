@@ -10,7 +10,7 @@ const packageMap = {
   sidebar: 'sidebar.min.js',
   client: 'client.min.js',
   stencils: 'stencils.min.js',
-  app: 'app.min.js',
+  app: 'app.prod.js',
   base: 'base.min.js'
 }
 

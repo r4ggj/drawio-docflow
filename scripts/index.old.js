@@ -245,7 +245,7 @@ const packageMap = {
   base: 'base.min',
   extensions: 'js/extensions.min',
   orgchart: 'js/orgchart.min',
-  app: 'js/app.min',
+  app: 'js/app.prod',
 }
 
 // const resApp = [
