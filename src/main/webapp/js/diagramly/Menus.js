@@ -329,7 +329,7 @@
 	
 		if (window.mxFreehand)
 		{
-			var freehandAction = editorUi.actions.put('insertFreehand', new Action('freehand' + '...', function()
+			var freehandAction = editorUi.actions.put('insertFreehand', new Action('freehand', function()
 			{
 				if (graph.isEnabled())
 				{
@@ -3645,41 +3645,40 @@
 				editorUi.menus.addMenuItems(menu, ['toggleShapes'], parent);
 				editorUi.menus.addSubmenu('table', menu, parent);
 				menu.addSeparator(parent);
-				editorUi.menus.addMenuItems(menu, ['insertImage', 'insertLink', '-'], parent);
+				editorUi.menus.addMenuItems(menu, ['insertText', 'insertLink', '-',
+					'insertImage', 'createShape', '-'], parent);
 
 				if (editorUi.insertTemplateEnabled && !editorUi.isOffline())
 				{
 					editorUi.menus.addMenuItems(menu, ['insertTemplate'], parent);
 				}
 				
-				editorUi.menus.addMenuItems(menu, ['generate'], parent);
-
 				if (window.isMermaidEnabled)
 				{
 					editorUi.menus.addMenuItems(menu, ['mermaid'], parent);
 				}
 
-				menu.addSeparator(parent);
-				editorUi.menus.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
+				editorUi.menus.addMenuItems(menu, ['-', 'insertFreehand', 'generate', '-'], parent);
 				editorUi.menus.addSubmenu('layout', menu, parent);
+				editorUi.menus.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
 			}
 			else
 			{
 				this.addMenuItems(menu, ['insertRectangle', 'insertEllipse', 'insertRhombus',
 					'-', 'insertEdge', 'insertNote', '-', 'insertText', 'insertLink',
-					'-', 'createShape', 'insertFreehand', '-', 'insertImage'], parent);
+					'-', 'insertImage', 'createShape', '-'], parent);
+				
+				if (editorUi.insertTemplateEnabled && !editorUi.isOffline())
+				{
+					this.addMenuItems(menu, ['insertTemplate'], parent);
+				}
 				
 				if (window.isMermaidEnabled)
 				{
 					this.addMenuItems(menu, ['mermaid'], parent);
 				}
 
-				if (editorUi.insertTemplateEnabled && !editorUi.isOffline())
-				{
-					this.addMenuItems(menu, ['-', 'insertTemplate'], parent);
-				}
-				
-				editorUi.menus.addMenuItems(menu, ['generate', '-'], parent);
+				editorUi.menus.addMenuItems(menu, ['-', 'insertFreehand', 'generate', '-'], parent);
 
 				if (uiTheme == 'min' || Editor.currentTheme == 'simple')
 				{
@@ -4237,7 +4236,7 @@
 		{
 			var file = editorUi.getCurrentFile();
 			editorUi.menus.addMenuItems(menu, ['toggleShapes', 'format', 'ruler', '-',
-				'findReplace', 'layers', 'tags', 'outline', 'generate', '-'], parent);
+				'findReplace', 'layers', 'tags', 'outline', '-'], parent);
 
 			if (editorUi.commentsSupported())
 			{
@@ -4278,7 +4277,7 @@
 				}
 				
 				editorUi.menus.addMenuItems(menu, ['-', 'findReplace',
-					'layers', 'tags', 'outline', 'generate', '-'], parent);
+					'layers', 'tags', 'outline', '-'], parent);
 				
 				if (editorUi.commentsSupported())
 				{
@@ -4294,7 +4293,7 @@
 			}
 			else
 			{
-				this.addMenuItems(menu, (['format', 'outline', 'layers', 'tags', 'generate']).
+				this.addMenuItems(menu, (['format', 'outline', 'layers', 'tags']).
 					concat((editorUi.commentsSupported()) ?
 					['comments', '-'] : ['-']));
 				
@@ -4749,8 +4748,7 @@
 				if (Editor.currentTheme == 'min')
 				{
 					editorUi.menus.addMenuItems(menu, ['toggleShapes', 'format',
-						'layers', 'tags', 'generate', '-',
-						'findReplace'], parent);
+						'layers', 'tags', '-', 'findReplace'], parent);
 			
 					if (editorUi.commentsSupported())
 					{
@@ -4782,7 +4780,7 @@
 				}
 
 				editorUi.menus.addMenuItems(menu, ['toggleShapes', 'format',
-					'layers', 'tags', 'generate', '-'], parent);
+					'layers', 'tags', '-'], parent);
 				editorUi.menus.addMenuItems(menu, ['pageSetup'], parent);
 			}
 			else if (Editor.currentTheme != 'min')

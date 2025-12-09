@@ -683,7 +683,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 	text.style.wordBreak = 'break-all';
 	text.style.marginTop = '10px';
 	text.style.resize = 'none';
-	text.style.height = '150px';
+	text.style.height = '180px';
 	text.style.width = '440px';
 	text.style.border = '1px solid gray';
 	text.value = mxResources.get('updatingDocument');
@@ -723,10 +723,8 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 	
 	var previewBtn = null;
 	
-	// Loads forever in IE9
 	if (EmbedDialog.showPreviewOption && !mxIsElectron &&
-		(!mxClient.IS_CHROMEAPP || validUrl) && !navigator.standalone && (validUrl ||
-		(mxClient.IS_SVG && (document.documentMode == null || document.documentMode > 9))))
+		!navigator.standalone && validUrl)
 	{
 		previewBtn = mxUtils.button((previewTitle != null) ? previewTitle :
 			mxResources.get((result.length < maxSize) ? 'preview' : 'openInNewWindow'), function()
@@ -796,17 +794,14 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 		buttons.appendChild(previewBtn);
 	}
 	
-	if (!validUrl || result.length > 7500)
+	var downloadBtn = mxUtils.button(mxResources.get('export'), function()
 	{
-		var downloadBtn = mxUtils.button(mxResources.get(mxIsElectron ? 'save' : 'download'), function()
-		{
-			editorUi.hideDialog();
-			editorUi.saveData((filename != null) ? filename : 'embed.txt', 'txt', result, 'text/plain');
-		});
-		
-		downloadBtn.className = 'geBtn';
-		buttons.appendChild(downloadBtn);
-	}
+		editorUi.hideDialog();
+		editorUi.saveData((filename != null) ? filename : 'embed.txt', 'txt', result, 'text/plain');
+	});
+	
+	downloadBtn.className = 'geBtn';
+	buttons.appendChild(downloadBtn);
 
 	if (!editorUi.isOffline() && result.length < maxSize)
 	{
@@ -8606,7 +8601,8 @@ var ChatWindow = function(editorUi, x, y, w, h)
 		var value = Editor.gptModels[key];
 
 		if ((value.substring(0, 4) == 'gpt-' && Editor.gptApiKey != null) ||
-			(value.substring(0, 7) == 'gemini-' && Editor.geminiApiKey != null))
+			(value.substring(0, 7) == 'gemini-' && Editor.geminiApiKey != null) ||
+			(value.substring(0, 7) == 'claude-' && Editor.claudeApiKey != null))
 		{
 			var modelOption = document.createElement('option');
 			modelOption.setAttribute('value', value);
@@ -8885,31 +8881,38 @@ var ChatWindow = function(editorUi, x, y, w, h)
 				'instruction in your response.';
 		}
 
-		messages.push({'role': 'system', 'content': systemInstruction});
-		messages.push({'role': 'user', 'content': thePrompt});
-		
-		var params = (theModel.substring(0, 7) == 'gemini-') ?
+		messages.push({role: (theModel.substring(0, 4) == 'gpt-') ?
+			'system' : 'assistant', content: systemInstruction});
+		messages.push({role: 'user', content: thePrompt});
+
+		var params = null;
+
+		if (theModel.substring(0, 7) == 'gemini-')
 		{
-			"system_instruction": {
-				"parts": [
-					{
-						"text": systemInstruction
-					}
-				]
-			},
-			"contents": [
-			{
-				"parts": [
-					{
-						"text": thePrompt
-					}
-				]
-			}
-			]
-		} : {
-			model: theModel,
-			messages: messages
-		};
+			params = {
+				system_instruction: {
+					parts: [{text: systemInstruction}]
+				},
+				contents: [{
+					parts: [{text: thePrompt}
+				]}]
+			};
+		}
+		else if (theModel.substring(0, 7) == 'claude-')
+		{
+			params = {
+				max_tokens: 8192,
+				model: theModel,
+				messages: messages
+			};
+		}
+		else
+		{
+			params = {
+				model: theModel,
+				messages: messages
+			};
+		}
 		
 		var processMessage = mxUtils.bind(this, function()
 		{
@@ -9068,23 +9071,26 @@ var ChatWindow = function(editorUi, x, y, w, h)
 						buttons.appendChild(btn);
 						mxEvent.addListener(btn, 'click', processMessage);
 
-						btn = btn.cloneNode();
-						btn.setAttribute('src', Editor.shareImage);
-						btn.setAttribute('title', mxResources.get(!editorUi.isStandaloneApp() ?
-							'openInNewWindow' : 'export'));
-						buttons.appendChild(btn);
-
-						mxEvent.addListener(btn, 'click', mxUtils.bind(this, function(evt)
+						if (editorUi.getServiceName() == 'draw.io')
 						{
-							if (!editorUi.isStandaloneApp())
+							btn = btn.cloneNode();
+							btn.setAttribute('src', Editor.shareImage);
+							btn.setAttribute('title', mxResources.get(!editorUi.isStandaloneApp() ?
+								'openInNewWindow' : 'export'));
+							buttons.appendChild(btn);
+
+							mxEvent.addListener(btn, 'click', mxUtils.bind(this, function(evt)
 							{
-								editorUi.editor.editAsNew(data[1]);
-							}
-							else
-							{
-								editorUi.saveData('export.xml', 'xml', data[1], 'text/xml');
-							}
-						}));
+								if (!editorUi.isStandaloneApp())
+								{
+									editorUi.editor.editAsNew(data[1]);
+								}
+								else
+								{
+									editorUi.saveData('export.xml', 'xml', data[1], 'text/xml');
+								}
+							}));
+						}
 
 						btn = btn.cloneNode();
 						btn.setAttribute('src', Editor.magnifyImage);
@@ -9168,9 +9174,22 @@ var ChatWindow = function(editorUi, x, y, w, h)
 						handleError(e);
 					});
 
-					var url = theModel.substring(0, 7) == 'gemini-' ?
-						'https://generativelanguage.googleapis.com/v1beta/models/' + theModel +
-							':generateContent' : Editor.gptUrl;
+					var url = null;
+
+					if (theModel.substring(0, 7) == 'gemini-')
+					{
+						url = 'https://generativelanguage.googleapis.com/v1beta/models/' + theModel +
+							':generateContent'
+					}
+					else if (theModel.substring(0, 7) == 'claude-')
+					{
+						url = 'https://api.anthropic.com/v1/messages';
+					}
+					else
+					{
+						url = Editor.gptUrl;
+					}
+
 					var req = new mxXmlRequest(url, JSON.stringify(params), 'POST');
 					
 					req.setRequestHeaders = mxUtils.bind(this, function(request, params)
@@ -9178,6 +9197,12 @@ var ChatWindow = function(editorUi, x, y, w, h)
 						if (theModel.substring(0, 7) == 'gemini-')
 						{
 							request.setRequestHeader('X-goog-api-key', Editor.geminiApiKey);
+						}
+						else if (theModel.substring(0, 7) == 'claude-')
+						{
+							request.setRequestHeader('x-api-key', Editor.claudeApiKey);
+							request.setRequestHeader('anthropic-version', '2023-06-01');
+							request.setRequestHeader('anthropic-dangerous-direct-browser-access', 'true');
 						}
 						else
 						{
@@ -9198,9 +9223,22 @@ var ChatWindow = function(editorUi, x, y, w, h)
 								if (req.getStatus() >= 200 && req.getStatus() <= 299)
 								{
 									var response = JSON.parse(req.getText());
-									var text = theModel.substring(0, 7) == 'gemini-' ?
-										mxUtils.trim(response.candidates[0].content.parts[0].text) :
-										mxUtils.trim(response.choices[0].message.content);
+									var text = null;
+
+									if (theModel.substring(0, 7) == 'gemini-')
+									{
+										text = response.candidates[0].content.parts[0].text;
+									}
+									else if (theModel.substring(0, 7) == 'claude-')
+									{
+										text = response.content[0].text;
+									}
+									else
+									{
+										text = response.choices[0].message.content;
+									}
+
+									text = mxUtils.trim(text);
 									var mermaid = editorUi.extractMermaidDeclaration(text);
 									EditorUi.debug('EditorUi.ChatWindow.addMessage',
 										'params', params, 'response', response,
@@ -11726,7 +11764,8 @@ var EditShapeDialog = function(editorUi, cell, title)
 	contentDiv.appendChild(textarea);
 
 	var previewDiv = document.createElement('div');
-	previewDiv.style.border = '1px solid lightgray';
+	previewDiv.style.borderWidth = '1px';
+	previewDiv.style.borderStyle = 'solid';
 	previewDiv.style.padding = '20px';
 	previewDiv.style.flexGrow = '1';
 	previewDiv.style.borderRadius = '4px';

@@ -1,3 +1,19 @@
+08-DEC-2025: 29.2.6
+
+- Changes edit icon naming clash caused by [jgraph/drawio#5375]
+
+08-DEC-2025: 29.2.5
+
+- Fixes anchor points for flipped shapes [jgraph/drawio#5341]
+
+04-DEC-2025: 29.2.4
+
+- Adds edit icon for local .html files [jgraph/drawio#5375]
+
+02-DEC-2025: 29.2.3
+
+- Minor UI fixes
+
 01-DEC-2025: 29.2.2
 
 - AI and licensing tuning

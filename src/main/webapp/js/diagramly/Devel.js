@@ -18,7 +18,7 @@ if (!mxIsElectron)
 			'https://api.github.com https://raw.githubusercontent.com https://gitlab.com ' +
 			'https://graph.microsoft.com https://my.microsoftpersonalcontent.com https://*.sharepoint.com https://*.sharepoint.de  ' +
 			'https://*.1drv.com https://api.onedrive.com https://dl.dropboxusercontent.com https://api.openai.com ' +
-			'https://*.google.com https://fonts.gstatic.com https://fonts.googleapis.com; ' +
+			'https://*.google.com https://fonts.gstatic.com https://fonts.googleapis.com https://api.anthropic.com; ' +
 			'img-src * data: blob:; media-src * data:; font-src * data:; ' +
 			// www.draw.io required for browser data migration to app.diagrams.net and
 			// viewer.diagrams.net required for iframe embed preview
