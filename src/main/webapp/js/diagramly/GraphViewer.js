@@ -153,7 +153,6 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 	this.layersEnabled = mxUtils.indexOf(this.toolbarItems, 'layers') >= 0;
 	this.tagsEnabled = mxUtils.indexOf(this.toolbarItems, 'tags') >= 0;
 	this.lightboxEnabled = mxUtils.indexOf(this.toolbarItems, 'lightbox') >= 0;
-	this.editEnabled = mxUtils.indexOf(this.toolbarItems, 'editlocal') >= 0;
 	this.lightboxClickEnabled = this.graphConfig.lightbox != false;
 	this.initialOverflow = document.body.style.overflow;
 	this.initialWidth = (container != null) ? container.style.width : null;
@@ -1720,24 +1719,6 @@ GraphViewer.prototype.addToolbar = function()
 						alert(e.message);
 					}
 				}), Editor.fullscreenImage, (mxResources.get('fullscreen') || 'Fullscreen'));
-			}
-		}
-		else if (token == 'editlocal')
-		{
-			if (this.editEnabled && this.graphConfig.editor != null)
-			{
-				addButton(mxUtils.bind(this, function()
-				{
-					try
-					{
-						window.location.href = this.graphConfig.editor + '#R' +
-							encodeURIComponent(this.xml);
-					}
-					catch (e)
-					{
-						alert(e.message);
-					}
-				}), Editor.editImage, (mxResources.get('edit') || 'Edit'));
 			}
 		}
 		else if (this.graphConfig['toolbar-buttons'] != null)

@@ -795,13 +795,13 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 	}
 	
 	var downloadBtn = mxUtils.button(mxResources.get('export'), function()
-	{
-		editorUi.hideDialog();
-		editorUi.saveData((filename != null) ? filename : 'embed.txt', 'txt', result, 'text/plain');
-	});
-	
-	downloadBtn.className = 'geBtn';
-	buttons.appendChild(downloadBtn);
+		{
+			editorUi.hideDialog();
+			editorUi.saveData((filename != null) ? filename : 'embed.txt', 'txt', result, 'text/plain');
+		});
+		
+		downloadBtn.className = 'geBtn';
+		buttons.appendChild(downloadBtn);
 
 	if (!editorUi.isOffline() && result.length < maxSize)
 	{

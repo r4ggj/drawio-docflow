@@ -1454,9 +1454,7 @@
 			// Writes the file as an embedded HTML file
 			if (!forceSvg && !forceXml && (forceHtml || (file != null && /(\.html)$/i.test(file.getTitle()))))
 			{
-				xml = this.getHtml2(mxUtils.getXml(fileNode), graph, (file != null) ? file.getTitle() : null,
-					editLink, redirect, redirect == null && !EditorUi.isElectronApp &&
-					this.getServiceName() == 'draw.io');
+				xml = this.getHtml2(mxUtils.getXml(fileNode), graph, (file != null) ? file.getTitle() : null, editLink, redirect);
 			}
 			// Maps the XML data to the content attribute in the SVG node 
 			else if (forceSvg || (!forceXml && file != null && /(\.svg)$/i.test(file.getTitle())))
@@ -2018,23 +2016,19 @@
 	/**
 	 * Same as above but using the new embed code.
 	 */
-	EditorUi.prototype.getHtml2 = function(xml, graph, title, editLink, redirect, addEditLink)
+	EditorUi.prototype.getHtml2 = function(xml, graph, title, editLink, redirect)
 	{
 		var js = window.DRAWIO_VIEWER_URL || EditorUi.drawHost + '/js/viewer-static.min.js';
-		var data = {highlight: '#0000ff', nav: this.editor.graph.foldingEnabled, resize: true,
-			xml: Graph.zapGremlins(xml), toolbar: 'pages zoom layers lightbox'};
-		
+	
 		// Makes XHTML compatible
 		if (redirect != null)
 		{
 			redirect = redirect.replace(/&/g, '&amp;');
 		}
-		else if (addEditLink)
-		{
-			data.editor = window.DRAWIO_BASE_URL;
-			data.toolbar += ' editlocal';
-		}
-
+		
+		var data = {highlight: '#0000ff', nav: this.editor.graph.foldingEnabled, resize: true,
+			xml: Graph.zapGremlins(xml), toolbar: 'pages zoom layers lightbox'};
+		
 		if (this.pages != null && this.currentPage != null)
 		{
 			data.page = mxUtils.indexOf(this.pages, this.currentPage);
@@ -5107,6 +5101,23 @@
 				this.base64ToBlob(data, mimeType) :
 				new Blob([data], {type: mimeType})
 			navigator.msSaveOrOpenBlob(blob, filename);
+		}
+		// Older versions of IE (binary not supported)
+		else if (mxClient.IS_IE)
+		{
+			var win = window.open('about:blank', '_blank');
+			
+			if (win == null)
+			{
+				mxUtils.popup(data, true);
+			}
+			else
+			{
+				win.document.write(data);
+				win.document.close();
+				win.document.execCommand('SaveAs', true, filename);
+				win.close();
+			}
 		}
 		else if (mxClient.IS_IOS && this.isOffline())
 		{
