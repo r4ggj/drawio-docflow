@@ -7483,6 +7483,15 @@ App.prototype.updateHeader = function()
 				Editor.fullscreenExitImage : Editor.fullscreenImage) + '\')';
 
 			mxEvent.consume(evt);
+
+			// ggj start 全屏发送事件
+			parent.parent && parent.parent.postMessage({
+				type: 'fullscreenchange',
+				data: {
+					isFullscreen: this.fullscreenMode
+				}
+			}, '*');
+			// ggj end
 		}));
 
 		mxEvent.preventDefault(fullscreenElement);
