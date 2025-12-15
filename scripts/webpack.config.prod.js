@@ -89,8 +89,8 @@ module.exports = (options = {}) => {
             to: "mxgraph/images",
           },
           {
-            from: basePath + "/math",
-            to: "math",
+            from: basePath + "/math4",
+            to: "math4",
           },
           {
             from: basePath + "/resources",
