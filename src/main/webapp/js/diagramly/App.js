@@ -163,6 +163,8 @@ App = function(editor, container, lightbox)
 				this.editTempFile(data);
 			} else if(data.type === 'create'){
 				this.newTempFile(data);
+			} else if(data.type === 'App/saveFile'){
+				this.saveFile();
 			}
 		}
 	})
