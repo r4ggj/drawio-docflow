@@ -165,6 +165,8 @@ App = function(editor, container, lightbox)
 				this.newTempFile(data);
 			} else if(data.type === 'App/saveFile'){
 				this.saveFile();
+			} else if(data.type === 'App/save'){
+				this.save(data.payload.fileName, data.payload.callback);
 			}
 		}
 	})
