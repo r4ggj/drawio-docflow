@@ -167,6 +167,43 @@ App = function(editor, container, lightbox)
 				this.saveFile();
 			} else if(data.type === 'App/save'){
 				this.save(data.payload.fileName, data.payload.callback);
+			} else if(data.type === 'App/setFullscreen'){
+				var fullscreenElement = this.toolbarContainer.querySelector('.geButton[fullscreen-button="true"]')
+
+				if(data.payload && data.payload.fullscreenMode != null){
+					var active = !data.payload.fullscreenMode;
+
+					if (Editor.currentTheme != 'atlas' && urlParams['embed'] != '1')
+					{
+						this.setCompactMode(!active, null, Editor.transitionDelay);
+					}
+
+					this.toggleShapesPanel(active);
+					this.toggleFormatPanel(active);
+					this.fullscreenMode = !active;
+
+					if(fullscreenElement){
+						fullscreenElement.style.backgroundImage = 'url(\'' + ((this.fullscreenMode) ?
+							Editor.fullscreenExitImage : Editor.fullscreenImage) + '\')';
+					}
+
+					// ggj start 全屏发送事件
+					parent.parent && parent.parent.postMessage({
+						type: 'fullscreenchange',
+						data: {
+							isFullscreen: this.fullscreenMode
+						}
+					}, '*');
+					// ggj end 全屏发送事件
+				} else{
+					if(fullscreenElement){
+						fullscreenElement.dispatchEvent(new MouseEvent('click', {
+							bubbles: true,
+							cancelable: true,
+							view: window
+						}));
+					}
+				}
 			}
 		}
 	})
@@ -7465,6 +7502,9 @@ App.prototype.updateHeader = function()
 		var fullscreenElement = document.createElement('a');
 		fullscreenElement.style.backgroundImage = 'url(\'' + Editor.fullscreenImage + '\')';
 		fullscreenElement.className = 'geButton';
+		// ggj start 标识全屏按钮
+		fullscreenElement.setAttribute('fullscreen-button', 'true')
+		// ggj end 标识全屏按钮
 		wrapper.appendChild(fullscreenElement);
 		
 		mxEvent.addListener(fullscreenElement, 'click', mxUtils.bind(this, function(evt)
