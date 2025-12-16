@@ -8466,7 +8466,7 @@ Editor.prototype.resetGraph = function()
 	}
 	// 新增方法 end
 	// App saveFile 函数重写
-	App.prototype.saveFile = function(forceDialog, success)
+	App.prototype.saveFile = function()
 	{
 		var file = this.getCurrentFile();
 		if (this.editor.graph.isEditing())
@@ -8486,13 +8486,15 @@ Editor.prototype.resetGraph = function()
 		const svg = file.data;
 		console.log('xml',xml);
 		console.log('svg',svg);
+		const data = {
+			xml,
+			svg,
+		}
 		parent.parent && parent.parent.postMessage({
 			type: 'drawio',
-			data: {
-				xml,
-				svg,
-			}
+			data: data
 		}, '*');
+		return data
 	}
 	// App load 函数重写
 	const load = App.prototype.load;
