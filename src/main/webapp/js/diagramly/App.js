@@ -155,7 +155,7 @@ App = function(editor, container, lightbox)
 		}), 5000); //5 sec timeout
 	}
 
-	// ganguojiang start 监听message事件 start
+	// ganguojiang start 监听message事件
 	const listener = mxUtils.bind(this, function (e) {
 		var data = e.data || {};
 		if(data){
@@ -209,7 +209,17 @@ App = function(editor, container, lightbox)
 	})
 
 	window.addEventListener('message', listener);
-	// ganguojiang start 监听message事件 end
+	// ganguojiang start 监听message事件
+
+	// ganguojiang start 监听Esc键退出全屏
+	const escListener = mxUtils.bind(this, function(e){
+		if(e.key === 'Escape'){
+			window.postMessage({type:'App/setFullscreen', payload: { fullscreenMode: false }})
+		}
+	})
+	document.addEventListener('keydown', escListener, { capture:true });
+	// ganguojiang end 监听Esc键退出全屏
+
 	this.load();
 };
 
