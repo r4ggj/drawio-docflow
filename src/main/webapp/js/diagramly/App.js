@@ -8490,6 +8490,12 @@ Editor.prototype.resetGraph = function()
 			xml,
 			svg,
 		}
+		this.updateStatus(mxUtils.bind(this, function()
+		{
+			this.editor.setStatus(mxUtils.htmlEntities(
+				mxResources.get('allChangesSaved')));
+		}));
+		this.editor.setModified(false);
 		parent.parent && parent.parent.postMessage({
 			type: 'drawio',
 			data: data
