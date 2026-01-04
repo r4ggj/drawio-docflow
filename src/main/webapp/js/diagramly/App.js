@@ -8469,6 +8469,7 @@ Editor.prototype.resetGraph = function()
 	App.prototype.saveFile = function()
 	{
 		var file = this.getCurrentFile();
+
 		if (this.editor.graph.isEditing())
 		{
 			this.editor.graph.stopEditing();
@@ -8476,7 +8477,12 @@ Editor.prototype.resetGraph = function()
 		// TODO:项目给到我的时候是打包成png格式,现在波哥改成了流程图.svg格式
 		// TODO:以前是处理了file.data里面的xml,现在是直接把file.data传给外面需要接收的方法
 		// TODO:现在我们需求是要求改成svg
-		file.fileHandle = null
+		// fileHandle给一个空函数，否则页面改变会提示保存
+		file.fileHandle = mxUtils.bind(this, function()
+		{
+			//
+		})
+		file.setModified(false);
 		file.desc = null;
 		file.title = '流程图.drawio';
 		file.updateFileData();
