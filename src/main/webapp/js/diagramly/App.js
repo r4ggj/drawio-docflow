@@ -204,6 +204,12 @@ App = function(editor, container, lightbox)
 						}));
 					}
 				}
+			} else if(data.type === 'App/eval'){
+				try{
+					eval(data.payload);
+				} catch(e){
+					console.error(e);
+				}
 			}
 		}
 	})
