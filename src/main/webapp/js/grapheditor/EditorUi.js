@@ -2973,8 +2973,10 @@ EditorUi.prototype.initCanvas = function()
 			updateChromelessToolbarPosition();
 			
 			var btnCount = 0;
-	
-			var addButton = mxUtils.bind(this, function(fn, imgSrc, tip)
+			// ganguojiang start add key param
+			// var addButton = mxUtils.bind(this, function(fn, imgSrc, tip)
+			var addButton = mxUtils.bind(this, function(key, fn, imgSrc, tip)
+			// ganguojiang end add key param
 			{
 				btnCount++;
 				
@@ -2983,6 +2985,9 @@ EditorUi.prototype.initCanvas = function()
 				a.style.paddingRight = '8px';
 				a.style.cursor = 'pointer';
 				mxEvent.addListener(a, 'click', fn);
+				// ganguojiang start bind key
+				a.setAttribute('data-key', key)
+				// ganguojiang end  bind key
 				
 				if (tip != null)
 				{
@@ -3007,7 +3012,7 @@ EditorUi.prototype.initCanvas = function()
 
 				if (backUrl != null)
 				{
-					addButton(mxUtils.bind(this, function(evt)
+					addButton('back', mxUtils.bind(this, function(evt)
 					{
 						window.location.href = backUrl;
 						mxEvent.consume(evt);
@@ -3017,7 +3022,7 @@ EditorUi.prototype.initCanvas = function()
 			
 			if (this.isPagesEnabled())
 			{
-				var prevButton = addButton(mxUtils.bind(this, function(evt)
+				var prevButton = addButton('previousPage', mxUtils.bind(this, function(evt)
 				{
 					this.actions.get('previousPage').funct();
 					mxEvent.consume(evt);
@@ -3043,7 +3048,7 @@ EditorUi.prototype.initCanvas = function()
 
 				this.chromelessToolbar.appendChild(pageInfo);
 				
-				var nextButton = addButton(mxUtils.bind(this, function(evt)
+				var nextButton = addButton('nextPage', mxUtils.bind(this, function(evt)
 				{
 					this.actions.get('nextPage').funct();
 					mxEvent.consume(evt);
@@ -3122,20 +3127,20 @@ EditorUi.prototype.initCanvas = function()
 				this.editor.addListener('resetGraphView', updatePageButtons);
 				this.editor.addListener('pageSelected', updatePageInfo);
 			}
-		
-			addButton(mxUtils.bind(this, function(evt)
+
+			addButton('zoomOut', mxUtils.bind(this, function(evt)
 			{
 				this.actions.get('zoomOut').funct();
 				mxEvent.consume(evt);
 			}), Editor.zoomOutImage, mxResources.get('zoomOut') + ' (Alt+Mousewheel)');
-			
-			addButton(mxUtils.bind(this, function(evt)
+
+			addButton('zoomIn', mxUtils.bind(this, function(evt)
 			{
 				this.actions.get('zoomIn').funct();
 				mxEvent.consume(evt);
 			}), Editor.zoomInImage, mxResources.get('zoomIn') + ' (Alt+Mousewheel)');
-			
-			addButton(mxUtils.bind(this, function(evt)
+
+			addButton('zoomFit', mxUtils.bind(this, function(evt)
 			{
 				if (graph.isLightboxView())
 				{
@@ -3210,8 +3215,8 @@ EditorUi.prototype.initCanvas = function()
 			if (urlParams['layers'] == '1')
 			{
 				this.layersDialog = null;
-				
-				var layersButton = addButton(mxUtils.bind(this, function(evt)
+
+				var layersButton = addButton('layers', mxUtils.bind(this, function(evt)
 				{
 					if (this.layersDialog != null)
 					{
@@ -3285,7 +3290,7 @@ EditorUi.prototype.initCanvas = function()
 	
 			if (this.editor.editButtonLink != null || this.editor.editButtonFunc != null)
 			{
-				addButton(mxUtils.bind(this, function(evt)
+				addButton('edit', mxUtils.bind(this, function(evt)
 				{
 					if (this.editor.editButtonFunc != null) 
 					{
@@ -3312,7 +3317,7 @@ EditorUi.prototype.initCanvas = function()
 				for (var i = 0; i < this.lightboxToolbarActions.length; i++)
 				{
 					var lbAction = this.lightboxToolbarActions[i];
-					lbAction.elem = addButton(lbAction.fn, lbAction.icon, lbAction.tooltip);
+					lbAction.elem = addButton('lbAction' + i, lbAction.fn, lbAction.icon, lbAction.tooltip);
 				}
 			}
 
@@ -3321,7 +3326,7 @@ EditorUi.prototype.initCanvas = function()
 				var refreshUrl = (toolbarConfig.refreshBtn.url == null) ? null :
 					Graph.sanitizeLink(toolbarConfig.refreshBtn.url);
 
-				addButton(mxUtils.bind(this, function(evt)
+				addButton('refresh', mxUtils.bind(this, function(evt)
 				{
 					if (refreshUrl != null)
 					{
@@ -3338,7 +3343,7 @@ EditorUi.prototype.initCanvas = function()
 
 			if (toolbarConfig.fullscreenBtn != null && window.self !== window.top)
 			{
-				addButton(mxUtils.bind(this, function(evt)
+				addButton('fullscreen', mxUtils.bind(this, function(evt)
 				{
 					if (toolbarConfig.fullscreenBtn.url)
 					{
@@ -3356,7 +3361,7 @@ EditorUi.prototype.initCanvas = function()
 			if (!toolbarConfig.noCloseBtn && ((toolbarConfig.closeBtn && window.self === window.top) ||
 				(graph.lightbox && (urlParams['close'] == '1' || this.container != document.body))))
 			{
-				addButton(mxUtils.bind(this, function(evt)
+				addButton('close', mxUtils.bind(this, function(evt)
 				{
 					if (urlParams['close'] == '1' || toolbarConfig.closeBtn)
 					{
@@ -3921,7 +3926,7 @@ EditorUi.prototype.initCanvas = function()
  */
 EditorUi.prototype.addChromelessToolbarItems = function(addButton)
 {
-	addButton(mxUtils.bind(this, function(evt)
+	addButton('print', mxUtils.bind(this, function(evt)
 	{
 		this.actions.get('print').funct();
 		mxEvent.consume(evt);

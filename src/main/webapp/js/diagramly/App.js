@@ -955,9 +955,12 @@ App.main = function(callback, createUi)
 			// Prefetches asynchronous requests so that below code runs synchronous
 			// Loading the correct bundle (one file) via the fallback system in mxResources. The stylesheet
 			// is compiled into JS in the build process and is only needed for local development.
-			mxUtils.getAll((urlParams['dev'] != '1') ? [bundle] : [bundle,
+			// ganguojiang start 都要加载default.xml
+			// mxUtils.getAll((urlParams['dev'] != '1') ? [bundle] : [bundle,
+			mxUtils.getAll([bundle,
 				STYLE_PATH + '/default.xml'], function(xhr)
-			{
+			// ganguojiang end 都要加载default.xml
+				{
 				// Adds bundle text to resources
 				mxResources.parse(xhr[0].getText());
 				
