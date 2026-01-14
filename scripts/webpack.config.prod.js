@@ -24,7 +24,7 @@ module.exports = (options = {}) => {
     },
     output: {
       path: path.resolve(__dirname, "../dist"),
-      publicPath: "/docflow/drawio/",
+      publicPath: process.env.PUBLIC_PATH || "/",
       chunkFilename: "static/js/[name].chunk.js",
       // filename: 'js/app.min.js',
       filename: (chunkData) => {
