@@ -37,10 +37,9 @@ window.OPEN_FORM = window.OPEN_FORM || 'open.html';
 // each properties file since only one file is loaded.
 window.mxBasePath = window.mxBasePath || 'mxgraph';
 window.mxImageBasePath = window.mxImageBasePath || 'mxgraph/images';
-window.mxLanguage = window.mxLanguage || urlParams['lang'];
 // ganguojiang start 修改默认支持多语言
+window.mxLanguage = window.mxLanguage || urlParams['lang'] || 'zh';
 // window.mxLanguages = window.mxLanguages || ['zh', 'ja'];
-window.mxLanguages = ['zh', 'en'];
 window.window.mxLanguageMap = {
     'i18n': '',
     'en' : 'English',

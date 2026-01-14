@@ -266,6 +266,7 @@ function checkAllLoaded() {
   if (mxScriptsLoaded && mxWinLoaded) {
     App.main((app) => {
       // 挂载drawio实例到window上
+      app.version = process.env.DRAWIO_VERSION || "";
       window.drawio = app;
     });
   }

@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
@@ -105,6 +106,7 @@ module.exports = (options = {}) => {
       new webpack.DefinePlugin({
         "process.env": JSON.stringify({
           RUN_ENV: options.RUN_ENV,
+          DRAWIO_VERSION: fs.readFileSync(path.join(__dirname, "../VERSION")).toString(),
         }),
       }),
       {
