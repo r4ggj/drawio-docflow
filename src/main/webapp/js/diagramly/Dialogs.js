@@ -3156,7 +3156,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	
 	generateForm.appendChild(generateInput);
 	generateForm.appendChild(generateButton);
-	generateForm.appendChild(helpGenerate);
+	// ganguojiang start 隐藏标签帮助
+	// generateForm.appendChild(helpGenerate);
+	// ganguojiang end 隐藏标签帮助
 	generateForm.style.display = 'none';
 
 	function createGenerate()
