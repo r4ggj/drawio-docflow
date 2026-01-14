@@ -13610,10 +13610,14 @@ if (typeof mxVertexHandler !== 'undefined')
 			a.setAttribute('title', short((this.isCustomLink(link)) ?
 				this.getLinkTitle(link) : link, 80));
 			
-			if (this.linkTarget != null)
+			// ganguojiang start 优先使用自定义的linkTarget属性，否则使用graph的linkTarget属性
+			if (associatedCell.getAttribute('linkTarget') != null)
 			{
+				a.setAttribute('target', associatedCell.getAttribute('linkTarget'));
+			} else if(this.linkTarget != null){
 				a.setAttribute('target', this.linkTarget);
 			}
+			// ganguojiang end 优先使用自定义的linkTarget属性，否则使用graph的linkTarget属性
 			
 			// Adds shortened label to link
 			mxUtils.write(a, short(label, 40));

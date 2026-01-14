@@ -5875,14 +5875,24 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	newWindowCheckbox.setAttribute('type', 'checkbox');
 
 	newWindowCheckbox.style.margin = '0 6p 0 6px';
+	
+	// ganguojiang start 赋linkTarget默认值
+	if(linkTarget == null) {
+		if(editorUi.editor && editorUi.editor.graph && editorUi.editor.graph.linkTarget &&  editorUi.editor.graph.linkTarget == '_blank') {
+			linkTarget = '_blank';
+		} else{
+			linkTarget = '_self';
+		}
+	}
 
-	if (linkTarget != null)
+	if (linkTarget == '_blank')
 	{
 		newWindowCheckbox.setAttribute('checked', 'checked');
 		newWindowCheckbox.defaultChecked = true;
 	}
 	
-	linkTarget = (linkTarget != null) ? linkTarget : '_blank';
+	linkTarget = (linkTarget != null) ? linkTarget : '_self';
+	// ganguojiang end 赋linkTarget默认值
 	newWindowCheckbox.setAttribute('title', linkTarget);
 	
 	if (showNewWindowOption)
@@ -5970,7 +5980,9 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 		editorUi.hideDialog();
 		var value = (pageRadio.checked) ? ((pageSelect.value !== 'pageNotFound') ?
 			pageSelect.value : initialValue) : linkInput.value;
-		fn(value, LinkDialog.selectedDocs, (newWindowCheckbox.checked) ? linkTarget : null);
+		// ganguojiang start 插入链接时，将链接的target设置为newWindowCheckbox的值
+		fn(value, LinkDialog.selectedDocs, (newWindowCheckbox.checked) ? '_blank' : '_self');
+		// ganguojiang end 插入链接时，将链接的target设置为newWindowCheckbox的值
 	});
 	mainBtn.style.verticalAlign = 'middle';
 	mainBtn.className = 'geBtn gePrimaryBtn';
