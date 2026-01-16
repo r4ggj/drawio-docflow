@@ -525,7 +525,10 @@ Editor.themes.push("atlas");
                 58 >
                 this.sketchPickerMenuElt.offsetTop -
                   this.sketchPickerMenuElt.offsetHeight / 2;
-              this.sketchMainMenuElt.style.left = c ? "70px" : "10px";
+              // ganguojiang start 优化标尺被遮挡
+              // this.sketchMainMenuElt.style.left = c ? "70px" : "10px";
+              this.sketchMainMenuElt.style.left = c ? "70px" : "16px";
+              // ganguojiang end 优化标尺被遮挡
               this.sketchMenubarElt.style.maxWidth = c
                 ? "calc(100% - 230px)"
                 : "calc(100% - 170px)";

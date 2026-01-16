@@ -312,8 +312,10 @@ mxWindow.prototype.init = function(x, y, width, height, style)
 	
 	this.div = document.createElement('div');
 	this.div.className = style;
-
-	this.div.style.left = x + 'px';
+	// ganguojiang start 优化标尺被遮挡
+	// this.div.style.left = x + 'px';
+	this.div.style.left = x + 6 + 'px';
+	// ganguojiang end 优化标尺被遮挡
 	this.div.style.top = y + 'px';
 	this.table = document.createElement('table');
 	this.table.className = style;

@@ -113,8 +113,12 @@ div[id*="dgeMermaidOutput-"] {
 }
 
 .geSketchMainMenu {
-	left: 10px;
-	top: 10px;
+	/*  ganguojiang start 优化标尺被遮挡 */
+	/* left: 10px; */
+	/* top: 10px; */
+	left: 16px;
+	top: 16px;
+	/*  ganguojiang end 优化标尺被遮挡 */
 }
 
 .geEditor:not(.geSimple) .geSimpleMainMenu {
@@ -310,7 +314,10 @@ div[id*="dgeMermaidOutput-"] {
 	border-bottom-style: solid;
 	border-bottom-width: 1px;
 	box-sizing: border-box;
-	padding: 8px;
+	/*  ganguojiang start 优化标尺被遮挡 */
+	/* padding: 8px; */
+	padding: 8px 16px;
+	/*  ganguojiang end 优化标尺被遮挡 */
 	height: 48px;
 	margin: 0;
 }
@@ -982,11 +989,6 @@ div td.mxWindowTitle {
 	margin: 0;
 }
 
-.geSketchMainMenu {
-	left: 10px;
-	top: 10px;
-}
-
 .geEmbed .geMenubarContainer:not(.geMinimal *) {
 	padding: 0 28px 0 16px;
 }
@@ -1509,7 +1511,10 @@ a.geStatus>div {
 .geToolbarContainer.geVerticalToolbar {
 	flex-direction: column;
 	max-height: 100%;
-	left: 10px;
+	/*  ganguojiang start 优化标尺被遮挡 */
+	/* left: 10px; */
+	left: 16px;
+	/*  ganguojiang start 优化标尺被遮挡 */
 	top: 50%;
 	transition: transform 0.1s ease-out;
 }
