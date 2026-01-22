@@ -48,3 +48,6 @@ window.window.mxLanguageMap = {
 	// 'zh-tw' : '繁體中文'
 }
 // ganguojiang end 修改默认支持多语言
+// ganguojiang start 增加禁用按钮行为的支持
+window.mxDisabledActionKeys = window.mxDisabledActionKeys || (urlParams['mxDisabledActionKeys']?urlParams['mxDisabledActionKeys'].split(','):[]) || [];
+// ganguojiang end 增加禁用按钮行为的支持

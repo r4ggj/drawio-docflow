@@ -3,7 +3,6 @@ const fs = require("fs");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const { PUBLIC_PATH } = require("./const");
 
 module.exports = (options = {}) => {
   return {
@@ -19,7 +18,6 @@ module.exports = (options = {}) => {
     },
     output: {
       path: path.resolve(__dirname, "../dist"),
-      publicPath: PUBLIC_PATH,
       chunkFilename: "static/js/[name].chunk.js",
       filename: "main.js",
       clean: true,
@@ -33,7 +31,6 @@ module.exports = (options = {}) => {
       new HtmlWebpackPlugin({
         template: path.join(__dirname, "../src/main/webapp/index.html"),
         filename: "index.html",
-        publicPath: PUBLIC_PATH,
         // chunks: ['[name]'],
         inject: "body",
         minify: {

@@ -2978,6 +2978,11 @@ EditorUi.prototype.initCanvas = function()
 			var addButton = mxUtils.bind(this, function(key, fn, imgSrc, tip)
 			// ganguojiang end add key param
 			{
+				// ganguojiang start 增加禁用按钮功能
+				if(window.mxDisabledActionKeys.includes(key)){
+					return
+				}
+				// ganguojiang end 增加禁用按钮功能
 				btnCount++;
 				
 				var a = document.createElement('span');

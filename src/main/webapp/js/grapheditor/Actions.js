@@ -1879,6 +1879,12 @@ Actions.prototype.addAction = function(key, funct, enabled, iconCls, shortcut, v
 		realKey = realKey.substring(0, realKey.length - 3);
 	}
 
+	// ganguojiang start 增加禁用行为功能
+	if(window.mxDisabledActionKeys.includes(realKey)){
+		enabled = false
+	}
+	// ganguojiang start 增加禁用行为功能
+
 	return this.put(realKey, new Action(key, funct, enabled, iconCls, shortcut, visible));
 };
 
@@ -1950,6 +1956,19 @@ Action.prototype.createFunction = function(funct)
  */
 Action.prototype.setEnabled = function(value)
 {
+	// ganguojiang start 增加禁用按钮不能设置Enabled
+	var realKey = this.label;
+
+	if (realKey.substring(realKey.length - 3) == '...')
+	{
+		realKey = realKey.substring(0, realKey.length - 3);
+	}
+
+	if(window.mxDisabledActionKeys.includes(realKey)){
+		return
+	}
+	// ganguojiang end 增加禁用按钮不能设置Enabled
+
 	if (this.enabled != value)
 	{
 		this.enabled = value;
