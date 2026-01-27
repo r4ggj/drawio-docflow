@@ -1188,8 +1188,13 @@ App.main = function(callback, createUi)
 					// Note: Lazy loading stencils.min.js in viewer.diagrams.net
 					// has no impact as stencils.min.js is pre-cached in PWA
 					mxStencilRegistry.allowEval = false;
-					App.loadScripts(['js/shapes-14-6-5.min.js', 'js/stencils.min.js',
-						'js/extensions.min.js'], realMain, function(e)
+					// App.loadScripts(['js/shapes-14-6-5.min.js', 'js/stencils.min.js',
+					// 	'js/extensions.min.js'], realMain, function(e)
+					App.loadScripts([
+						// 'js/shapes-14-6-5.min.js', 
+						// 'js/stencils.min.js',
+						'js/extensions.min.js'
+					], realMain, function(e)
 						{
 							document.body.innerHTML = '';
 							var pre = document.createElement('pre');

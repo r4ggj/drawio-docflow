@@ -306,9 +306,9 @@ if (!window.DRAWIO_PUBLIC_BUILD)
 mxscript(drawDevUrl + 'js/mermaid/mermaid.min.js');	
 
 // Vsdx/vssx support
-mxscript(drawDevUrl + 'js/diagramly/vsdx/mxVsdxCanvas2D.js');
-mxscript(drawDevUrl + 'js/diagramly/vsdx/bmpDecoder.js');
-mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
+// mxscript(drawDevUrl + 'js/diagramly/vsdx/mxVsdxCanvas2D.js');
+// mxscript(drawDevUrl + 'js/diagramly/vsdx/bmpDecoder.js');
+// mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
 
 
 // Org Chart Layout
