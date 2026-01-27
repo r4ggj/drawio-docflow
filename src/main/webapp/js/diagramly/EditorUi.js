@@ -13726,6 +13726,9 @@
 	{
 		if (this.spinner.spin(document.body, mxResources.get('working')))
 		{
+			// ganguojiang start 设置多语言同时要设置全局多语言变量
+			mxLanguage = value;
+			// ganguojiang end 设置多语言同时要设置全局多语言变量
 			mxSettings.setLanguage(value);
 			mxSettings.save();
 			mxClient.language = value;
