@@ -455,7 +455,8 @@
 					currentFile.removeDraft();
 				}
 				
-				editorUi.fileLoaded(new LocalFile(editorUi, editorUi.emptyDiagramXml));
+				editorUi.fileLoaded(new LocalFile(editorUi,
+					editorUi.emptyDiagramXml, null, true));
 			};
 			
 			if (currentFile != null && currentFile.isModified())
@@ -809,7 +810,8 @@
 
 		editorUi.actions.put('about', new Action('v' + EditorUi.VERSION, function(arg1, evt)
 		{
-			if (editorUi.isOwnGDriveDomain() && mxEvent.isShiftDown(evt))
+			if (mxEvent.isShiftDown(evt) && (EditorUi.isElectronApp ||
+				editorUi.isOwnGDriveDomain()))
 			{
 				if (urlParams['test'] == '1')
 				{
@@ -4453,6 +4455,30 @@
 						}
 					}))(i);
 				}
+
+				menu.addSeparator(parent);
+
+				menu.addItem(mxResources.get('deleteAll'), null, mxUtils.bind(this, function()
+				{
+					graph.getModel().beginUpdate();	
+					try
+					{	
+						for (var i = editorUi.pages.length; i >= 0; i--)
+						{
+							editorUi.removePage(editorUi.pages[i]);
+						}
+					}
+					catch (e)
+					{
+						editorUi.handleError(e);
+					}
+					finally
+					{
+						graph.getModel().endUpdate();
+					}
+
+					editorUi.actions.get('resetView').funct();
+				}), parent, null, editorUi.editor.graph.isEnabled());
 			}
 		})));
 		

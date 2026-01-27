@@ -2747,6 +2747,46 @@ Graph.sanitizeNode = function(value)
 	return Graph.domPurify(value, true);
 };
 
+// Disallows external URLs in style attributes
+Graph.isStyleAllowed = function(css)
+{
+    // Normalize CSS escapes before checking
+    // CSS allows \XX hex escapes and \char escapes
+    var normalized = css.replace(/\\([0-9a-fA-F]{1,6})\s?/g, function(match, hex) {
+        return String.fromCharCode(parseInt(hex, 16));
+    }).replace(/\\(.)/g, '$1');
+    
+    // Match all url(...) occurrences
+    var urlRegex = /url\s*\(\s*(['"]?)(.*?)\1\s*\)/gi;
+    var match;
+    
+    while ((match = urlRegex.exec(normalized)) !== null)
+    {
+        var url = match[2].trim();
+        var isRelative = !/^([a-z][a-z0-9+.-]*:|\/\/)/i.test(url);
+        var isDataUrl = url.toLowerCase().startsWith('data:');
+        
+        if (!isRelative && !isDataUrl)
+        {
+            return false;
+        }
+    }
+    
+    // Block @import entirely (check normalized version)
+    if (/@import/i.test(normalized))
+    {
+        return false;
+    }
+    
+    // TODO Consider also blocking:
+    // - @font-face (can load external fonts)
+    // - -webkit-mask-image, mask-image (can reference URLs)
+    // - list-style-image (can reference URLs)
+    // - cursor: url(...) (can reference URLs)
+    // - content: url(...) (can reference URLs)
+    
+    return true;
+}
 // Allows use tag in SVG with local references only
 DOMPurify.addHook('afterSanitizeAttributes', function(node)
 {
@@ -2755,6 +2795,25 @@ DOMPurify.addHook('afterSanitizeAttributes', function(node)
 		(node.getAttribute('href') != null && !node.getAttribute('href').startsWith('#'))))
 	{
 		node.remove();
+	}
+	else if (node.nodeName.toLowerCase() == 'style')
+	{
+		if (!Graph.isStyleAllowed(node.textContent))
+		{
+			node.remove();
+		}
+	}
+});
+
+// Disallows external URLs in style attributes
+DOMPurify.addHook('uponSanitizeAttribute', function(node, data)
+{
+	if (data.attrName == 'style')
+	{
+		if (!Graph.isStyleAllowed(data.attrValue))
+		{
+			data.keepAttr = false; // remove entire style attribute
+		}
 	}
 });
 
@@ -2825,7 +2884,6 @@ Graph.clipSvgDataUri = function(dataUri)
 						}
 						
 						var vb = svgs[0].getAttribute('viewBox');
-						var viewBox = null;
 						
 						if (vb != null && !isNaN(w) && !isNaN(h))
 						{
@@ -2835,16 +2893,13 @@ Graph.clipSvgDataUri = function(dataUri)
 							{
 								fx = parseFloat(tokens[2]) / w;
 								fy = parseFloat(tokens[3]) / h;
-
-								viewBox = new mxRectangle(parseFloat(tokens[0]), parseFloat(tokens[1]),
-									parseFloat(tokens[2]), parseFloat(tokens[3]));
 							}
 						}
 
 						// KNOWN: Ignores stroke-width and transforms
-						var size = svgs[0].getBBox();
+						var bbox = svgs[0].getBBox();
 						
-						if (size.width > 0 && size.height > 0)
+						if (bbox.width > 0 && bbox.height > 0)
 						{
 							// Workaround to add stroke-width
 							var maxStrokeWidth = 0;
@@ -2856,13 +2911,24 @@ Graph.clipSvgDataUri = function(dataUri)
 									maxStrokeWidths[i].getAttribute('stroke-width')));
 							}
 
-							var size = new mxRectangle(size.x, size.y, size.width, size.height);
+							var size = new mxRectangle(bbox.x, bbox.y, bbox.width, bbox.height);
 							size.grow(maxStrokeWidth / 2);
 
-							div.getElementsByTagName('svg')[0].setAttribute('viewBox', size.x +
-								' ' + size.y + ' ' + size.width + ' ' + size.height);
-							div.getElementsByTagName('svg')[0].setAttribute('width', size.width / fx);
-							div.getElementsByTagName('svg')[0].setAttribute('height', size.height / fy);
+							// Clips to the smaller of the given size and the bbox
+							if (!isNaN(w) && !isNaN(h) &&
+								size.x < 0 && size.y < 0 &&
+								size.width > w && size.height > h)
+							{
+								div.getElementsByTagName('svg')[0].setAttribute('viewBox',
+									'0 0 ' + w + ' ' + h);
+							}
+							else
+							{
+								div.getElementsByTagName('svg')[0].setAttribute('viewBox', size.x +
+									' ' + size.y + ' ' + size.width + ' ' + size.height);
+								div.getElementsByTagName('svg')[0].setAttribute('width', size.width / fx);
+								div.getElementsByTagName('svg')[0].setAttribute('height', size.height / fy);
+							}
 						}
 					}
 					catch (e)
@@ -6464,16 +6530,23 @@ Graph.prototype.foldCells = function(collapse, recurse, cells, checkFoldable, ev
 		try
 		{
 			mxGraph.prototype.foldCells.apply(this, arguments);
-			
-			// Resizes all parent stacks if alt is not pressed
-			if (this.layoutManager != null)
+
+			for (var i = 0; i < cells.length; i++)
 			{
-				for (var i = 0; i < cells.length; i++)
+				var state = this.view.getState(cells[i]);
+				var geo = this.getCellGeometry(cells[i]);
+				
+				if (state != null && geo != null)
 				{
-					var state = this.view.getState(cells[i]);
-					var geo = this.getCellGeometry(cells[i]);
-					
-					if (state != null && geo != null)
+					// Brings folded containers to front
+					if (mxUtils.getValue(state.style, 'expandToFront', '0') == '1' &&
+						!this.isCellCollapsed(cells[i]))
+					{
+						this.orderCells(false, [cells[i]]);
+					}
+
+					// Resizes all parent stacks if alt is not pressed
+					if (this.layoutManager != null)
 					{
 						var dx = 0;
 						var dy = 0;
@@ -12935,7 +13008,173 @@ if (typeof mxVertexHandler !== 'undefined')
 				this.model.endUpdate();
 			}
 		};
-		
+				
+		/**
+		 * Function: getConnectionPoint
+		 *
+		 * Overrides the mxGraph method to add legacy support for anchor points.
+		 * 
+		 * Parameters:
+		 * 
+		 * vertex - <mxCellState> that represents the vertex.
+		 * constraint - <mxConnectionConstraint> that represents the connection point
+		 * constraint as returned by <getConnectionConstraint>.
+		 */
+		Graph.prototype.getConnectionPoint = function(vertex, constraint, round)
+		{
+			var point = null;
+
+			// Legacy support for anchor points where the order of rotation and flipping
+			// is different from the way shapes are drawn (this is the default)
+			if (vertex != null && mxUtils.getValue(vertex.style, 'legacyAnchorPoints', 1) == 1)
+			{
+				point = this.getLegacyConnectionPoint(vertex, constraint, round);
+			}
+			else
+			{
+				point = mxGraph.prototype.getConnectionPoint.apply(this, arguments);
+			}
+
+			return point;
+		};
+
+		/**
+		 * Function: getLegacyConnectionPoint
+		 *
+		 * Returns the connection point using the legacy method.
+		 * 
+		 * Parameters:
+		 * 
+		 * vertex - <mxCellState> that represents the vertex.
+		 * constraint - <mxConnectionConstraint> that represents the connection point
+		 * constraint as returned by <getConnectionConstraint>.
+		 */
+		Graph.prototype.getLegacyConnectionPoint = function(vertex, constraint, round)
+		{
+			round = (round != null) ? round : true;
+			var point = null;
+			
+			if (vertex != null && constraint.point != null)
+			{
+				var bounds = this.view.getPerimeterBounds(vertex);
+				var cx = new mxPoint(bounds.getCenterX(), bounds.getCenterY());
+				var direction = vertex.style[mxConstants.STYLE_DIRECTION];
+				var r1 = 0;
+				
+				// Bounds need to be rotated by 90 degrees for further computation
+				if (direction != null && mxUtils.getValue(vertex.style,
+					mxConstants.STYLE_ANCHOR_POINT_DIRECTION, 1) == 1)
+				{
+					if (direction == mxConstants.DIRECTION_NORTH)
+					{
+						r1 += 270;
+					}
+					else if (direction == mxConstants.DIRECTION_WEST)
+					{
+						r1 += 180;
+					}
+					else if (direction == mxConstants.DIRECTION_SOUTH)
+					{
+						r1 += 90;
+					}
+
+					// Bounds need to be rotated by 90 degrees for further computation
+					if (direction == mxConstants.DIRECTION_NORTH ||
+						direction == mxConstants.DIRECTION_SOUTH)
+					{
+						bounds.rotate90();
+					}
+				}
+
+				var scale = this.view.scale;
+				point = new mxPoint(bounds.x + constraint.point.x * bounds.width + constraint.dx * scale,
+						bounds.y + constraint.point.y * bounds.height + constraint.dy * scale);
+				
+				// Rotation for direction before projection on perimeter
+				var r2 = vertex.style[mxConstants.STYLE_ROTATION] || 0;
+				
+				if (constraint.perimeter)
+				{
+					if (r1 != 0)
+					{
+						// Only 90 degrees steps possible here so no trig needed
+						var cos = 0;
+						var sin = 0;
+						
+						if (r1 == 90)
+						{
+							sin = 1;
+						}
+						else if (r1 == 180)
+						{
+							cos = -1;
+						}
+						else if (r1 == 270)
+						{
+							sin = -1;
+						}
+						
+						point = mxUtils.getRotatedPoint(point, cos, sin, cx);
+					}
+			
+					point = this.view.getPerimeterPoint(vertex, point, false);
+				}
+				else
+				{
+					r2 += r1;
+					
+					if (this.getModel().isVertex(vertex.cell))
+					{
+						var flipH = vertex.style[mxConstants.STYLE_FLIPH] == 1;
+						var flipV = vertex.style[mxConstants.STYLE_FLIPV] == 1;
+						
+						// Legacy support for stencilFlipH/V
+						if (vertex.shape != null && vertex.shape.stencil != null)
+						{
+							flipH = (mxUtils.getValue(vertex.style, 'stencilFlipH', 0) == 1) || flipH;
+							flipV = (mxUtils.getValue(vertex.style, 'stencilFlipV', 0) == 1) || flipV;
+						}
+						
+						if (direction == mxConstants.DIRECTION_NORTH ||
+							direction == mxConstants.DIRECTION_SOUTH)
+						{
+							var temp = flipH;
+							flipH = flipV
+							flipV = temp;
+						}
+						
+						if (flipH)
+						{
+							point.x = 2 * bounds.getCenterX() - point.x;
+						}
+						
+						if (flipV)
+						{
+							point.y = 2 * bounds.getCenterY() - point.y;
+						}
+					}
+				}
+
+				// Generic rotation after projection on perimeter
+				if (r2 != 0 && point != null)
+				{
+					var rad = mxUtils.toRadians(r2);
+					var cos = Math.cos(rad);
+					var sin = Math.sin(rad);
+					
+					point = mxUtils.getRotatedPoint(point, cos, sin, cx);
+				}
+			}
+			
+			if (round && point != null)
+			{
+				point.x = Math.round(point.x);
+				point.y = Math.round(point.y);
+			}
+
+			return point;
+		};
+
 		/**
 		 * Flips the given cells horizontally or vertically.
 		 */
@@ -12978,6 +13217,9 @@ if (typeof mxVertexHandler !== 'undefined')
 
 				this.toggleCellStyles(horizontal ? mxConstants.STYLE_FLIPH :
 					mxConstants.STYLE_FLIPV, false, vertices);
+				
+				// Disables legacy anchor points for flipped cells
+				this.setCellStyles('legacyAnchorPoints', '0', vertices);
 			}
 			finally
 			{

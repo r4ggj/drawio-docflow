@@ -1,3 +1,75 @@
+20-JAN-2026: 29.3.5
+
+- Add simple.js build to atlas.min.js
+
+20-JAN-2026: 29.3.4
+
+- Added some css filtering for @import and absolute urls [bugcrowd 31d70940-348e-4d9e-ae26-a20396ef5d69]
+- Improvements for [bugcrowd 31d70940-348e-4d9e-ae26-a20396ef5d69]
+- Adds Kalaallisut to supported languages
+
+19-JAN-2026: 29.3.3
+
+- Adds expandToFront cell style [jgraph/drawio#4413,jgraph/drawio#5419]
+- VSDX Import: Improved background color parsing [DID-17382]
+- Fixes hide of shape picker on hover icon reset
+- Moves autosize text to Misc sidebar [jgraph/drawio-desktop#2313]
+- Fixes drag and drop in layers dialog
+- Augments existing URL parameters with #P
+- Handles test mode in getEditBlankUrl
+- Creates temporary file after close
+- Fixes saveAs for browser files
+- Uses #P for edit as new
+- Clears #P hash property in client mode, keeps saved temp file in same window
+
+15-JAN-2026: 29.3.2
+
+- Adds shift+click on app version in desktop to enable debug mode
+- Adds additional check for external change detection [2312]
+- Adds bezier style option for curved edges
+- [conf cloud] Fixed extra whitespace when centering is enabled [DID-17409]
+- Adds support for optional tags attribute in mxlibrary node
+- Changes beizer to use standard cubic control point positions
+- Adds initial NURBS support [jgraph/drawio#2104]
+
+13-JAN-2026: 29.3.1
+
+- Fixes import of cropped SVG images [jgraph/drawio#5015]
+- Adds optional size parameter for export action [jgraph/drawio#4536]
+- Adds Mermaid support for load action [jgraph/drawio#5215]
+- Removes metadata from JPEG/PNG images [AMS-49114]
+- Adds removeImageMetadata config switch
+- Fixes check for image type in stripImageMetadata
+- Adds optional cell style compression for images and stencils in model codec
+- Adds file size stats
+
+08-JAN-2026: 29.3.0
+
+- Fixes possible NPE
+- Merges built preprod back to dev as PR rather than commit
+- Adapts validate actions for PR merge instead of cherry picking
+- Fixes possible invalid default parent
+- Hides current menu when windows are moved or resized
+- Adds layer selection in layers dialog [jgraph/drawio#5408]
+- Fixes inconsistent menu order for current layer
+- Fixes possible NPE [jgraph/drawio-desktop#2307]
+- Adds legacy support for anchor points [jgraph/drawio-desktop#2306]
+- Fixes resources for selecting and selected objects in layers
+- Adds defaultTextStyle config switch
+- Adds autosize for shape picker text [jgraph/drawio#5409]
+- Disables legacy anchor points only on unconnected flipped shapes
+
+06-JAN-2026: 29.2.10
+
+- Fixes help link in chat dialog
+- Fixed a bug in vsdx importer [DID-17282]
+- Improves generate dialog for custom LLMs
+- Changes default for desktopAutoSync to true [jgraph/drawio-desktop#2227]
+- Uses fonts loader path for MathJax
+- Fixes multi-line issue
+- Sanitize HTML output in ChatWindow
+- Improves layers dialog [jgraph/drawio#5408]
+
 19-DEC-2025: 29.2.9
 
 - Updates MathJax fonts to 4.1.0

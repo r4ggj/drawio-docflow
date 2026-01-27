@@ -142,7 +142,7 @@ window.mxLanguageMap = window.mxLanguageMap ||
 	// 'da' : 'Dansk',
 	// 'de' : 'Deutsch',
 	// 'et' : 'Eesti',
-	// 'en' : 'English',
+	'en' : 'English',
 	// 'es' : 'Español',
 	// 'eu' : 'Euskara',
 	// 'fil' : 'Filipino',
@@ -150,6 +150,7 @@ window.mxLanguageMap = window.mxLanguageMap ||
 	// 'gl' : 'Galego',
 	// 'it' : 'Italiano',
 	// 'hu' : 'Magyar',
+	// 'kl' : 'Kalaallisut',
 	// 'lt' : 'Lietuvių',
 	// 'lv' : 'Latviešu',
 	// 'nl' : 'Nederlands',
@@ -173,7 +174,6 @@ window.mxLanguageMap = window.mxLanguageMap ||
 	// 'ta' : 'தமிழ்',
 	// 'ko' : '한국어',
 	// 'ja' : '日本語',
-	'en': 'English',
 	'zh' : '简体中文',
 	// 'zh-tw' : '繁體中文'
 };

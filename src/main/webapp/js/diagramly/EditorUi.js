@@ -2060,7 +2060,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.setFileData = function(data)
+	EditorUi.prototype.setFileData = function(data, file)
 	{
 		data = this.validateFileData(data);
 		this.currentPage = null;
@@ -2100,10 +2100,11 @@
 				if (nodes.length > 0)
 				{
 					var hashObj = this.getHashObject();
+					// this.fileStats(file, node);
 					var selectedPage = null;
 					this.fileNode = node;
 					this.pages = [];
-					
+
 					// Wraps page nodes
 					for (var i = 0; i < nodes.length; i++)
 					{
@@ -2195,6 +2196,108 @@
 				}
 				catch(e){} //ignore
 			}
+		}
+	};
+
+	/**
+	 * Stats for file size.
+	 */
+	EditorUi.prototype.fileStats = function(file, node)
+	{
+		try
+		{
+			if (file != null && file.getSize() > 500000 && file.getHash() !== '' &&
+				this.getServiceName() == 'draw.io')
+			{
+				var nodes = node.getElementsByTagName('diagram');
+
+				var stats = {};
+				stats.modified = file.getLastModifiedDate();
+				stats.fileMode = file.getMode();
+				stats.fileSize = file.getSize();
+				stats.fileHash = file.getHash();
+				stats.pages = nodes.length;
+				stats.redundantStencils = 0;
+				stats.redundantImages = 0;
+				stats.redundantSize = 0;
+				stats.stencils = 0;
+				stats.images = 0;
+				stats.cells = 0;
+				
+				for (var i = 0; i < nodes.length; i++)
+				{
+					var cells = nodes[i].getElementsByTagName('mxCell');
+					stats.cells += cells.length;
+					var defsCount = {};
+
+					for (var j = 0; j < cells.length; j++)
+					{
+						var style = cells[j].getAttribute('style');
+
+						// Parses the style of each mxCell object and count
+						// total use of data URIs in images and stencils
+						if (style != null)
+						{
+							var styleEntries = style.split(';');
+
+							for (var k = 0; k < styleEntries.length; k++)
+							{
+								var entry = styleEntries[k];
+
+								if (entry.startsWith('image=data:') ||
+									entry.startsWith('shape=stencil('))
+								{
+									if (defsCount[entry] == null)
+									{
+										defsCount[entry] = 1;
+									}
+									else
+									{
+										defsCount[entry]++;
+									}
+								}
+							}
+						}
+					}
+
+					// Statistics on data URI definitions
+					for (var key in defsCount)
+					{
+						var count = defsCount[key];
+						
+						if (key.startsWith('shape=stencil('))
+						{
+							stats.stencils += count;
+						}
+						else
+						{
+							stats.images += count;
+						}
+
+						if (count > 1)
+						{
+							stats.redundantSize += key.length * (count - 1);
+
+							if (key.startsWith('shape=stencil('))
+							{
+								stats.redundantStencils += (count - 1);
+							}
+							else
+							{
+								stats.redundantImages += (count - 1);
+							}
+						}
+					}
+				}
+				
+				EditorUi.logEvent({category: file.getMode().toUpperCase() +
+					'-FILE-STATS-' + file.getHash(), action: 'size_' + file.getSize(),
+					label: JSON.stringify(stats)});
+			}
+		}
+		catch (e)
+		{
+			// ignore
 		}
 	};
 
@@ -3678,7 +3781,8 @@
 		if (doc.documentElement.nodeName == 'mxlibrary')
 		{
 			var images = JSON.parse(mxUtils.getTextContent(doc.documentElement));
-			this.libraryLoaded(file, images, doc.documentElement.getAttribute('title'), expand);
+			this.libraryLoaded(file, images, doc.documentElement.getAttribute('title'),
+				expand, doc.documentElement.getAttribute('tags'));
 		}
 		else
 		{
@@ -3764,7 +3868,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.libraryLoaded = function(file, images, optionalTitle, expand)
+	EditorUi.prototype.libraryLoaded = function(file, images, optionalTitle, expand, defaultTags)
 	{
 		if (this.sidebar == null)
 		{
@@ -3836,7 +3940,7 @@
 		// KNOWN: Existing entries are not replaced after edit of custom library
 		if (this.sidebar != null && images != null)
 		{
-			this.sidebar.addEntries(images);
+			this.sidebar.addEntries(images, defaultTags);
 		}
 		
 		// Adds new sidebar entry for this library
@@ -8278,16 +8382,23 @@
 	 */
 	EditorUi.prototype.importXml = function(xml, dx, dy, crop, noErrorHandling, addNewPage, applyDefaultStyles)
 	{
+		EditorUi.debug('EditorUi.importXml', [this], 'xml', [xml], 'dx', [dx], 'dy', [dy],
+			'crop', [crop], 'noErrorHandling', [noErrorHandling], 'addNewPage', [addNewPage],
+			'applyDefaultStyles', [applyDefaultStyles]);
+		
 		dx = (dx != null) ? dx : 0;
 		dy = (dy != null) ? dy : 0;
 		var cells = []
 		
 		try
 		{
-			var graph = this.editor.graph;
-	
 			if (xml != null && xml.length > 0)
 			{
+				var pageCount = this.pages != null ? this.pages.length : 0;
+				var pageEmpty = this.isDiagramEmpty();
+				var lastPage = this.currentPage;
+				var graph = this.editor.graph;
+
 				// Adds pages
 				graph.model.beginUpdate();
 				try
@@ -8302,54 +8413,38 @@
 					{
 						var diagrams = node.getElementsByTagName('diagram');
 
-						if (diagrams.length == 1 && !addNewPage)
-						{
-							node = Editor.parseDiagramNode(diagrams[0]);
-							
-							if (this.currentPage != null)
-							{
-								mapping[diagrams[0].getAttribute('id')] = this.currentPage.getId();
-								
-								// Renames page if diagram has one blank page with default name
-								if (this.isBlankFile())
-								{
-									var name = diagrams[0].getAttribute('name');
-									
-									if (name != null && name != '')
-									{
-										this.editor.graph.model.execute(new RenamePage(
-											this, this.currentPage, name));
-									}
-								}
-							}
-						}
-						else if (diagrams.length > 0)
+						if (diagrams.length > 0)
 						{
 							var pages = [];
 							var i0 = 0;
-							
-							// Adds first page to current page if current page is only page and empty
-							if (this.pages != null && this.pages.length == 1 && this.isDiagramEmpty())
+
+							// Imports single page into existing page
+							if (diagrams.length == 1 && !addNewPage)
 							{
-								mapping[diagrams[0].getAttribute('id')] = this.pages[0].getId();
-
-								var name = diagrams[0].getAttribute('name');
-
-								if (name != null && name != '')
+								if (this.currentPage != null)
 								{
-									this.editor.graph.model.execute(new RenamePage(
-										this, this.pages[0], name));
-								}	
+									mapping[diagrams[0].getAttribute('id')] = this.currentPage.getId();
+
+									if (this.isBlankFile())
+									{
+										var name = diagrams[0].getAttribute('name');
+
+										if (name != null && name != '')
+										{
+											this.editor.graph.model.execute(new RenamePage(
+												this, this.currentPage, name));
+										}
+									}
+								}
 
 								node = Editor.parseDiagramNode(diagrams[0]);
 								crop = false;
 								i0 = 1;
 							}
 
+							// Assigns new page IDs and updates page links
 							for (var i = i0; i < diagrams.length; i++)
 							{
-								// Imported pages must obtain a new ID and
-								// all links to pages must be updated below
 								var oldId = diagrams[i].getAttribute('id')
 								diagrams[i].removeAttribute('id');
 								
@@ -8362,11 +8457,12 @@
 								{
 									page.setName(mxResources.get('pageWithNumber', [index + 1]));
 								}
-								
-								graph.model.execute(new ChangePage(this, page, page, index, true));
+
+								graph.model.execute(new ChangePage(this,
+									page, page, index, i > 0));
 								pages.push(page);
 							}
-							
+
 							this.updatePageLinks(mapping, pages);
 						}
 					}
@@ -8389,10 +8485,12 @@
 
 						if (bgImg != null && bgImg.originalSrc != null)
 						{
-							this.updateBackgroundPageLink(mapping, bgImg);
-							var change = new ChangePageSetup(this, null, bgImg);
-							change.ignoreColor = true;
-							graph.model.execute(change);
+							if (this.updateBackgroundPageLink(mapping, bgImg))
+							{
+								var change = new ChangePageSetup(this, null, bgImg);
+								change.ignoreColor = true;
+								graph.model.execute(change);
+							}
 						}
 					}
 					
@@ -8400,6 +8498,12 @@
 					{
 						graph.pasteCellStyles(graph.includeDescendants(cells),
 							graph.defaultVertexStyle, graph.defaultEdgeStyle);
+					}
+
+					if (!addNewPage && lastPage != this.currentPage && this.pages != null &&
+						this.pages.length > 1 && pageEmpty && pageCount == 1)
+					{
+						this.removePage(lastPage);
 					}
 				}
 				finally
@@ -8432,9 +8536,15 @@
 		{
 			this.updatePageLinksForCell(mapping, pages[i].root);
 
-			if (pages[i].viewState != null)
+			if (pages[i].viewState != null && this.updateBackgroundPageLink(
+				mapping, pages[i].viewState.backgroundImage))
 			{
-				this.updateBackgroundPageLink(mapping, pages[i].viewState.backgroundImage);
+				if (pages[i] == this.currentPage)
+				{
+					this.editor.graph.setViewState(pages[i].viewState, true);
+				}
+
+				pages[i].needsUpdate = true;
 			}
 		}
 	};
@@ -8444,6 +8554,8 @@
 	 */
 	EditorUi.prototype.updateBackgroundPageLink = function(mapping, obj)
 	{
+		var result = false;
+
 		try
 		{
 			if (obj != null && Graph.isPageLink(obj.originalSrc))
@@ -8453,6 +8565,7 @@
 				if (newId != null)
 				{
 					obj.originalSrc = 'data:page/id,' + newId;
+					result = true;
 				}
 			}
 		}
@@ -8460,6 +8573,8 @@
 		{
 			// ignore background image
 		}
+
+		return result;
 	};
 
 	/**
@@ -9272,11 +9387,26 @@
 			startLine++;
 		}
 
-		if (startLine > 0)
+		// Removes classDef and comments and stops at any additional mermaid directive
+		var lines2 = [];
+		
+		for (var i = startLine; i < lines.length; i++)
 		{
-			lines = lines.slice(startLine);
-			text = mxUtils.trim(lines.join('\n'));
+			var temp = mxUtils.trim(lines[i]);
+
+			if (temp.substring(0, 2) != '%%' &&
+				temp.substring(0, 9) != 'classDef ')
+			{
+				lines2.push(lines[i]);
+			}
+			else if (temp == 'mermaid')
+			{
+				break;
+			}
 		}
+
+		lines = lines2;
+		text = mxUtils.trim(lines.join('\n'));
 
 		// Removes occasional mermaid tag or other text on first line
 		var type = (lines.length > 1) ? lines[0] : null;
@@ -9301,7 +9431,9 @@
 		}
 
 		EditorUi.debug('EditorUi.extractMermaidDeclaration',
-			'text', [text], 'type', [type], 'lines', lines);
+			'value', [value], 'text', [text], 'type', [type],
+			'startLine', startLine, 'lines', lines,
+			'tokens', tokens);
 		
 		// TODO Is this too restrictive?
 		if (mxUtils.indexOf(EditorUi.mermaidDiagramTypes, type) < 0)
@@ -9540,6 +9672,9 @@
 					})).catch(mxUtils.bind(this, function(e)
 					{
 						this.removeMermaidErrors();
+
+						// Adds result to error
+						e = new Error(e.toString() + '\n\n' + data);
 
 						// LATER: Move to calling code where listener is registered
 						if (typeof mxMermaidToDrawio !== 'undefined')
@@ -9867,12 +10002,13 @@
 				{
 					if (text.substring(0, 5) == 'data:')
 					{
-						this.resizeImage(img, text, mxUtils.bind(this, function(data2, w2, h2)
-	    				{
-							graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
-								w2, h2, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;' +
-								'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + this.convertDataUri(data2) + ';'));
-	    				}), resizeImages, this.maxImageSize);
+						this.resizeImage(img, Editor.stripImageMetadata(text, Editor.removeImageMetadata),
+							mxUtils.bind(this, function(data2, w2, h2)
+							{
+								graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
+									w2, h2, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;' +
+									'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + this.convertDataUri(data2) + ';'));
+							}), resizeImages, this.maxImageSize);
 					}
 					else
 					{
@@ -10516,6 +10652,7 @@
 			
 			if (this.spinner.spin(document.body, mxResources.get('loading')))
 			{
+				var lastPage = this.currentPage;
 				var count = files.length;
 				var remain = count;
 				var queue = [];
@@ -10555,7 +10692,16 @@
 								graph.getModel().endUpdate();
 							}
 						}
-						
+
+						// Resets view if current page changed during import
+						if (lastPage != this.currentPage)
+						{
+							window.setTimeout(mxUtils.bind(this, function()
+							{
+								this.actions.get('resetView').funct();
+							}), 0);
+						}
+
 						resultFn(cells);
 					}
 				});
@@ -10769,28 +10915,29 @@
 													{
 														this.loadImage(e.target.result, mxUtils.bind(this, function(img)
 														{
-															this.resizeImage(img, e.target.result, mxUtils.bind(this, function(data2, w2, h2)
-															{
-																barrier(index, mxUtils.bind(this, function()
+															this.resizeImage(img, Editor.stripImageMetadata(e.target.result, Editor.removeImageMetadata),
+																mxUtils.bind(this, function(data2, w2, h2)
 																{
-																	// Refuses to insert images above a certain size as they kill the app
-																	if (data2 != null && data2.length < maxBytes)
+																	barrier(index, mxUtils.bind(this, function()
 																	{
-																		var s = (!resizeImages || !this.isResampleImageSize(
-																			file.size, resampleThreshold)) ? 1 :
-																			Math.min(1, Math.min(maxSize / w2, maxSize / h2));
-																		
-																		return fn(data2, file.type, x + index * gs, y + index * gs,
-																			Math.round(w2 * s), Math.round(h2 * s), file.name);
-																	}
-																	else
-																	{
-																		this.handleError({message: mxResources.get('imageTooBig')});
-																		
-																		return null;
-																	}
-																}));
-															}), resizeImages, maxSize, resampleThreshold, file.size);
+																		// Refuses to insert images above a certain size as they kill the app
+																		if (data2 != null && data2.length < maxBytes)
+																		{
+																			var s = (!resizeImages || !this.isResampleImageSize(
+																				file.size, resampleThreshold)) ? 1 :
+																				Math.min(1, Math.min(maxSize / w2, maxSize / h2));
+																			
+																			return fn(data2, file.type, x + index * gs, y + index * gs,
+																				Math.round(w2 * s), Math.round(h2 * s), file.name);
+																		}
+																		else
+																		{
+																			this.handleError({message: mxResources.get('imageTooBig')});
+																			
+																			return null;
+																		}
+																	}));
+																}), resizeImages, maxSize, resampleThreshold, file.size);
 														}), mxUtils.bind(this, function()
 														{
 															this.handleError({message: mxResources.get('invalidOrMissingFile')});
@@ -11456,7 +11603,7 @@
 			this.editor.editBlankUrl = 'https://app.diagrams.net/';
 		}
 		
-		// Passes dev mode to new window
+		// Passes dev and test mode to new window
 		var editorGetEditBlankUrl = ui.editor.getEditBlankUrl;
 		
 		this.editor.getEditBlankUrl = function(params)
@@ -11466,6 +11613,11 @@
 			if (urlParams['dev'] == '1')
 			{
 				params += ((params.length > 0) ? '&' : '?') + 'dev=1';
+			}
+
+			if (urlParams['test'] == '1')
+			{
+				params += ((params.length > 0) ? '&' : '?') + 'test=1';
 			}
 			
 			return editorGetEditBlankUrl.apply(this, arguments);
@@ -12264,6 +12416,23 @@
 			}
 		};
 
+		// Hides current menu when windows are moved or resized
+		var mxWindowSetLocation = mxWindow.prototype.setLocation;
+
+		mxWindow.prototype.setLocation = function(x, y)
+		{
+			mxWindowSetLocation.call(this, x, y);
+			ui.hideCurrentMenu();
+		};
+
+		var mxWindowSetSize = mxWindow.prototype.setSize;
+
+		mxWindow.prototype.setSize = function(width, height)
+		{
+			mxWindowSetSize.call(this, width, height);
+			ui.hideCurrentMenu();
+		};
+		
 		if (!this.editor.chromeless || this.editor.editable)
 		{
 			var theme = Editor.currentTheme;
@@ -14473,9 +14642,15 @@
 	/**
 	 * Writes the given text to the clipboard.
 	 */
-	EditorUi.prototype.writeTextToClipboard = function(text, error)
+	EditorUi.prototype.writeTextToClipboard = function(text, error, done)
 	{
-		navigator.clipboard.writeText(text)['catch'](error);
+		navigator.clipboard.writeText(text)['catch'](error).then(function()
+		{
+			if (done != null)
+			{
+				done();
+			}
+		});
 	};
 
 	/**
@@ -17421,15 +17596,15 @@
 										{
 											theme = Editor.isDarkMode() ? 'dark' : 'light';
 										}
-
+										
 										this.editor.exportToCanvas(mxUtils.bind(this, function(canvas)
 										{
 											processUri(canvas.toDataURL('image/png'));
 										}), data.width, null, data.background, mxUtils.bind(this, function()
 										{
 											processUri(null);
-										}), null, null, data.scale, data.transparent, data.shadow,
-											null, graph, data.border, null, data.grid, theme);
+										}), null, null, data.scale, data.transparent, data.shadow, null,
+											graph, data.border, null, data.grid, theme, data.size);
 									});
 
 									// Uses optional XML from incoming message
@@ -17803,11 +17978,34 @@
 						else if (data.descriptor != null)
 						{
 							data = data.descriptor;
+
+							if (data.format == 'mermaid')
+							{
+								if (window.isMermaidEnabled)
+								{
+									this.parseMermaidDiagram(data.data, null, mxUtils.bind(this, function(xml)
+									{
+										fn(xml, evt, null, convertToSketch);
+									}), mxUtils.bind(this, function(e)
+									{
+										this.handleError(e);
+									}), null, true);
+								}
+								else
+								{
+									this.handleError(
+										{message: mxResources.get('serviceUnavailableOrBlocked')},
+										mxResources.get('errorLoadingFile'));
+								}
+
+								return;
+							}
+
 						}
 						else
 						{
 							data = data.xml;
-						}						
+						}
 					}
 					else if (data.action == 'merge')
 					{
