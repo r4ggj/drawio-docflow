@@ -720,7 +720,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 	
 	var buttons = document.createElement('div');
 	buttons.style.position = 'absolute';
-	buttons.style.bottom = '36px';
+	buttons.style.bottom = '16px';
 	buttons.style.right = '32px';
 	
 	var previewBtn = null;
