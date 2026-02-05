@@ -5504,7 +5504,7 @@
 			this.tagsComponent = null;
 			this.tagsDialog = null;
 					
-			var tagsButton = addButton(mxUtils.bind(this, function(evt)
+			var tagsButton = addButton('tags', mxUtils.bind(this, function(evt)
 			{
 				if (this.tagsComponent == null)
 				{
@@ -5626,7 +5626,7 @@
 		{
 			this.exportDialog = null;
 			
-			var exportButton = addButton(mxUtils.bind(this, function(evt)
+			var exportButton = addButton('export', mxUtils.bind(this, function(evt)
 			{
 				var clickHandler = mxUtils.bind(this, function()
 				{
