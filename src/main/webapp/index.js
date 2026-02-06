@@ -260,6 +260,8 @@ try {
 Object.assign(window, {
   mxScriptsLoaded: false,
   mxWinLoaded: false,
+  DriveLibrary:undefined,
+  GitHubLibrary :undefined,
 });
 
 function checkAllLoaded() {
