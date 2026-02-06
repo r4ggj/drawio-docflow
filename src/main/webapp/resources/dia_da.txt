@@ -1332,3 +1332,5 @@ drawioUninstalled=draw.io er blevet afinstalleret, editoren lukker nu
 confAttachmentArchived=Diagrammet tilhører en arkiveret side og kan ikke indlæses. Gendan siden (ID: {1}) for at indlæse det.
 confDiagramMacroDowngrade=Diagrammet er gemt, men sidemakroen kan ikke opdateres, da diagramrevisionen i makroen er nyere. Rediger venligst diagrammet fra Confluence-sideeditoren.
 DCSave500Error=En anden Confluence-handling afbrød lagringen, prøv igen #{1}
+confAppNotInstalled=draw.io diagrams Confluence-appen er ikke installeret.
+plsInstallAppInConf=Installer/tilslut venligst denne app i Confluence for at få adgang til diagrammerne (ud over draw.io Confluence-appen)

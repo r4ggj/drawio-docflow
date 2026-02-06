@@ -1,3 +1,18 @@
+27-JAN-2026: 29.3.6
+
+- Adds delete all pages option
+- Improvements for XML import
+- Adds custom line dash pattern options
+- Update translations submodule to 996b60e
+- Disables file size stats
+- Adds claude guide to root
+- Fixes handling of inherit color value
+- Fixes overflow, adds option to insert layer after current layer, moves selection layers [jgraph/drawio#5438]
+- Update translations submodule to 6650194
+- Update translations submodule to 645f7e6
+- Conf Cloud: Fixed race condition in OAuth requests when multiple viewers are in the same page [DID-17497]
+- VSDX Import: Fixed some NPE and added a case for embedded images [DID-17282]
+
 20-JAN-2026: 29.3.5
 
 - Add simple.js build to atlas.min.js

@@ -1332,3 +1332,5 @@ drawioUninstalled=draw.io peerneqarpoq, immikkoortitsisarfik maanna matusaassaaq
 confAttachmentArchived=Diagrammi quppernernut arkiveerneqarsimasunut ilaavoq nittartaanneqarsinnaanngitsullu. Qupperneq (ID: {1}) utersinniarluk nittartaaqqullugu.
 confDiagramMacroDowngrade=Diagrammi toqqorneqarpoq kisianni quppernerit macroat nutarterneqarsinnaanngilaq diagrammip revisionaa macroimi nutaanerusoq. Diagrammi Confluence qupperneq-immikkoortitsisarfimmiit allanngortigilluaruk.
 DCSave500Error=Confluence suliassaq alla toqqorsinermi unitsinniutigivoq, misileqqissarneq #{1}
+confAppNotInstalled=draw.io diagrams Confluence App atorneqanngilaq.
+plsInstallAppInConf=Diagramminut tunngasunut pissarsiarunnaarniarlugit app-i una Confluence-imi ikiuutiguk/attaveqarfiguk (draw.io Confluence app-imut illaneqarluni)

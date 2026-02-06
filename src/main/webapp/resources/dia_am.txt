@@ -1332,3 +1332,5 @@ drawioUninstalled=draw.io ተሰርዟል፣ አርታዒው አሁን ይዘጋ
 confAttachmentArchived=ዲያግራሙ የተመዘገበ ገጽ ነው እና ሊጫን አይችልም። ለመጫን ገጹን (መታወቂያ፡ {1}) ያስመልሱ።
 confDiagramMacroDowngrade=ዲያግራሙ ተቀምጧል ነገር ግን በማክሮው ውስጥ ያለው የዲያግራም ክለሳ አዲስ ስለሆነ የገጽ ማክሮው ሊዘምን አይችልም። እባክዎ ዲያግራሙን ከConfluence ገጽ አርታዒ ያስተካክሉ።
 DCSave500Error=ሌላ የConfluence ክዋኔ ማስቀመጥን አቋርጧል፣ እንደገና ይሞክሩ #{1}
+confAppNotInstalled=draw.io diagrams Confluence መተግበሪያ አልተጫነም።
+plsInstallAppInConf=ስዕሎቹን ለመድረስ እባክዎ ይህን መተግበሪያ በ Confluence ውስጥ ይጫኑ/ያገናኙ (ከ draw.io Confluence መተግበሪያ በተጨማሪ)

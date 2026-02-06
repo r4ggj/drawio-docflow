@@ -1246,9 +1246,22 @@ BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defa
 	function getValue()
 	{
 		var style = graph.getCellStyle(graph.getSelectionCell(), false);
-		
-		return (style != null) ? ((style[colorKey] != null) ?
-			style[colorKey] : undefinedValue) : null;
+		var returnValue = (style != null) ? style[colorKey] : null;
+
+		// Handles special case for inherited colors
+		if (returnValue == 'inherit')
+		{
+			var parent = graph.getModel().getParent(graph.getSelectionCell());
+			var pstyle = graph.getCellStyle(parent, false);
+
+			if (pstyle != null && pstyle[colorKey] != null)
+			{
+				returnValue = pstyle[colorKey];
+			}
+		}
+
+		return (style != null) ? ((returnValue != null) ?
+			returnValue : undefinedValue) : null;
 	};
 
 	var value = getValue();

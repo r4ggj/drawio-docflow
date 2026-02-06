@@ -3577,6 +3577,31 @@ var LayersWindow = function(editorUi, x, y, w, h)
 					}
 				}), layerSubmenu);
 
+				menu.addItem(mxResources.get('addLayer'), null, mxUtils.bind(this, function(evt)
+				{
+					if (graph.isEnabled())
+					{
+						selectLayers(false);
+						model.beginUpdate();
+						var cell
+						
+						try
+						{
+							cell = graph.addCell(new mxCell(mxResources.get('untitledLayer')),
+								model.root, index + ((mxEvent.isShiftDown(evt) ? 0 : 1)));
+							graph.setDefaultParent(cell);
+						}
+						finally
+						{
+							model.endUpdate();
+						}
+
+						renameLayer(cell);
+					}
+					
+					mxEvent.consume(evt);
+				}), layerSubmenu);
+				
 				menu.addSeparator(layerSubmenu);
 
 				menu.addItem(mxResources.get('rename'), null, mxUtils.bind(this, function()
@@ -3747,7 +3772,6 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	dot.innerHTML = '&#8226;';
 	dot.style.padding = '0 2px';
 	dot.style.fontSize = '16pt';
-	dot.style.right = '6px';
 	dot.style.order = '1';
 	
 	function updateLayerDot()
@@ -3814,6 +3838,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			var div = document.createElement('div');
 			div.style.display = 'flex';
 			div.style.alignItems = 'center';
+			div.style.minWidth = '0';
 			div.style.flexGrow = '1';
 
 			mxEvent.addListener(cb, 'click', function(evt)
@@ -3858,10 +3883,26 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			
 			mxEvent.addListener(ldiv, 'dragend', function(evt)
 			{
+				var layers = getSelectedLayers();
+
 				if (dragSource != null && dropIndex != null &&
 					model.getChildCount(model.root) > 1)
 				{
-					graph.addCell(child, model.root, dropIndex);
+					layers = (layers.length == 0) ? [child] : layers;
+
+					// Moves all selected layers
+					model.beginUpdate();
+					try
+					{
+						for (var i = 0; i < layers.length; i++)
+						{
+							graph.addCell(layers[i], model.root, dropIndex);
+						}
+					}
+					finally
+					{
+						model.endUpdate();
+					}
 				}
 
 				dragSource = null;
@@ -4033,7 +4074,6 @@ var LayersWindow = function(editorUi, x, y, w, h)
 			{
 				addLayer(i, graph.convertValueToString(child) ||
 					mxResources.get('background'), child, child,
-					// graph.getDefaultParent() == child ||
 					isLayerSelected(child));
 			}))(model.getChildAt(model.root, i));
 		}

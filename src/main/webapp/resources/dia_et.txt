@@ -1332,3 +1332,5 @@ drawioUninstalled=draw.io on desinstallitud, redaktor sulgub nüüd
 confAttachmentArchived=Diagramm kuulub arhiveeritud lehele ja seda ei saa laadida. Taasta leht (ID: {1}), et seda laadida.
 confDiagramMacroDowngrade=Diagramm on salvestatud, kuid lehe makrot ei saa värskendada, kuna makros olev diagrammi redaktsioon on uuem. Palun muutke diagrammi Confluence'i leheredaktorist.
 DCSave500Error=Teine Confluence'i toiming katkestas salvestamise, proovi uuesti #{1}
+confAppNotInstalled=draw.io diagrams Confluence'i rakendus pole installitud.
+plsInstallAppInConf=Palun installige/ühendage see rakendus Confluence'is, et pääseda juurde diagrammidele (lisaks draw.io Confluence rakendusele)

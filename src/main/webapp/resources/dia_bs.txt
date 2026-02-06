@@ -1332,3 +1332,5 @@ drawioUninstalled=draw.io je deinstaliran, uređivač će se sada zatvoriti
 confAttachmentArchived=Dijagram pripada arhiviranoj stranici i ne može se učitati. Vratite stranicu (ID: {1}) da biste je učitali.
 confDiagramMacroDowngrade=Dijagram je sačuvan, ali makro stranice se ne može ažurirati jer je revizija dijagrama u makrou novija. Molimo uredite dijagram iz uređivača Confluence stranice.
 DCSave500Error=Druga Confluence operacija je prekinula spremanje, pokušajte ponovo #{1}
+confAppNotInstalled=draw.io diagrams Confluence aplikacija nije instalirana.
+plsInstallAppInConf=Molimo instalirajte/povežite ovu aplikaciju u Confluence da biste mogli pristupiti dijagramima (pored draw.io Confluence aplikacije)

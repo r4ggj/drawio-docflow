@@ -1332,3 +1332,5 @@ drawioUninstalled=draw.io estis malinstalita, la redaktilo nun fermiĝos
 confAttachmentArchived=Diagramo apartenas al arkivita paĝo kaj ne povas esti ŝargita. Restarigu la paĝon (ID: {1}) por ŝargi ĝin.
 confDiagramMacroDowngrade=La diagramo estas konservita sed la paĝa makroo ne povas esti ĝisdatigita ĉar la diagramversio en la makroo estas pli nova. Bonvolu redakti la diagramon per la Confluence-paĝa redaktilo.
 DCSave500Error=Alia Confluence-operacio interrompis la konservadon, reprovu #{1}
+confAppNotInstalled=draw.io diagrams Confluence-aplikaĵo ne estas instalita.
+plsInstallAppInConf=Bonvolu instali/konekti ĉi tiun aplikaĵon en Confluence por povi aliri la diagramojn (krom la draw.io Confluence-aplikaĵo)
