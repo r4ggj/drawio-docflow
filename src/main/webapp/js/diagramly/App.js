@@ -1191,7 +1191,7 @@ App.main = function(callback, createUi)
 					// App.loadScripts(['js/shapes-14-6-5.min.js', 'js/stencils.min.js',
 					// 	'js/extensions.min.js'], realMain, function(e)
 					App.loadScripts([
-						// 'js/shapes-14-6-5.min.js', 
+						'js/shapes-14-6-5.min.js', 
 						// 'js/stencils.min.js',
 						'js/extensions.min.js'
 					], realMain, function(e)
