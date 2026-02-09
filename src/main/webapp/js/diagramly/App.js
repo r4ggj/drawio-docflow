@@ -156,7 +156,16 @@ App = function(editor, container, lightbox)
 	}
 
 	// ganguojiang start 监听message事件
+	let isLoaded = false
 	const listener = mxUtils.bind(this, function (e) {
+		if(e.data === ""){
+			if(!isLoaded){
+				isLoaded = true;
+				parent.parent && parent.parent.postMessage({
+					type: 'loaded',
+				}, '*');
+			}
+		}
 		var data = e.data || {};
 		if(data){
 			if (data.type == 'edit') {
@@ -8525,17 +8534,7 @@ Editor.prototype.resetGraph = function()
 		}, '*');
 		return data
 	}
-	// App load 函数重写
-	const load = App.prototype.load;
-	App.prototype.load = function()
-	{
-		// 主函数从这里开始执行
-		parent.parent && parent.parent.postMessage({
-			type: 'loaded',
-		}, '*');
-		// 其他代码...
-		load.apply(this, arguments)
-	}
+
 	// App.prototype.updateButtonContainer 函数重写
 	const updateButtonContainer = App.prototype.updateButtonContainer;
 	App.prototype.updateButtonContainer = function()
