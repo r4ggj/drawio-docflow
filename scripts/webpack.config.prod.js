@@ -101,6 +101,14 @@ module.exports = (options = {}) => {
             from: basePath + "/templates",
             to: "templates",
           },
+          {
+            from: basePath + "/stencils",
+            to: "stencils",
+          },
+           {
+            from: basePath + "/shapes",
+            to: "shapes",
+          },
         ],
       }),
       new webpack.DefinePlugin({
