@@ -161,7 +161,7 @@ App = function(editor, container, lightbox)
 		if(e.data === ""){
 			if(!isLoaded){
 				isLoaded = true;
-				parent.parent && parent.parent.postMessage({
+				this.sendMessageToParent({
 					type: 'loaded',
 				}, '*');
 			}
@@ -197,7 +197,7 @@ App = function(editor, container, lightbox)
 					}
 
 					// ggj start 全屏发送事件
-					parent.parent && parent.parent.postMessage({
+					this.sendMessageToParent({
 						type: 'fullscreenchange',
 						data: {
 							isFullscreen: this.fullscreenMode
@@ -223,7 +223,7 @@ App = function(editor, container, lightbox)
 		}
 	})
 
-	window.addEventListener('message', listener);
+	window.addEventListener('message', listener, true);
 	// ganguojiang start 监听message事件
 
 	// ganguojiang start 监听Esc键退出全屏
@@ -7562,7 +7562,7 @@ App.prototype.updateHeader = function()
 			mxEvent.consume(evt);
 
 			// ggj start 全屏发送事件
-			parent.parent && parent.parent.postMessage({
+			this.sendMessageToParent({
 				type: 'fullscreenchange',
 				data: {
 					isFullscreen: this.fullscreenMode
@@ -8490,6 +8490,14 @@ Editor.prototype.resetGraph = function()
 		this.hideDialog();
 		this.updateTempFile(data.title, data.xml);
 	}
+    // 发送message给parent
+	App.prototype.sendMessageToParent = function(data, origin = '*'){
+		parent.postMessage(data, '*')
+		if(parent.parent && parent.parent !== parent){
+			// 给二次嵌套的iframe父级也发送一个消息
+			parent.parent.postMessage(data, origin)
+		}
+	}
 	// 新增方法 end
 	// App saveFile 函数重写
 	App.prototype.saveFile = function()
@@ -8528,7 +8536,7 @@ Editor.prototype.resetGraph = function()
 				mxResources.get('allChangesSaved')));
 		}));
 		this.editor.setModified(false);
-		parent.parent && parent.parent.postMessage({
+		this.sendMessageToParent({
 			type: 'drawio',
 			data: data
 		}, '*');
