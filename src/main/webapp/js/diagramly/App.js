@@ -176,6 +176,8 @@ App = function(editor, container, lightbox)
 				this.saveFile();
 			} else if(data.type === 'App/save'){
 				this.save(data.payload.fileName, data.payload.callback);
+			} else if(data.type === 'App/exportPdf'){
+				this.exportPdf(data.payload || data);
 			} else if(data.type === 'App/setFullscreen'){
 				var fullscreenElement = this.toolbarContainer.querySelector('.geButton[fullscreen-button="true"]')
 
@@ -8496,6 +8498,16 @@ Editor.prototype.resetGraph = function()
 		if(parent.parent && parent.parent !== parent){
 			// 给二次嵌套的iframe父级也发送一个消息
 			parent.parent.postMessage(data, origin)
+		}
+	}
+
+	App.prototype.exportPdf = function(data)
+	{
+		var action = this.actions.get('exportPdf');
+
+		if (action != null)
+		{
+			action.funct();
 		}
 	}
 	// 新增方法 end
